@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,10 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const body = await request.json();
     const { status, estimatedDeliveryDate } = body;
@@ -29,12 +34,14 @@ export async function PATCH(
       }
     });
     
-    return NextResponse.json(order);
+    const response = NextResponse.json(order);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('更新訂單狀態錯誤:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to update order status' },
       { status: 500 }
     );
+    return addCorsHeaders(response);
   }
 }
