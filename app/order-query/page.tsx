@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { apiCall } from '@/lib/api';
 
 interface Order {
   id: string;
@@ -52,7 +53,7 @@ export default function OrderQueryPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/orders?phone=${phone.trim()}`);
+      const response = await apiCall(`/api/orders?phone=${phone.trim()}`);
       if (!response.ok) {
         if (response.status === 404) {
           setError('找不到該手機號碼的訂單');

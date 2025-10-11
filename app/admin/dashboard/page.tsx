@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiCall } from '@/lib/api';
 
 interface Order {
   id: string;
@@ -50,7 +51,7 @@ export default function AdminDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/orders');
+      const response = await apiCall('/api/orders');
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
       }
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
 
     // 其他狀態直接更新
     try {
-      const response = await fetch(`/api/orders/${orderId}/status`, {
+      const response = await apiCall(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +139,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/orders/${orderId}/status`, {
+      const response = await apiCall(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/orders/${orderId}`, {
+      const response = await apiCall(`/api/orders/${orderId}`, {
         method: 'DELETE',
       });
 
