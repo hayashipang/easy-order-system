@@ -29,7 +29,6 @@ function CheckoutPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const phone = searchParams.get('phone');
-  const cartData = searchParams.get('cart');
   
   const [cart, setCart] = useState<CartItem[]>([]);
   const [form, setForm] = useState<CheckoutForm>({
@@ -47,39 +46,32 @@ function CheckoutPageContent() {
   const [isFormPrefilled, setIsFormPrefilled] = useState(false);
 
   useEffect(() => {
-    console.log('結帳頁面 - 接收到的購物車數據:', cartData);
-    console.log('結帳頁面 - 購物車數據類型:', typeof cartData);
+    // 從 sessionStorage 讀取購物車數據
+    const cartData = sessionStorage.getItem('checkoutCart');
+    console.log('結帳頁面 - 從 sessionStorage 讀取的購物車數據:', cartData);
     
     if (cartData) {
       try {
-        let parsedCart;
-        
-        // 嘗試直接解析為JSON（不進行URI解碼）
-        try {
-          parsedCart = JSON.parse(cartData);
-          console.log('結帳頁面 - 直接JSON解析成功');
-        } catch (jsonError) {
-          // 如果直接解析失敗，嘗試URI解碼後再解析
-          console.log('結帳頁面 - 直接JSON解析失敗，嘗試URI解碼');
-          parsedCart = JSON.parse(decodeURIComponent(cartData));
-        }
-        
+        const parsedCart = JSON.parse(cartData);
         console.log('結帳頁面 - 解析後的購物車:', parsedCart);
         setCart(parsedCart);
+        
+        // 清除 sessionStorage 中的購物車數據
+        sessionStorage.removeItem('checkoutCart');
       } catch (err) {
         console.error('結帳頁面 - 購物車數據解析錯誤:', err);
-        console.log('結帳頁面 - 原始數據:', cartData);
         setError('購物車數據錯誤');
       }
     } else {
       console.log('結帳頁面 - 沒有購物車數據');
+      setError('沒有找到購物車數據，請重新選擇商品');
     }
     
     // 獲取客戶信息並預填表單
     if (phone) {
       fetchCustomerInfo();
     }
-  }, [cartData, phone]);
+  }, [phone]);
 
   const getTotalAmount = () => {
     return cart.reduce((total, item) => total + (item.quantity * item.price), 0);

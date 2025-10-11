@@ -155,14 +155,17 @@ function CustomerOrdersPageContent() {
       return;
     }
 
-    // 將購物車數據編碼並跳轉到結帳頁面
-    const cartData = encodeURIComponent(JSON.stringify(cart.map(item => ({
+    // 將購物車數據存儲到 sessionStorage 避免 URL 過長
+    const cartData = cart.map(item => ({
       ...item,
       menuItem: menuItems.find(mi => mi.id === item.menuItemId)
-    }))));
+    }));
     
-    console.log('跳轉到結帳頁面，購物車數據:', cartData);
-    router.push(`/checkout?phone=${phone}&cart=${cartData}`);
+    sessionStorage.setItem('checkoutCart', JSON.stringify(cartData));
+    console.log('購物車數據已存儲到 sessionStorage');
+    
+    // 只傳遞 phone 參數，購物車數據從 sessionStorage 讀取
+    router.push(`/checkout?phone=${phone}`);
   };
 
   const handleCategoryClick = (category: string) => {
