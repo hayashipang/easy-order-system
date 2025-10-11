@@ -22,6 +22,5 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
   const cleanEndpoint = endpoint.replace(/^\//, '');
   const url = `${cleanBaseUrl}/${cleanEndpoint}`;
   
-  console.log('API Call:', { baseUrl, cleanBaseUrl, endpoint, cleanEndpoint, url });
   return fetch(url, options);
 };
