@@ -105,3 +105,4 @@ Thumbs.db
 # Uploads
 public/uploads/*
 !public/uploads/.gitkeep
+.vercel

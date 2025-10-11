@@ -323,8 +323,8 @@ export default function AdminDashboard() {
                       訂單 #{order.id.slice(-8)}
                     </h3>
                     <p className="text-gray-600">
-                      客戶: {order.user?.name && !order.user.name.startsWith('User-') 
-                        ? order.user.name 
+                      客戶: {(order as any).user?.name && !(order as any).user.name.startsWith('User-') 
+                        ? (order as any).user.name 
                         : '未設定姓名'}
                     </p>
                     <p className="text-gray-600">
