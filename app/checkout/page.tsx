@@ -125,7 +125,7 @@ function CheckoutPageContent() {
     if (!phone) return;
     
     try {
-      const response = await fetch(`/api/customers/${phone}`);
+      const response = await apiCall(`/api/customers/${phone}`);
       if (response.ok) {
         const customerData = await response.json();
         // 預填客戶信息
@@ -237,7 +237,7 @@ function CheckoutPageContent() {
       
       // 更新客戶信息（如果客戶名字有變化）
       try {
-        await fetch(`/api/customers/${form.phone}`, {
+        await apiCall(`/api/customers/${form.phone}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
