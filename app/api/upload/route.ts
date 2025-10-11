@@ -53,8 +53,11 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filePath, buffer);
 
-    // 返回文件URL
-    const fileUrl = `/uploads/${fileName}`;
+    // 返回文件URL - 使用 Railway 後端 URL
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://easy-order-system-production-0490.up.railway.app'
+      : '';
+    const fileUrl = `${baseUrl}/uploads/${fileName}`;
 
     const response = NextResponse.json({
       url: fileUrl,

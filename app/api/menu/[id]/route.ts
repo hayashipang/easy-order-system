@@ -69,8 +69,11 @@ export async function PUT(
           const buffer = Buffer.from(bytes);
           await writeFile(filePath, buffer);
           
-          // 設置圖片URL
-          imageUrl = `/uploads/${fileName}`;
+          // 設置圖片URL - 使用 Railway 後端 URL
+          const baseUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://easy-order-system-production-0490.up.railway.app'
+            : '';
+          imageUrl = `${baseUrl}/uploads/${fileName}`;
         } catch (error) {
           console.error('圖片上傳失敗:', error);
           return NextResponse.json(
