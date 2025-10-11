@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { apiCall } from '@/lib/api';
 
 interface CartItem {
   menuItemId: string;
@@ -220,7 +221,7 @@ function CheckoutPageContent() {
       };
 
 
-      const response = await fetch('/api/orders', {
+      const response = await apiCall('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
