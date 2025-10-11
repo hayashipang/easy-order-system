@@ -157,7 +157,7 @@ export async function PUT(
     console.error('更新菜單項目錯誤:', error);
     
     // 處理唯一約束錯誤
-    if (error.code === 'P2002') {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: '菜單項目名稱已存在' },
         { status: 400 }
