@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
 // GET /api/orders - 獲取所有訂單或按手機號碼查詢
 export async function GET(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const { searchParams } = new URL(request.url);
     const phone = searchParams.get('phone');
@@ -24,7 +29,8 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
     
-    return NextResponse.json(orders);
+    const response = NextResponse.json(orders);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取訂單錯誤:', error);
     return NextResponse.json(

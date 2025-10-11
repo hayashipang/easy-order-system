@@ -12,6 +12,9 @@ export const API_BASE_URL = getApiBaseUrl();
 
 // Helper function to make API calls
 export const apiCall = async (endpoint: string, options?: RequestInit) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Remove trailing slash from base URL and leading slash from endpoint
+  const baseUrl = API_BASE_URL.replace(/\/$/, '');
+  const cleanEndpoint = endpoint.replace(/^\//, '');
+  const url = `${baseUrl}/${cleanEndpoint}`;
   return fetch(url, options);
 };
