@@ -18,7 +18,7 @@ interface ProductDetail {
 
 interface ContentItem {
   id: string;
-  type: 'text' | 'image';
+  type: 'text' | 'image' | 'spec';
   content: string;
   style?: {
     fontSize?: string;
@@ -26,6 +26,7 @@ interface ContentItem {
     bold?: boolean;
     italic?: boolean;
     textAlign?: 'left' | 'center' | 'right';
+    lineHeight?: string;
   };
   imageUrl?: string;
   imageAlt?: string;
