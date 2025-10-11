@@ -31,6 +31,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/menu - 創建新菜單項目
 export async function POST(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const contentType = request.headers.get('content-type') || '';
     
@@ -66,10 +70,10 @@ export async function POST(request: NextRequest) {
           imageUrl = `/uploads/${fileName}`;
         } catch (error) {
           console.error('圖片上傳失敗:', error);
-          return NextResponse.json(
+          return addCorsHeaders(NextResponse.json(
             { error: 'Failed to upload image' },
             { status: 500 }
-          );
+          ));
         }
       }
       
@@ -104,22 +108,23 @@ export async function POST(request: NextRequest) {
     });
     
     if (existingItem) {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: 'Menu item with this name already exists' },
         { status: 400 }
-      );
+      ));
     }
     
     const menuItem = await prisma.menuItem.create({
       data: createData
     });
     
-    return NextResponse.json(menuItem, { status: 201 });
+    const response = NextResponse.json(menuItem, { status: 201 });
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('創建菜單項目錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to create menu item' },
       { status: 500 }
-    );
+    ));
   }
 }
