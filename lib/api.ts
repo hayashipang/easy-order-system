@@ -2,13 +2,14 @@
 export const apiCall = async (endpoint: string, options?: RequestInit) => {
   // Get API base URL at runtime
   const getApiBaseUrl = () => {
-    // Always use Railway API URL in production (Vercel deployment)
-    if (typeof window !== 'undefined') {
-      // Client-side: use Railway API URL
-      return 'https://easy-order-system-production-0490.up.railway.app';
+    // Check if we have a custom API URL set (for local development)
+    const customApiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (customApiUrl) {
+      return customApiUrl;
     }
-    // Server-side: check environment variable
-    return process.env.NEXT_PUBLIC_API_URL || 'https://easy-order-system-production-0490.up.railway.app';
+    
+    // Default to Railway API URL for production
+    return 'https://easy-order-system-production-0490.up.railway.app';
   };
 
   const baseUrl = getApiBaseUrl();

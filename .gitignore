@@ -16,6 +16,10 @@ build/
 .env.test.local
 .env.production.local
 
+# 本地開發檔案（絕對不要提交）
+.env.local
+local-dev-*
+
 # Database
 *.db
 *.sqlite
