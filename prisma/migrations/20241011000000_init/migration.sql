@@ -1,12 +1,3 @@
--- CreateEnum
-CREATE TYPE "DeliveryType" AS ENUM ('PICKUP', 'DELIVERY');
-
--- CreateEnum
-CREATE TYPE "PaymentMethod" AS ENUM ('CASH', 'CARD', 'ONLINE');
-
--- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED');
-
 -- CreateTable
 CREATE TABLE "users" (
     "phone" TEXT NOT NULL,
