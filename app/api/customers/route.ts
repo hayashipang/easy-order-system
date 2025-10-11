@@ -1,36 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
 // GET /api/customers - 獲取所有客戶
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const users = await prisma.user.findMany({
       orderBy: { createdAt: 'desc' }
     });
     
-    return NextResponse.json(users);
+    const response = NextResponse.json(users);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取客戶錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to fetch customers' },
       { status: 500 }
-    );
+    ));
   }
 }
 
 // POST /api/customers - 創建新客戶
 export async function POST(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const body = await request.json();
     const { phone, name, email } = body;
     
     if (!phone) {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: 'Phone number is required' },
         { status: 400 }
-      );
+      ));
     }
     
     // 檢查是否已存在
@@ -39,7 +49,8 @@ export async function POST(request: NextRequest) {
     });
     
     if (existingUser) {
-      return NextResponse.json(existingUser);
+      const response = NextResponse.json(existingUser);
+      return addCorsHeaders(response);
     }
     
     const user = await prisma.user.create({
@@ -50,12 +61,13 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    return NextResponse.json(user, { status: 201 });
+    const response = NextResponse.json(user, { status: 201 });
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('創建客戶錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to create customer' },
       { status: 500 }
-    );
+    ));
   }
 }

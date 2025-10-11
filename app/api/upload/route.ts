@@ -1,35 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 export async function POST(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
-      );
+      ));
     }
 
     // 檢查文件類型
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.' },
         { status: 400 }
-      );
+      ));
     }
 
     // 檢查文件大小 (5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: 'File too large. Maximum size is 5MB.' },
         { status: 400 }
-      );
+      ));
     }
 
     // 創建uploads目錄
@@ -51,18 +56,19 @@ export async function POST(request: NextRequest) {
     // 返回文件URL
     const fileUrl = `/uploads/${fileName}`;
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       url: fileUrl,
       fileName: fileName,
       size: file.size,
       type: file.type
     });
+    return addCorsHeaders(response);
 
   } catch (error) {
     console.error('File upload error:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to upload file' },
       { status: 500 }
-    );
+    ));
   }
 }

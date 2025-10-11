@@ -2,24 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
 // GET /api/menu - 獲取所有菜單項目
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const menuItems = await prisma.menuItem.findMany({
       where: { isAvailable: true },
       orderBy: { name: 'asc' }
     });
     
-    return NextResponse.json(menuItems);
+    const response = NextResponse.json(menuItems);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取菜單錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to fetch menu items' },
       { status: 500 }
-    );
+    ));
   }
 }
 
