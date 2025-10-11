@@ -44,8 +44,8 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
           category,
           title: `${category}詳情`,
           content: '暫無詳情內容',
-          rules: null,
-          images: null
+          rules: undefined,
+          images: undefined
         });
       } else {
         throw new Error('獲取詳情失敗');
