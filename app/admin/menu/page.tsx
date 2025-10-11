@@ -88,7 +88,7 @@ export default function AdminMenuPage() {
         formDataToSend.append('image', selectedImage);
       }
       
-      const response = await fetch(url, {
+      const response = await apiCall(url, {
         method,
         body: formDataToSend,
       });
@@ -139,7 +139,7 @@ export default function AdminMenuPage() {
     }
 
     try {
-      const response = await fetch(`/api/menu/${id}`, {
+      const response = await apiCall(`/api/menu/${id}`, {
         method: 'DELETE',
       });
 
@@ -155,7 +155,7 @@ export default function AdminMenuPage() {
 
   const toggleAvailability = async (id: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/menu/${id}`, {
+      const response = await apiCall(`/api/menu/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
