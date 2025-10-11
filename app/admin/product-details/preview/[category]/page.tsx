@@ -32,6 +32,8 @@ interface ProductDetail {
   content: string;
   rules?: string;
   images?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function PreviewProductDetailPage() {
