@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  phone     String   @id // 使用手機號碼作為主鍵
+  email     String?  // 可選
+  password  String?  // 可選
+  name      String?  // 可選
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("users")
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String   @unique // 唯一字段
+  description String?
+  price       Float
+  image       String?
+  imageUrl    String?
+  category    String
+  productType String?  // 即飲瓶 或 鮮凍包
+  isAvailable Boolean  @default(true)
+  stock       Int      @default(999) // 庫存數量，預設999表示無限制
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems     OrderItem[]
+
+  @@map("menu_items")
+}
+
+model Order {
+  id                    String    @id @default(cuid())
+  userPhone             String    // 使用手機號碼關聯用戶
+  totalAmount           Float
+  status                String    @default("PENDING") // 使用字符串替代 enum
+  deliveryType          String    // 使用字符串替代 enum
+  deliveryInfo          String    // JSON string for delivery details
+  paymentMethod         String
+  paymentInfo           String    // JSON string for payment details
+  notes                 String?
+  estimatedDeliveryDate DateTime? // 預計出貨日期
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user      User       @relation(fields: [userPhone], references: [phone], onDelete: Cascade)                                                                 
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  menuItemId String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)                                                                          
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@map("order_items")
+}
+
+model ProductDetail {
+  id          String   @id @default(cuid())
+  category    String   @unique // 即飲瓶 或 鮮凍包
+  title       String
+  content     String   // JSON string containing mixed text and image content
+  rules       String?  // JSON string for left/right rules
+  images      String?  // JSON array of image URLs
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("product_details")
+}
