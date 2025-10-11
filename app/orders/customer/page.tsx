@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CategoryIcon from '@/components/CategoryIcon';
 import ProductDetailModal from '@/components/ProductDetailModal';
+import { apiCall } from '@/lib/api';
 
 interface MenuItem {
   id: string;
@@ -54,7 +55,7 @@ function CustomerOrdersPageContent() {
 
   const fetchMenuItems = async () => {
     try {
-      const response = await fetch('/api/menu');
+      const response = await apiCall('/api/menu');
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }
@@ -71,7 +72,7 @@ function CustomerOrdersPageContent() {
     if (!phone) return;
     
     try {
-      const response = await fetch(`/api/customers/${phone}`);
+      const response = await apiCall(`/api/customers/${phone}`);
       if (response.ok) {
         const customerData: Customer = await response.json();
         setCustomer(customerData);

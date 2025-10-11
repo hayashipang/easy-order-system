@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { apiCall } from '@/lib/api';
 
 interface Order {
   id: string;
@@ -39,7 +40,7 @@ function OrderConfirmationPageContent() {
 
   const fetchOrder = async () => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`);
+      const response = await apiCall(`/api/orders/${orderId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch order');
       }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiCall } from '@/lib/api';
 
 export default function HomePage() {
   const [phone, setPhone] = useState('');
@@ -24,7 +25,7 @@ export default function HomePage() {
 
     try {
       // 檢查客戶是否存在
-      const response = await fetch('/api/customers');
+      const response = await apiCall('/api/customers');
       if (!response.ok) {
         throw new Error('無法連接到服務器');
       }
@@ -37,7 +38,7 @@ export default function HomePage() {
         router.push(`/orders/customer?phone=${phone}`);
       } else {
         // 客戶不存在，創建新客戶
-        const createResponse = await fetch('/api/customers', {
+        const createResponse = await apiCall('/api/customers', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
