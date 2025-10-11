@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -22,7 +22,7 @@ interface Order {
   }>;
 }
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationPageContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const phone = searchParams.get('phone');
@@ -214,5 +214,13 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderConfirmationPageContent />
+    </Suspense>
   );
 }

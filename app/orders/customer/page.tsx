@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CategoryIcon from '@/components/CategoryIcon';
@@ -30,7 +30,7 @@ interface Customer {
   orders?: any[];
 }
 
-export default function CustomerOrdersPage() {
+function CustomerOrdersPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const phone = searchParams.get('phone');
@@ -407,5 +407,13 @@ export default function CustomerOrdersPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function CustomerOrdersPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CustomerOrdersPageContent />
+    </Suspense>
   );
 }
