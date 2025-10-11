@@ -118,7 +118,7 @@ export default function AdminCustomersPage() {
     }
 
     try {
-      const response = await fetch(`/api/customers/${customerPhone}`, {
+      const response = await apiCall(`/api/customers/${customerPhone}`, {
         method: 'DELETE'
       });
 

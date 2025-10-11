@@ -69,7 +69,7 @@ export default function ProductDetailsPage() {
 
     setDeleting(category);
     try {
-      const response = await fetch(`/api/product-details/${encodeURIComponent(category)}`, {
+      const response = await apiCall(`/api/product-details/${encodeURIComponent(category)}`, {
         method: 'DELETE',
       });
 

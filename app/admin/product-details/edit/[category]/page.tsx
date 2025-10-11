@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import RichTextEditor from '@/components/RichTextEditor';
 import ImageUploader from '@/components/ImageUploader';
+import { apiCall } from '@/lib/api';
 
 interface ProductDetail {
   id: string;
@@ -54,7 +55,7 @@ export default function EditProductDetailPage() {
 
   const fetchProductDetail = async () => {
     try {
-      const response = await fetch(`/api/product-details/${encodeURIComponent(category)}`);
+      const response = await apiCall(`/api/product-details/${encodeURIComponent(category)}`);
       if (response.ok) {
         const data = await response.json();
         setProductDetail(data);
@@ -91,7 +92,7 @@ export default function EditProductDetailPage() {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch('/api/upload', {
+    const response = await apiCall('/api/upload', {
       method: 'POST',
       body: formData,
     });
@@ -138,7 +139,7 @@ export default function EditProductDetailPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/product-details/${encodeURIComponent(category)}`, {
+      const response = await apiCall(`/api/product-details/${encodeURIComponent(category)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

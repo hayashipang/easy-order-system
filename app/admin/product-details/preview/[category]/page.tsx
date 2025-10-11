@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { apiCall } from '@/lib/api';
 
 interface ContentItem {
   id: string;
@@ -50,7 +51,7 @@ export default function PreviewProductDetailPage() {
 
   const fetchProductDetail = async () => {
     try {
-      const response = await fetch(`/api/product-details/${encodeURIComponent(category)}`);
+      const response = await apiCall(`/api/product-details/${encodeURIComponent(category)}`);
       if (response.ok) {
         const data = await response.json();
         setProductDetail(data);

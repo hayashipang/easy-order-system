@@ -101,7 +101,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/orders/${selectedOrderId}/status`, {
+      const response = await apiCall(`/api/orders/${selectedOrderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
