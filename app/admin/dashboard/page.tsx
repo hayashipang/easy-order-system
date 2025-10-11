@@ -321,7 +321,7 @@ export default function AdminDashboard() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      訂單 #{order.id.slice(-8)}
+                      訂單 #{order.id.substring(0, 8)}
                     </h3>
                     <p className="text-gray-600">
                       客戶: {(order as any).user?.name && !(order as any).user.name.startsWith('User-') 
