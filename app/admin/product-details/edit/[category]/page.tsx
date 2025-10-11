@@ -104,6 +104,26 @@ export default function EditProductDetailPage() {
     return data.url;
   };
 
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const uploadPromises = Array.from(files).map(file => handleImageUpload(file));
+      const urls = await Promise.all(uploadPromises);
+      
+      setFormData(prev => ({
+        ...prev,
+        images: [...(prev.images || []), ...urls]
+      }));
+    } catch (error) {
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
 
 
   const removeImage = (index: number) => {
@@ -248,7 +268,7 @@ export default function EditProductDetailPage() {
                 type="file"
                 multiple
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleFileChange}
                 className="hidden"
                 id="image-upload"
                 disabled={uploadingImages}
