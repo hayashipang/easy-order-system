@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 
@@ -37,27 +36,20 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    // 創建uploads目錄
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
-
-    // 生成唯一文件名
+    // 將圖片轉換為 Base64 編碼存儲
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const base64String = buffer.toString('base64');
+    const mimeType = file.type || 'image/jpeg';
+    
+    // 生成唯一文件名（用於識別）
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileExtension = path.extname(file.name);
     const fileName = `detail-${timestamp}-${randomString}${fileExtension}`;
-
-    // 保存文件
-    const filePath = path.join(uploadsDir, fileName);
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
-
-    // 返回文件URL - 使用 Railway 後端 URL
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://easy-order-system-production-0490.up.railway.app'
-      : '';
-    const fileUrl = `${baseUrl}/uploads/${fileName}`;
+    
+    // 返回 Base64 data URL
+    const fileUrl = `data:${mimeType};base64,${base64String}`;
 
     const response = NextResponse.json({
       url: fileUrl,

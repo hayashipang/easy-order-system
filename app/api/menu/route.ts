@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
@@ -50,27 +48,14 @@ export async function POST(request: NextRequest) {
       
       if (imageFile && imageFile.size > 0) {
         try {
-          // 創建uploads目錄
-          const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-          await mkdir(uploadsDir, { recursive: true });
-          
-          // 生成唯一文件名
-          const timestamp = Date.now();
-          const randomString = Math.random().toString(36).substring(2, 15);
-          const fileExtension = path.extname(imageFile.name);
-          const fileName = `menu-${timestamp}-${randomString}${fileExtension}`;
-          
-          // 保存文件
-          const filePath = path.join(uploadsDir, fileName);
+          // 將圖片轉換為 Base64 編碼存儲
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
-          await writeFile(filePath, buffer);
+          const base64String = buffer.toString('base64');
+          const mimeType = imageFile.type || 'image/jpeg';
           
-          // 設置圖片URL - 使用 Railway 後端 URL
-          const baseUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://easy-order-system-production-0490.up.railway.app'
-            : '';
-          imageUrl = `${baseUrl}/uploads/${fileName}`;
+          // 設置圖片URL為 Base64 data URL
+          imageUrl = `data:${mimeType};base64,${base64String}`;
         } catch (error) {
           console.error('圖片上傳失敗:', error);
           return addCorsHeaders(NextResponse.json(
