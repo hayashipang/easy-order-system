@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
       status: 'ok', 
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
-      hasDatabaseUrl: !!process.env.DATABASE_URL
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      version: '1.0.1',
+      corsMethods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
     }));
   } catch (error) {
     console.error('Health check error:', error);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,10 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const orderId = params.id;
     
@@ -23,19 +28,22 @@ export async function GET(
     });
 
     if (!order) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       );
+      return addCorsHeaders(response);
     }
 
-    return NextResponse.json(order);
+    const response = NextResponse.json(order);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取訂單錯誤:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to fetch order' },
       { status: 500 }
     );
+    return addCorsHeaders(response);
   }
 }
 
@@ -44,6 +52,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const orderId = params.id;
     const body = await request.json();
@@ -60,13 +72,15 @@ export async function PUT(
       }
     });
 
-    return NextResponse.json(updatedOrder);
+    const response = NextResponse.json(updatedOrder);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('更新訂單錯誤:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to update order' },
       { status: 500 }
     );
+    return addCorsHeaders(response);
   }
 }
 
@@ -75,6 +89,10 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const orderId = params.id;
     
@@ -82,12 +100,14 @@ export async function DELETE(
       where: { id: orderId }
     });
 
-    return NextResponse.json({ message: 'Order deleted successfully' });
+    const response = NextResponse.json({ message: 'Order deleted successfully' });
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('刪除訂單錯誤:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: 'Failed to delete order' },
       { status: 500 }
     );
+    return addCorsHeaders(response);
   }
 }
