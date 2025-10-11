@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiCall } from '@/lib/api';
 import Link from 'next/link';
 
 interface MenuItem {
@@ -50,7 +51,7 @@ export default function AdminMenuPage() {
 
   const fetchMenuItems = async () => {
     try {
-      const response = await fetch('/api/menu');
+      const response = await apiCall('/api/menu');
       if (!response.ok) {
         throw new Error('Failed to fetch menu items');
       }

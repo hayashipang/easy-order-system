@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiCall } from '@/lib/api';
 import Link from 'next/link';
 
 interface Customer {
@@ -48,7 +49,7 @@ export default function AdminCustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/users');
+      const response = await apiCall('/api/users');
       if (!response.ok) {
         throw new Error('Failed to fetch customers');
       }
@@ -58,7 +59,7 @@ export default function AdminCustomersPage() {
       // 為每個客戶獲取訂單
       const ordersPromises = data.map(async (customer: Customer) => {
         try {
-          const ordersResponse = await fetch(`/api/users/${customer.phone}/orders`);
+          const ordersResponse = await apiCall(`/api/users/${customer.phone}/orders`);
           if (ordersResponse.ok) {
             const orders = await ordersResponse.json();
             return { phone: customer.phone, orders };

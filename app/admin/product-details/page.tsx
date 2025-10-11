@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { apiCall } from '@/lib/api';
 
 interface ProductDetail {
   id: string;
@@ -26,7 +27,7 @@ export default function ProductDetailsPage() {
 
   const fetchProductDetails = async () => {
     try {
-      const response = await fetch('/api/product-details');
+      const response = await apiCall('/api/product-details');
       if (!response.ok) {
         throw new Error('無法獲取產品詳情');
       }
