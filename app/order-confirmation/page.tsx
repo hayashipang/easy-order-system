@@ -143,7 +143,7 @@ function OrderConfirmationPageContent() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                訂單編號: #{order.id.slice(-8)}
+                訂單編號: #{order.id.substring(0, 8)}
               </h3>
               <p className="text-gray-600">下單時間: {new Date(order.createdAt).toLocaleString('zh-TW')}</p>
             </div>

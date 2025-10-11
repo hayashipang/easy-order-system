@@ -347,7 +347,7 @@ export default function AdminCustomersPage() {
                           <div className="flex justify-between items-start mb-2">
                             <div>
                               <h4 className="font-medium text-gray-900">
-                                訂單 #{order.id.slice(-8)}
+                                訂單 #{order.id.substring(0, 8)}
                               </h4>
                               <p className="text-sm text-gray-600">
                                 {new Date(order.createdAt).toLocaleString('zh-TW')}
