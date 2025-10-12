@@ -355,7 +355,7 @@ function CustomerOrdersPageContent() {
                 <p className="text-red-600">{error}</p>
               </div>
             )}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredMenuItems.map((item) => (
                 <div key={item.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden">
                   {/* Item Image - 填滿卡片寬度，高度自適應 */}
@@ -367,7 +367,7 @@ function CustomerOrdersPageContent() {
                         className="w-full h-auto object-cover" // 填滿寬度，高度自適應
                         loading="lazy"
                         decoding="async"
-                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
