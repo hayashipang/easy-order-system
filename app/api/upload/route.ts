@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
+import { storeImageInDatabase } from '@/lib/databaseImageStorage';
 
 export async function POST(request: NextRequest) {
   // Handle CORS
@@ -47,14 +48,6 @@ export async function POST(request: NextRequest) {
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileName = `detail-${timestamp}-${randomString}.webp`;
     
-    // 確保上傳目錄存在
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    
-    const filePath = path.join(uploadsDir, fileName);
-    
     // 使用 Sharp 壓縮圖片 - 保持高解析度
     const compressedBuffer = await sharp(buffer)
       .resize(1200, 900, { 
@@ -67,26 +60,17 @@ export async function POST(request: NextRequest) {
       })
       .toBuffer();
     
-    // 保存壓縮後的圖片
-    fs.writeFileSync(filePath, compressedBuffer);
-    
     // 計算壓縮比例
     const originalSize = file.size;
     const compressedSize = compressedBuffer.length;
     const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
     
-    // 返回文件 URL - 根據環境決定是否使用絕對路徑
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.RAILWAY_PUBLIC_DOMAIN
-      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-      : '';
+    // 存儲到資料庫
+    const storageResult = await storeImageInDatabase(compressedBuffer, fileName, 'detail');
     
-    const fileUrl = baseUrl ? `${baseUrl}/uploads/${fileName}` : `/uploads/${fileName}`;
-
     const response = NextResponse.json({
-      url: fileUrl,
-      fileName: fileName,
+      url: storageResult.url,
+      fileName: storageResult.fileName,
       originalSize: originalSize,
       compressedSize: compressedSize,
       compressionRatio: `${compressionRatio}%`,

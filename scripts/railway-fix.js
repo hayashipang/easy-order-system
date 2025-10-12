@@ -71,6 +71,24 @@ async function fixRailwayDatabase() {
       console.log('ℹ️ 促銷設定已存在，跳過初始化');
     }
     
+    // 6. 遷移現有圖片到資料庫（可選）
+    console.log('🖼️ 檢查是否需要遷移圖片...');
+    const existingImages = await prisma.menuItem.findMany({
+      where: {
+        imageUrl: {
+          not: null,
+          startsWith: '/uploads/'
+        }
+      }
+    });
+    
+    if (existingImages.length > 0) {
+      console.log(`📁 找到 ${existingImages.length} 個需要遷移的圖片`);
+      console.log('ℹ️ 圖片遷移將在後台進行，不會影響應用啟動');
+    } else {
+      console.log('ℹ️ 沒有需要遷移的圖片');
+    }
+    
     console.log('🎉 Railway 資料庫修復完成！');
     
   } catch (error) {

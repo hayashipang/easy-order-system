@@ -4,6 +4,7 @@ import { handleCors, addCorsHeaders } from '@/lib/cors';
 import { compressAndSaveImage } from '@/lib/imageCompression';
 import { getImageUrl } from '@/lib/getImageUrl';
 import { isRailwayEnvironment } from '@/lib/railwayImageHandler';
+import { storeImageInDatabase } from '@/lib/databaseImageStorage';
 
 const prisma = new PrismaClient();
 
@@ -20,10 +21,29 @@ export async function GET(request: NextRequest) {
     });
     
     // 處理圖片 URL，確保返回正確的絕對路徑
-    const menuItemsWithCorrectUrls = menuItems.map(item => ({
-      ...item,
-      imageUrl: item.imageUrl ? getImageUrl(item.imageUrl) : null
-    }));
+    const menuItemsWithCorrectUrls = menuItems.map(item => {
+      let imageUrl = null;
+      
+      if (item.imageUrl) {
+        // 如果是資料庫圖片 URL（/api/image/），直接使用
+        if (item.imageUrl.startsWith('/api/image/')) {
+          const baseUrl = process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}`
+            : process.env.RAILWAY_PUBLIC_DOMAIN
+            ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+            : 'https://easy-order-system-production-0490.up.railway.app';
+          imageUrl = `${baseUrl}${item.imageUrl}`;
+        } else {
+          // 舊的文件系統圖片 URL，轉換為資料庫 URL
+          imageUrl = getImageUrl(item.imageUrl);
+        }
+      }
+      
+      return {
+        ...item,
+        imageUrl: imageUrl
+      };
+    });
     
     const response = NextResponse.json(menuItemsWithCorrectUrls);
     return addCorsHeaders(response);
@@ -61,11 +81,11 @@ export async function POST(request: NextRequest) {
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
           
-          // 使用壓縮函數處理圖片
-          const compressionResult = await compressAndSaveImage(buffer, 'menu');
-          imageUrl = compressionResult.url;
+          // 使用資料庫存儲圖片
+          const storageResult = await storeImageInDatabase(buffer, imageFile.name, 'menu');
+          imageUrl = storageResult.url;
           
-          console.log(`圖片壓縮完成: ${compressionResult.compressionRatio} 壓縮率`);
+          console.log(`圖片存儲完成: ${storageResult.compressionRatio} 壓縮率`);
         } catch (error) {
           console.error('圖片上傳失敗:', error);
           return addCorsHeaders(NextResponse.json(
