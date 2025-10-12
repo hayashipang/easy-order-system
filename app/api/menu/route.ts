@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import { compressAndSaveImage } from '@/lib/imageCompression';
+import { getImageUrl } from '@/lib/getImageUrl';
 
 const prisma = new PrismaClient();
 
@@ -17,7 +18,13 @@ export async function GET(request: NextRequest) {
       orderBy: { name: 'asc' }
     });
     
-    const response = NextResponse.json(menuItems);
+    // 處理圖片 URL，確保返回正確的絕對路徑
+    const menuItemsWithCorrectUrls = menuItems.map(item => ({
+      ...item,
+      imageUrl: item.imageUrl ? getImageUrl(item.imageUrl) : null
+    }));
+    
+    const response = NextResponse.json(menuItemsWithCorrectUrls);
     return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取菜單錯誤:', error);
