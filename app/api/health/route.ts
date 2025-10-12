@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
       hasDatabaseUrl: !!process.env.DATABASE_URL,
-      version: '1.0.6',
+      version: '1.0.7',
       corsMethods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
       deploymentTime: new Date().toISOString()
     }));

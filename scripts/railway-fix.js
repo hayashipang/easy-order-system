@@ -98,26 +98,33 @@ async function fixRailwayDatabase() {
     // 6. 強制創建 ImageStorage 表
     console.log('🖼️ 強制創建 ImageStorage 表...');
     try {
+      // 使用 Prisma 直接執行 SQL 創建表
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "image_storage" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "fileName" TEXT NOT NULL,
+          "dataUrl" TEXT NOT NULL,
+          "originalSize" INTEGER NOT NULL,
+          "compressedSize" INTEGER NOT NULL,
+          "compressionRatio" TEXT NOT NULL,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL
+        );
+      `;
+      console.log('✅ ImageStorage 表創建成功');
+      
+      // 測試表是否可用
       const imageStorageCount = await prisma.imageStorage.count();
-      console.log(`✅ ImageStorage 表存在，記錄數量: ${imageStorageCount}`);
+      console.log(`✅ ImageStorage 表可用，記錄數量: ${imageStorageCount}`);
     } catch (error) {
-      console.error('❌ ImageStorage 表不存在，強制創建...');
+      console.error('❌ 創建 ImageStorage 表失敗:', error.message);
+      // 嘗試使用 db push 來確保表被創建
       try {
-        await prisma.$executeRaw`
-          CREATE TABLE IF NOT EXISTS "image_storage" (
-            "id" TEXT NOT NULL PRIMARY KEY,
-            "fileName" TEXT NOT NULL,
-            "dataUrl" TEXT NOT NULL,
-            "originalSize" INTEGER NOT NULL,
-            "compressedSize" INTEGER NOT NULL,
-            "compressionRatio" TEXT NOT NULL,
-            "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            "updatedAt" TIMESTAMP(3) NOT NULL
-          );
-        `;
-        console.log('✅ ImageStorage 表創建成功');
-      } catch (createError) {
-        console.error('❌ 創建 ImageStorage 表失敗:', createError.message);
+        console.log('🔧 嘗試使用 db push 創建表...');
+        execSync('npx prisma db push', { stdio: 'inherit' });
+        console.log('✅ db push 完成');
+      } catch (pushError) {
+        console.error('❌ db push 也失敗:', pushError.message);
       }
     }
     
