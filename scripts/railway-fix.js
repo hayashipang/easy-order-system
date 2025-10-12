@@ -74,7 +74,40 @@ async function fixRailwayDatabase() {
       console.log('ℹ️ 系統設定已存在，跳過初始化');
     }
     
-    // 5. 初始化促銷設定
+    // 5. 更新促銷設定資料庫結構
+    console.log('🔧 更新促銷設定資料庫結構...');
+    try {
+      // 檢查是否已有 giftRules 欄位
+      try {
+        await prisma.$queryRaw`SELECT "giftRules" FROM "promotion_settings" LIMIT 1;`;
+        console.log('✅ giftRules 欄位已存在');
+      } catch (error) {
+        console.log('❌ giftRules 欄位不存在，添加中...');
+        await prisma.$executeRaw`
+          ALTER TABLE "promotion_settings" 
+          ADD COLUMN "giftRules" TEXT;
+        `;
+        console.log('✅ giftRules 欄位添加成功');
+      }
+
+      // 更新現有的促銷設定
+      const existingPromotion = await prisma.promotionSetting.findFirst();
+      if (existingPromotion && !existingPromotion.giftRules) {
+        const giftRules = JSON.stringify([
+          { threshold: existingPromotion.giftThreshold || 20, quantity: existingPromotion.giftQuantity || 1 }
+        ]);
+
+        await prisma.promotionSetting.update({
+          where: { id: existingPromotion.id },
+          data: { giftRules: giftRules }
+        });
+        console.log('✅ 促銷設定更新成功');
+      }
+    } catch (error) {
+      console.error('❌ 更新促銷設定結構失敗:', error.message);
+    }
+
+    // 6. 初始化促銷設定（如果不存在）
     console.log('🎁 初始化促銷設定...');
     const existingPromotion = await prisma.promotionSetting.findFirst();
     if (!existingPromotion) {
