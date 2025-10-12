@@ -21,11 +21,27 @@ async function fixRailwayDatabase() {
     await prisma.$connect();
     console.log('✅ 資料庫連接成功');
     
-    // 3. 運行遷移
-    console.log('🔄 運行資料庫遷移...');
+    // 3. 處理遷移衝突
+    console.log('🔄 處理遷移衝突...');
     const { execSync } = require('child_process');
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-    console.log('✅ 資料庫遷移完成');
+    const fs = require('fs');
+    const path = require('path');
+    
+    try {
+      // 刪除現有的遷移文件（因為是 SQLite 的）
+      const migrationsDir = path.join(process.cwd(), 'prisma', 'migrations');
+      if (fs.existsSync(migrationsDir)) {
+        fs.rmSync(migrationsDir, { recursive: true, force: true });
+        console.log('✅ 刪除舊的 SQLite 遷移文件');
+      }
+      
+      // 直接推送 schema 到 PostgreSQL
+      console.log('🔧 直接推送 schema 到 PostgreSQL...');
+      execSync('npx prisma db push', { stdio: 'inherit' });
+      console.log('✅ Schema 推送完成');
+    } catch (error) {
+      console.error('❌ 遷移失敗:', error.message);
+    }
     
     // 4. 生成 Prisma 客戶端
     console.log('🔨 生成 Prisma 客戶端...');
