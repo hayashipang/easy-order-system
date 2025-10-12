@@ -13,9 +13,19 @@ async function fixRailwayDatabase() {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
       console.error('❌ DATABASE_URL 環境變數未設置');
-      process.exit(1);
+      console.log('🔧 嘗試使用 Railway PostgreSQL 連接...');
+      // 嘗試使用 Railway 的默認 PostgreSQL 連接
+      const railwayDbUrl = process.env.RAILWAY_DATABASE_URL || process.env.POSTGRES_URL;
+      if (railwayDbUrl) {
+        process.env.DATABASE_URL = railwayDbUrl;
+        console.log('✅ 使用 Railway PostgreSQL 連接');
+      } else {
+        console.error('❌ 無法找到 PostgreSQL 連接字符串');
+        process.exit(1);
+      }
+    } else {
+      console.log('✅ DATABASE_URL 已設置');
     }
-    console.log('✅ DATABASE_URL 已設置');
     
     // 2. 測試資料庫連接
     console.log('📡 測試資料庫連接...');

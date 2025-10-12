@@ -71,9 +71,21 @@ export async function storeImageInDatabase(
       }
     });
     
+    // 生成完整的圖片 URL
+    let baseUrl = '';
+    if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+      baseUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+    } else if (process.env.RAILWAY_STATIC_URL) {
+      baseUrl = process.env.RAILWAY_STATIC_URL;
+    } else if (process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    } else if (process.env.NODE_ENV === 'production') {
+      baseUrl = 'https://easy-order-system-production-0490.up.railway.app';
+    }
+    
     return {
       id: imageRecord.id,
-      url: `/api/image/${imageRecord.id}`,
+      url: baseUrl ? `${baseUrl}/api/image/${imageRecord.id}` : `/api/image/${imageRecord.id}`,
       fileName: imageRecord.fileName,
       originalSize: imageRecord.originalSize,
       compressedSize: imageRecord.compressedSize,
