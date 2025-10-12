@@ -78,16 +78,21 @@ async function fixRailwayDatabase() {
     console.log('🎁 初始化促銷設定...');
     const existingPromotion = await prisma.promotionSetting.findFirst();
     if (!existingPromotion) {
+      const defaultGiftRules = JSON.stringify([
+        { threshold: 15, quantity: 1 },
+        { threshold: 20, quantity: 2 },
+        { threshold: 30, quantity: 3 }
+      ]);
+      
       await prisma.promotionSetting.create({
         data: {
           id: 'default-promotion',
           isFreeShippingEnabled: false,
           freeShippingThreshold: 20,
           isGiftEnabled: false,
-          giftThreshold: 20,
-          giftQuantity: 1,
+          giftRules: defaultGiftRules,
           giftProductName: '隨機送一瓶',
-          promotionText: '買20送1瓶＋免運費'
+          promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
         }
       });
       console.log('✅ 促銷設定初始化完成');

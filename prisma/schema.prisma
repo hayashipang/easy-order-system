@@ -113,9 +113,10 @@ model PromotionSetting {
   id                    String   @id @default(cuid())
   isFreeShippingEnabled Boolean  @default(false) // 免運費開關
   freeShippingThreshold Int      @default(20)    // 免運費門檻
+  
+  // 多層級贈品促銷設定
   isGiftEnabled         Boolean  @default(false) // 贈品開關
-  giftThreshold         Int      @default(20)    // 贈品門檻
-  giftQuantity          Int      @default(1)     // 贈品數量
+  giftRules             String?  // JSON string: [{"threshold": 15, "quantity": 1}, {"threshold": 20, "quantity": 2}, {"threshold": 30, "quantity": 3}]
   giftProductName       String?  // 贈品產品名稱
   promotionText         String?  // 自定義促銷文字
   createdAt             DateTime @default(now())

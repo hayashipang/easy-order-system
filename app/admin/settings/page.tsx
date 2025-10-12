@@ -12,12 +12,16 @@ interface SystemSettings {
   contact_phone: string;
 }
 
+interface GiftRule {
+  threshold: number;
+  quantity: number;
+}
+
 interface PromotionSettings {
   isFreeShippingEnabled: boolean;
   freeShippingThreshold: number;
   isGiftEnabled: boolean;
-  giftThreshold: number;
-  giftQuantity: number;
+  giftRules: string; // JSON string
   giftProductName: string;
   promotionText: string;
 }
@@ -34,10 +38,13 @@ export default function AdminSettingsPage() {
     isFreeShippingEnabled: false,
     freeShippingThreshold: 20,
     isGiftEnabled: false,
-    giftThreshold: 20,
-    giftQuantity: 1,
-    giftProductName: '',
-    promotionText: ''
+    giftRules: JSON.stringify([
+      { threshold: 15, quantity: 1 },
+      { threshold: 20, quantity: 2 },
+      { threshold: 30, quantity: 3 }
+    ]),
+    giftProductName: '隨機送一瓶',
+    promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -356,34 +363,62 @@ export default function AdminSettingsPage() {
                   
                   {promotionSettings.isGiftEnabled && (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            贈品門檻（瓶數）
-                          </label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={promotionSettings.giftThreshold}
-                            onChange={(e) => handlePromotionChange('giftThreshold', parseInt(e.target.value))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="例如：20"
-                          />
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          多層級贈品促銷設定
+                        </label>
+                        <div className="space-y-3">
+                          {(() => {
+                            const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules || '[]');
+                            return giftRules.map((rule, index) => (
+                              <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                                <div className="flex-1">
+                                  <label className="block text-xs text-gray-600 mb-1">
+                                    滿
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={rule.threshold}
+                                    onChange={(e) => {
+                                      const newRules = [...giftRules];
+                                      newRules[index].threshold = parseInt(e.target.value) || 0;
+                                      handlePromotionChange('giftRules', JSON.stringify(newRules));
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    placeholder="瓶數"
+                                  />
+                                </div>
+                                <div className="text-center text-gray-500">
+                                  <span className="text-sm">送</span>
+                                </div>
+                                <div className="flex-1">
+                                  <label className="block text-xs text-gray-600 mb-1">
+                                    數量
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={rule.quantity}
+                                    onChange={(e) => {
+                                      const newRules = [...giftRules];
+                                      newRules[index].quantity = parseInt(e.target.value) || 0;
+                                      handlePromotionChange('giftRules', JSON.stringify(newRules));
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    placeholder="瓶數"
+                                  />
+                                </div>
+                                <div className="text-center text-gray-500">
+                                  <span className="text-sm">瓶</span>
+                                </div>
+                              </div>
+                            ));
+                          })()}
                         </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            贈品數量（瓶）
-                          </label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={promotionSettings.giftQuantity}
-                            onChange={(e) => handlePromotionChange('giftQuantity', parseInt(e.target.value))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="例如：1"
-                          />
-                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          系統會自動選擇符合條件的最高層級促銷
+                        </p>
                       </div>
                       
                       <div>

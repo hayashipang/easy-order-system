@@ -11,15 +11,20 @@ export async function GET() {
     
     if (!promotionSettings) {
       // 如果沒有促銷設定，創建一個預設的
+      const defaultGiftRules = JSON.stringify([
+        { threshold: 15, quantity: 1 },
+        { threshold: 20, quantity: 2 },
+        { threshold: 30, quantity: 3 }
+      ]);
+      
       promotionSettings = await prisma.promotionSetting.create({
         data: {
           isFreeShippingEnabled: false,
           freeShippingThreshold: 20,
           isGiftEnabled: false,
-          giftThreshold: 20,
-          giftQuantity: 1,
-          giftProductName: '',
-          promotionText: ''
+          giftRules: defaultGiftRules,
+          giftProductName: '隨機送一瓶',
+          promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
         }
       });
     }
@@ -50,8 +55,11 @@ export async function PUT(request: NextRequest) {
           isFreeShippingEnabled: promotionSettings.isFreeShippingEnabled,
           freeShippingThreshold: promotionSettings.freeShippingThreshold,
           isGiftEnabled: promotionSettings.isGiftEnabled,
-          giftThreshold: promotionSettings.giftThreshold,
-          giftQuantity: promotionSettings.giftQuantity,
+          giftRules: promotionSettings.giftRules || JSON.stringify([
+            { threshold: 15, quantity: 1 },
+            { threshold: 20, quantity: 2 },
+            { threshold: 30, quantity: 3 }
+          ]),
           giftProductName: promotionSettings.giftProductName || '',
           promotionText: promotionSettings.promotionText || ''
         }
@@ -65,8 +73,11 @@ export async function PUT(request: NextRequest) {
           isFreeShippingEnabled: promotionSettings.isFreeShippingEnabled,
           freeShippingThreshold: promotionSettings.freeShippingThreshold,
           isGiftEnabled: promotionSettings.isGiftEnabled,
-          giftThreshold: promotionSettings.giftThreshold,
-          giftQuantity: promotionSettings.giftQuantity,
+          giftRules: promotionSettings.giftRules || JSON.stringify([
+            { threshold: 15, quantity: 1 },
+            { threshold: 20, quantity: 2 },
+            { threshold: 30, quantity: 3 }
+          ]),
           giftProductName: promotionSettings.giftProductName || '',
           promotionText: promotionSettings.promotionText || ''
         }

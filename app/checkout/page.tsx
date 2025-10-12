@@ -24,12 +24,16 @@ interface CheckoutForm {
   notes: string;
 }
 
+interface GiftRule {
+  threshold: number;
+  quantity: number;
+}
+
 interface PromotionSettings {
   isFreeShippingEnabled: boolean;
   freeShippingThreshold: number;
   isGiftEnabled: boolean;
-  giftThreshold: number;
-  giftQuantity: number;
+  giftRules: string; // JSON string
   giftProductName: string;
   promotionText: string;
 }
@@ -56,10 +60,13 @@ function CheckoutPageContent() {
     isFreeShippingEnabled: false,
     freeShippingThreshold: 20,
     isGiftEnabled: false,
-    giftThreshold: 20,
-    giftQuantity: 1,
-    giftProductName: '',
-    promotionText: ''
+    giftRules: JSON.stringify([
+      { threshold: 15, quantity: 1 },
+      { threshold: 20, quantity: 2 },
+      { threshold: 30, quantity: 3 }
+    ]),
+    giftProductName: '隨機送一瓶',
+    promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
   });
 
   useEffect(() => {
@@ -136,15 +143,37 @@ function CheckoutPageContent() {
   const getPromotionInfo = () => {
     const totalBottles = getTotalBottles();
     const hasFreeShipping = promotionSettings.isFreeShippingEnabled && totalBottles >= promotionSettings.freeShippingThreshold;
-    const hasGift = promotionSettings.isGiftEnabled && totalBottles >= promotionSettings.giftThreshold;
+    
+    // 計算多層級贈品促銷
+    let hasGift = false;
+    let giftQuantity = 0;
+    let giftThreshold = 0;
+    
+    if (promotionSettings.isGiftEnabled) {
+      try {
+        const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules || '[]');
+        // 找到符合條件的最高層級促銷
+        const applicableRule = giftRules
+          .filter(rule => totalBottles >= rule.threshold)
+          .sort((a, b) => b.threshold - a.threshold)[0]; // 按門檻降序排列，取最高的
+        
+        if (applicableRule) {
+          hasGift = true;
+          giftQuantity = applicableRule.quantity;
+          giftThreshold = applicableRule.threshold;
+        }
+      } catch (error) {
+        console.error('解析贈品規則失敗:', error);
+      }
+    }
     
     return {
       hasFreeShipping,
       hasGift,
       totalBottles,
       freeShippingThreshold: promotionSettings.freeShippingThreshold,
-      giftThreshold: promotionSettings.giftThreshold,
-      giftQuantity: promotionSettings.giftQuantity,
+      giftThreshold,
+      giftQuantity,
       promotionText: promotionSettings.promotionText
     };
   };
