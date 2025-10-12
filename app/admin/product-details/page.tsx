@@ -119,16 +119,59 @@ export default function ProductDetailsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">產品詳情管理</h1>
-              <p className="text-gray-600">管理即飲瓶和鮮凍包的詳情內容</p>
+              <h1 className="text-2xl font-bold text-gray-900">Easy Order 管理後台</h1>
+              <p className="text-gray-600">產品詳情管理系統</p>
             </div>
-            <Link
-              href="/admin/dashboard"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              ← 返回管理後台
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link 
+                href="/admin/login" 
+                className="text-blue-600 hover:text-blue-800 text-sm"
+                onClick={() => {
+                  sessionStorage.removeItem('adminLoggedIn');
+                }}
+              >
+                登出
+              </Link>
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8 overflow-x-auto">
+            <Link 
+              href="/admin/dashboard" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              訂單管理
+            </Link>
+            <Link 
+              href="/admin/menu" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              菜單管理
+            </Link>
+            <Link 
+              href="/admin/customers" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              客戶管理
+            </Link>
+            <Link 
+              href="/admin/product-details" 
+              className="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600 whitespace-nowrap"
+            >
+              產品詳情
+            </Link>
+            <Link 
+              href="/admin/settings" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              系統設定
+            </Link>
+          </nav>
         </div>
       </div>
 

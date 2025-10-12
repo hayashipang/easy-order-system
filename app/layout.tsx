@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Easy Order System',
-  description: '簡易訂單管理系統',
+  title: 'GreenWin Order System',
+  description: '果然盈點餐系統',
 };
 
 export default function RootLayout({

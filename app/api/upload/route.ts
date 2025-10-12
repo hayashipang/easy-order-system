@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
+import fs from 'fs';
+import sharp from 'sharp';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 export async function POST(request: NextRequest) {
@@ -36,26 +38,53 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    // 將圖片轉換為 Base64 編碼存儲
+    // 將圖片轉換為 Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const base64String = buffer.toString('base64');
-    const mimeType = file.type || 'image/jpeg';
     
-    // 生成唯一文件名（用於識別）
+    // 生成唯一文件名
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const fileExtension = path.extname(file.name);
-    const fileName = `detail-${timestamp}-${randomString}${fileExtension}`;
+    const fileName = `detail-${timestamp}-${randomString}.webp`;
     
-    // 返回 Base64 data URL
-    const fileUrl = `data:${mimeType};base64,${base64String}`;
+    // 確保上傳目錄存在
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    
+    const filePath = path.join(uploadsDir, fileName);
+    
+    // 使用 Sharp 壓縮圖片 - 保持高解析度
+    const compressedBuffer = await sharp(buffer)
+      .resize(1200, 900, { 
+        fit: 'inside',
+        withoutEnlargement: true 
+      })
+      .webp({ 
+        quality: 85,
+        effort: 6 
+      })
+      .toBuffer();
+    
+    // 保存壓縮後的圖片
+    fs.writeFileSync(filePath, compressedBuffer);
+    
+    // 計算壓縮比例
+    const originalSize = file.size;
+    const compressedSize = compressedBuffer.length;
+    const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+    
+    // 返回文件 URL
+    const fileUrl = `/uploads/${fileName}`;
 
     const response = NextResponse.json({
       url: fileUrl,
       fileName: fileName,
-      size: file.size,
-      type: file.type
+      originalSize: originalSize,
+      compressedSize: compressedSize,
+      compressionRatio: `${compressionRatio}%`,
+      type: 'image/webp'
     });
     return addCorsHeaders(response);
 

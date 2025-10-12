@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+// GET - 獲取促銷設定
+export async function GET() {
+  try {
+    // 獲取或創建促銷設定
+    let promotionSettings = await prisma.promotionSetting.findFirst();
+    
+    if (!promotionSettings) {
+      // 如果沒有促銷設定，創建一個預設的
+      promotionSettings = await prisma.promotionSetting.create({
+        data: {
+          isFreeShippingEnabled: false,
+          freeShippingThreshold: 20,
+          isGiftEnabled: false,
+          giftThreshold: 20,
+          giftQuantity: 1,
+          giftProductName: '',
+          promotionText: ''
+        }
+      });
+    }
+
+    return NextResponse.json(promotionSettings);
+  } catch (error) {
+    console.error('Error fetching promotion settings:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch promotion settings' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - 更新促銷設定
+export async function PUT(request: NextRequest) {
+  try {
+    const { promotionSettings } = await request.json();
+
+    // 獲取或創建促銷設定
+    let existingSettings = await prisma.promotionSetting.findFirst();
+    
+    if (existingSettings) {
+      // 更新現有設定
+      const updatedSettings = await prisma.promotionSetting.update({
+        where: { id: existingSettings.id },
+        data: {
+          isFreeShippingEnabled: promotionSettings.isFreeShippingEnabled,
+          freeShippingThreshold: promotionSettings.freeShippingThreshold,
+          isGiftEnabled: promotionSettings.isGiftEnabled,
+          giftThreshold: promotionSettings.giftThreshold,
+          giftQuantity: promotionSettings.giftQuantity,
+          giftProductName: promotionSettings.giftProductName || '',
+          promotionText: promotionSettings.promotionText || ''
+        }
+      });
+      
+      return NextResponse.json(updatedSettings);
+    } else {
+      // 創建新設定
+      const newSettings = await prisma.promotionSetting.create({
+        data: {
+          isFreeShippingEnabled: promotionSettings.isFreeShippingEnabled,
+          freeShippingThreshold: promotionSettings.freeShippingThreshold,
+          isGiftEnabled: promotionSettings.isGiftEnabled,
+          giftThreshold: promotionSettings.giftThreshold,
+          giftQuantity: promotionSettings.giftQuantity,
+          giftProductName: promotionSettings.giftProductName || '',
+          promotionText: promotionSettings.promotionText || ''
+        }
+      });
+      
+      return NextResponse.json(newSettings);
+    }
+  } catch (error) {
+    console.error('Error updating promotion settings:', error);
+    return NextResponse.json(
+      { error: 'Failed to update promotion settings' },
+      { status: 500 }
+    );
+  }
+}

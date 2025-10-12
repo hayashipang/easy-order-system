@@ -234,24 +234,36 @@ export default function AdminMenuPage() {
       {/* Navigation */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-8 overflow-x-auto">
             <Link 
               href="/admin/dashboard" 
-              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
             >
               訂單管理
             </Link>
             <Link 
               href="/admin/menu" 
-              className="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600"
+              className="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600 whitespace-nowrap"
             >
               菜單管理
             </Link>
             <Link 
               href="/admin/customers" 
-              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
             >
               客戶管理
+            </Link>
+            <Link 
+              href="/admin/product-details" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              產品詳情
+            </Link>
+            <Link 
+              href="/admin/settings" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              系統設定
             </Link>
           </nav>
         </div>

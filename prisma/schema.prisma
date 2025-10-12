@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -46,6 +46,8 @@ model Order {
   id                    String    @id @default(cuid())
   userPhone             String    // 使用手機號碼關聯用戶
   totalAmount           Float
+  subtotalAmount        Float?    // 商品小計（不含運費）
+  shippingFee           Float?    // 運費
   status                String    @default("PENDING") // 使用字符串替代 enum
   deliveryType          String    // 使用字符串替代 enum
   deliveryInfo          String    // JSON string for delivery details
@@ -53,6 +55,7 @@ model Order {
   paymentInfo           String    // JSON string for payment details
   notes                 String?
   estimatedDeliveryDate DateTime? // 預計出貨日期
+  promotionInfo         String?   // JSON string for promotion details
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -87,4 +90,30 @@ model ProductDetail {
   updatedAt   DateTime @updatedAt
 
   @@map("product_details")
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique // 設定鍵值，如 'free_shipping_threshold'
+  value       String   // 設定值，如 '20'
+  description String?  // 設定描述
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model PromotionSetting {
+  id                    String   @id @default(cuid())
+  isFreeShippingEnabled Boolean  @default(false) // 免運費開關
+  freeShippingThreshold Int      @default(20)    // 免運費門檻
+  isGiftEnabled         Boolean  @default(false) // 贈品開關
+  giftThreshold         Int      @default(20)    // 贈品門檻
+  giftQuantity          Int      @default(1)     // 贈品數量
+  giftProductName       String?  // 贈品產品名稱
+  promotionText         String?  // 自定義促銷文字
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("promotion_settings")
 }

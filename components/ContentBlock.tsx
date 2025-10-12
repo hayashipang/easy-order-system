@@ -395,11 +395,15 @@ export default function ContentBlock({
       ) : (
         <div>
           {imageUrl ? (
-            <div className="text-center">
+            <div>
               <img
                 src={imageUrl}
                 alt={imageAlt || '圖片'}
-                className="max-w-full h-auto rounded-lg shadow-md mx-auto"
+                className="w-full h-auto rounded-lg shadow-md block"
+                style={{ maxWidth: '100%', width: '100%' }}
+                loading="lazy"
+                decoding="async"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               {isEditing && (
                 <div className="mt-4">

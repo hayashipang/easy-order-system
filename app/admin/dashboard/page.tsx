@@ -4,17 +4,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiCall } from '@/lib/api';
+import { useSystemSettings } from '@/lib/useSystemSettings';
 
 interface Order {
   id: string;
   userPhone: string;
   totalAmount: number;
+  subtotalAmount: number | null;
+  shippingFee: number | null;
   status: string;
   deliveryType: string;
   deliveryInfo: string;
   paymentMethod: string;
   paymentInfo: string;
   notes: string;
+  promotionInfo: string | null;
   createdAt: string;
   updatedAt: string;
   orderItems: Array<{
@@ -30,6 +34,7 @@ interface Order {
 }
 
 export default function AdminDashboard() {
+  const { settings } = useSystemSettings();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -66,7 +71,7 @@ export default function AdminDashboard() {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     // 如果是確認訂單，需要輸入出貨日期
-    if (newStatus === 'CONFIRMED') {
+    if (newStatus === '訂單成立') {
       setSelectedOrderId(orderId);
       setShowDeliveryDateModal(true);
       return;
@@ -101,25 +106,24 @@ export default function AdminDashboard() {
     }
 
     try {
-      const response = await apiCall(`/api/orders/${selectedOrderId}/status`, {
-        method: 'PATCH',
+      const response = await apiCall(`/api/orders/${selectedOrderId}/confirm`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          status: 'COMPLETED',
           estimatedDeliveryDate: deliveryDate
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update order status');
+        throw new Error('Failed to confirm order');
       }
 
       setOrders(orders.map(order => 
         order.id === selectedOrderId ? { 
           ...order, 
-          status: 'COMPLETED',
+          status: '訂單成立',
           estimatedDeliveryDate: deliveryDate
         } : order
       ));
@@ -129,33 +133,17 @@ export default function AdminDashboard() {
       setSelectedOrderId(null);
       setDeliveryDate('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update order');
+      setError(err instanceof Error ? err.message : 'Failed to confirm order');
     }
   };
 
   const editOrder = async (orderId: string) => {
-    if (!confirm('確定要將此訂單恢復為待確認狀態嗎？')) {
-      return;
-    }
-
-    try {
-      const response = await apiCall(`/api/orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'PENDING' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update order status');
-      }
-
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status: 'PENDING' } : order
-      ));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update order');
+    // 編輯出貨日期
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      setSelectedOrderId(orderId);
+      setDeliveryDate(order.estimatedDeliveryDate || '');
+      setShowDeliveryDateModal(true);
     }
   };
 
@@ -186,6 +174,9 @@ export default function AdminDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case '待匯款': return 'bg-yellow-100 text-yellow-800';
+      case '已匯款完成': return 'bg-blue-100 text-blue-800';
+      case '訂單成立': return 'bg-green-100 text-green-800';
       case 'PENDING': return 'bg-yellow-100 text-yellow-800';
       case 'CONFIRMED': return 'bg-blue-100 text-blue-800';
       case 'PREPARING': return 'bg-orange-100 text-orange-800';
@@ -199,6 +190,9 @@ export default function AdminDashboard() {
 
   const getStatusText = (status: string) => {
     switch (status) {
+      case '待匯款': return '待匯款';
+      case '已匯款完成': return '已匯款完成';
+      case '訂單成立': return '訂單成立';
       case 'PENDING': return '待確認';
       case 'CONFIRMED': return '已確認';
       case 'PREPARING': return '製作中';
@@ -252,30 +246,36 @@ export default function AdminDashboard() {
       {/* Navigation */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-8 overflow-x-auto">
             <Link 
               href="/admin/dashboard" 
-              className="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600"
+              className="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600 whitespace-nowrap"
             >
               訂單管理
             </Link>
             <Link 
               href="/admin/menu" 
-              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
             >
               菜單管理
             </Link>
             <Link 
               href="/admin/customers" 
-              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
             >
               客戶管理
             </Link>
             <Link 
               href="/admin/product-details" 
-              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
             >
               產品詳情
+            </Link>
+            <Link 
+              href="/admin/settings" 
+              className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+            >
+              系統設定
             </Link>
           </nav>
         </div>
@@ -297,13 +297,19 @@ export default function AdminDashboard() {
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-yellow-600">
-              {orders.filter(o => o.status === 'PENDING').length}
+              {orders.filter(o => o.status === '待匯款').length}
             </div>
-            <div className="text-gray-600">待確認</div>
+            <div className="text-gray-600">待匯款</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-2xl font-bold text-blue-600">
+              {orders.filter(o => o.status === '已匯款完成').length}
+            </div>
+            <div className="text-gray-600">已匯款完成</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-2xl font-bold text-green-600">
-              {orders.filter(o => o.status === 'COMPLETED').length}
+              {orders.filter(o => o.status === '訂單成立').length}
             </div>
             <div className="text-gray-600">訂單成立</div>
           </div>
@@ -339,9 +345,27 @@ export default function AdminDashboard() {
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
                       {getStatusText(order.status)}
                     </span>
-                    <p className="text-lg font-bold text-gray-900 mt-2">
-                      NT$ {order.totalAmount.toFixed(0)}
-                    </p>
+                    
+                    {/* 金額分解 */}
+                    <div className="mt-2 text-right">
+                      {order.subtotalAmount && (
+                        <div className="text-sm text-gray-600">
+                          商品小計: NT$ {order.subtotalAmount.toFixed(0)}
+                        </div>
+                      )}
+                      {order.shippingFee !== null && (
+                        <div className="text-sm text-gray-600">
+                          運費: {order.shippingFee === 0 ? (
+                            <span className="text-green-600">免運費</span>
+                          ) : (
+                            `NT$ ${order.shippingFee.toFixed(0)}`
+                          )}
+                        </div>
+                      )}
+                      <p className="text-lg font-bold text-gray-900 mt-1">
+                        總計: NT$ {order.totalAmount.toFixed(0)}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -360,6 +384,48 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
+                {/* 促銷信息顯示 */}
+                {order.promotionInfo && (() => {
+                  try {
+                    const promotion = JSON.parse(order.promotionInfo);
+                    const hasAnyPromotion = promotion.hasFreeShipping || promotion.hasGift;
+                    
+                    if (!hasAnyPromotion) return null;
+
+                    return (
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-900 mb-2">促銷優惠:</h4>
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                          {promotion.hasFreeShipping && promotion.hasGift && (
+                            <div className="text-sm text-purple-800">
+                              <div className="font-medium mb-1">✓ 已達免運費門檻</div>
+                              <div>✓ 贈品：{promotion.giftProductName || `隨機送${promotion.giftQuantity}瓶`}</div>
+                            </div>
+                          )}
+
+                          {promotion.hasFreeShipping && !promotion.hasGift && (
+                            <div className="text-sm text-purple-800">
+                              <div className="font-medium">✓ 已達免運費門檻</div>
+                            </div>
+                          )}
+
+                          {!promotion.hasFreeShipping && promotion.hasGift && (
+                            <div className="text-sm text-purple-800">
+                              <div>✓ 贈品：{promotion.giftProductName || `隨機送${promotion.giftQuantity}瓶`}</div>
+                            </div>
+                          )}
+
+                          {promotion.promotionText && (
+                            <div className="mt-2 text-xs text-gray-600">{promotion.promotionText}</div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } catch (error) {
+                    return null;
+                  }
+                })()}
+
                 {/* Order Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
                   <div>
@@ -372,18 +438,27 @@ export default function AdminDashboard() {
                     <span className="font-medium text-gray-700">付款方式:</span>
                     <span className="ml-2">{order.paymentMethod === 'bank_transfer' ? '銀行轉帳' : order.paymentMethod}</span>
                   </div>
-                  {order.deliveryInfo && (
-                    <div className="md:col-span-2">
-                      <span className="font-medium text-gray-700">
-                        {order.deliveryType === 'family_mart_store_to_store' ? '全家店名:' : '取貨地址:'}
-                      </span>
-                      <span className="ml-2 text-green-600 font-medium">{order.deliveryInfo}</span>
-                    </div>
-                  )}
+                  <div className="md:col-span-2">
+                    <span className="font-medium text-gray-700">
+                      {order.deliveryType === 'family_mart_store_to_store' ? '全家店名:' : '取貨地址:'}
+                    </span>
+                    <span className="ml-2 text-green-600 font-medium">
+           {order.deliveryType === 'family_mart_store_to_store'
+             ? order.deliveryInfo
+             : settings.store_address
+           }
+                    </span>
+                  </div>
                   {order.paymentInfo && (
                     <div>
                       <span className="font-medium text-gray-700">匯款資訊:</span>
                       <span className="ml-2 text-green-600 font-medium">{order.paymentInfo}</span>
+                    </div>
+                  )}
+                  {order.estimatedDeliveryDate && (
+                    <div>
+                      <span className="font-medium text-gray-700">預計出貨日期:</span>
+                      <span className="ml-2 text-blue-600 font-medium">{new Date(order.estimatedDeliveryDate).toLocaleDateString()}</span>
                     </div>
                   )}
                   {order.notes && (
@@ -396,23 +471,24 @@ export default function AdminDashboard() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
-                  {order.status === 'PENDING' && (
+                  {/* 確認訂單按鈕 - 只有已匯款完成的訂單才能確認 */}
+                  {order.status === '已匯款完成' && (
                     <button
-                      onClick={() => updateOrderStatus(order.id, 'CONFIRMED')}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                      onClick={() => updateOrderStatus(order.id, '訂單成立')}
+                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
                     >
                       確認訂單
                     </button>
                   )}
                   
-                  {/* 編輯訂單按鈕 - 已確認的訂單可以恢復為待確認 */}
-                  {order.status === 'COMPLETED' && (
+                  {/* 編輯出貨日期按鈕 - 已成立的訂單可以編輯出貨日期 */}
+                  {order.status === '訂單成立' && (
                     <button
                       onClick={() => editOrder(order.id)}
                       className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors"
-                      title="恢復為待確認"
+                      title="編輯出貨日期"
                     >
-                      編輯
+                      編輯出貨日期
                     </button>
                   )}
                   
@@ -435,7 +511,12 @@ export default function AdminDashboard() {
       {showDeliveryDateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">設定出貨日期</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {selectedOrderId && orders.find(o => o.id === selectedOrderId)?.status === '訂單成立' 
+                ? '編輯出貨日期' 
+                : '設定出貨日期'
+              }
+            </h3>
             
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -466,7 +547,10 @@ export default function AdminDashboard() {
                 onClick={confirmOrderWithDeliveryDate}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
-                確認訂單
+                {selectedOrderId && orders.find(o => o.id === selectedOrderId)?.status === '訂單成立' 
+                  ? '更新出貨日期' 
+                  : '確認訂單'
+                }
               </button>
             </div>
           </div>

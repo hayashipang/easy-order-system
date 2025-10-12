@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CategoryIcon from '@/components/CategoryIcon';
 import ProductDetailModal from '@/components/ProductDetailModal';
+import CartConfirmationModal from '@/components/CartConfirmationModal';
 import { apiCall } from '@/lib/api';
 
 interface MenuItem {
@@ -45,6 +46,9 @@ function CustomerOrdersPageContent() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProductType, setSelectedProductType] = useState<string>('即飲瓶'); // 默認選擇即飲瓶
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
 
   useEffect(() => {
     if (phone) {
@@ -82,6 +86,15 @@ function CustomerOrdersPageContent() {
     }
   };
 
+  // 格式化客戶名稱，添加先生/小姐稱呼
+  const formatCustomerName = (customer: Customer | null, phone: string | null) => {
+    if (!customer?.name || customer.name.startsWith('User-')) {
+      return phone || '未知客戶';
+    }
+    
+    return `${customer.name} 先生/小姐`;
+  };
+
   const updateItemQuantity = (itemId: string, quantity: number) => {
     if (quantity < 0) return;
     setItemQuantities(prev => ({
@@ -92,14 +105,25 @@ function CustomerOrdersPageContent() {
 
   const addToCart = (menuItem: MenuItem) => {
     const quantity = itemQuantities[menuItem.id] || 1;
-    console.log('添加商品到購物車:', menuItem.name, '數量:', quantity);
     
     if (quantity <= 0) return;
     
-    const existingItem = cart.find(item => item.menuItemId === menuItem.id);
+    // 顯示確認彈窗
+    setSelectedMenuItem(menuItem);
+    setSelectedQuantity(quantity);
+    setIsCartModalOpen(true);
+  };
+
+  const confirmAddToCart = () => {
+    if (!selectedMenuItem) return;
+    
+    const quantity = selectedQuantity;
+    console.log('確認添加商品到購物車:', selectedMenuItem.name, '數量:', quantity);
+    
+    const existingItem = cart.find(item => item.menuItemId === selectedMenuItem.id);
     if (existingItem) {
       const newCart = cart.map(item =>
-        item.menuItemId === menuItem.id
+        item.menuItemId === selectedMenuItem.id
           ? { ...item, quantity: item.quantity + quantity }
           : item
       );
@@ -107,9 +131,9 @@ function CustomerOrdersPageContent() {
       setCart(newCart);
     } else {
       const newCart = [...cart, {
-        menuItemId: menuItem.id,
+        menuItemId: selectedMenuItem.id,
         quantity: quantity,
-        price: menuItem.price
+        price: selectedMenuItem.price
       }];
       console.log('添加新商品，新購物車:', newCart);
       setCart(newCart);
@@ -118,8 +142,19 @@ function CustomerOrdersPageContent() {
     // 重置數量
     setItemQuantities(prev => ({
       ...prev,
-      [menuItem.id]: 1
+      [selectedMenuItem.id]: 1
     }));
+    
+    // 關閉彈窗
+    setIsCartModalOpen(false);
+    setSelectedMenuItem(null);
+    setSelectedQuantity(1);
+  };
+
+  const cancelAddToCart = () => {
+    setIsCartModalOpen(false);
+    setSelectedMenuItem(null);
+    setSelectedQuantity(1);
   };
 
   const removeFromCart = (menuItemId: string) => {
@@ -149,6 +184,7 @@ function CustomerOrdersPageContent() {
   const proceedToCheckout = () => {
     console.log('購物車內容:', cart);
     console.log('購物車長度:', cart.length);
+    console.log('sessionStorage 是否可用:', typeof sessionStorage !== 'undefined');
     
     if (cart.length === 0) {
       setError('購物車是空的，請先選擇商品');
@@ -161,11 +197,22 @@ function CustomerOrdersPageContent() {
       menuItem: menuItems.find(mi => mi.id === item.menuItemId)
     }));
     
-    sessionStorage.setItem('checkoutCart', JSON.stringify(cartData));
-    console.log('購物車數據已存儲到 sessionStorage');
+    console.log('準備存儲的購物車數據:', cartData);
     
-    // 只傳遞 phone 參數，購物車數據從 sessionStorage 讀取
-    router.push(`/checkout?phone=${phone}`);
+    try {
+      sessionStorage.setItem('checkoutCart', JSON.stringify(cartData));
+      console.log('購物車數據已存儲到 sessionStorage');
+      
+      // 驗證存儲是否成功
+      const storedData = sessionStorage.getItem('checkoutCart');
+      console.log('驗證存儲的數據:', storedData);
+      
+      // 只傳遞 phone 參數，購物車數據從 sessionStorage 讀取
+      router.push(`/checkout?phone=${phone}`);
+    } catch (error) {
+      console.error('存儲購物車數據失敗:', error);
+      setError('無法保存購物車數據，請重試');
+    }
   };
 
   const handleCategoryClick = (category: string) => {
@@ -222,30 +269,29 @@ function CustomerOrdersPageContent() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">點餐系統</h1>
               <p className="text-gray-600 mt-1">
-                電話: {phone}
-                {customer?.name && (
-                  <span className="ml-2 text-blue-600 font-medium">
-                    | 歡迎回來，{customer.name}！
-                  </span>
-                )}
+                {formatCustomerName(customer, phone)}
               </p>
             </div>
             <div className="flex items-center space-x-3">
               <button
                 onClick={proceedToCheckout}
                 disabled={cart.length === 0}
-                className={`px-4 py-2 rounded-md transition-colors flex items-center ${
+                className={`px-4 py-2 rounded-md transition-colors flex items-center border ${
                   cart.length === 0 
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                    : 'bg-green-600 text-white hover:bg-green-700'
+                    ? 'bg-white text-gray-500 cursor-not-allowed border-white' 
+                    : 'bg-white text-black hover:bg-gray-50 border-white'
                 }`}
                 title={cart.length === 0 ? '購物車是空的' : '前往結帳'}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
+                <div className="w-7 h-7 bg-white rounded flex items-center justify-center">
+                  <img
+                    src="/shopping-cart.png"
+                    alt="購物車"
+                    className="w-6 h-6 object-contain"
+                  />
+                </div>
                 {cart.length > 0 && (
-                  <span className="ml-2 bg-white text-green-600 text-xs px-2 py-1 rounded-full font-medium">
+                  <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
                     {cart.reduce((sum, item) => sum + item.quantity, 0)}
                   </span>
                 )}
@@ -309,48 +355,65 @@ function CustomerOrdersPageContent() {
                 <p className="text-red-600">{error}</p>
               </div>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredMenuItems.map((item) => (
-                <div key={item.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-100 overflow-hidden">
-                  {/* Item Image */}
+                <div key={item.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden">
+                  {/* Item Image - 填滿卡片寬度，高度自適應 */}
                   {item.imageUrl ? (
-                    <div className="h-70 bg-gray-100">
+                    <div className="bg-gray-50 relative">
                       <img
                         src={`${item.imageUrl}`}
                         alt={item.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-auto object-cover" // 填滿寬度，高度自適應
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling.style.display = 'flex';
+                        }}
                       />
+                      <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center absolute inset-0" style={{display: 'none'}}>
+                        <div className="text-center">
+                          <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                          </div>
+                          <p className="text-blue-600 text-xs font-medium">載入中...</p>
+                        </div>
+                      </div>
                     </div>
                   ) : (
-                    <div className="h-70 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                    <div className="h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                           </svg>
                         </div>
-                        <p className="text-blue-600 text-sm font-medium">商品圖片</p>
+                        <p className="text-blue-600 text-xs font-medium">商品圖片</p>
                       </div>
                     </div>
                   )}
                   
-                  <div className="p-5">
+                  <div className="p-3">
                     {/* Item Header */}
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg font-bold text-gray-900 truncate">{item.name}</h3>
-                      <span className="text-xl font-bold text-blue-600 ml-2">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-sm font-bold text-gray-900 truncate flex-1">{item.name}</h3>
+                      <span className="text-lg font-bold text-blue-600 ml-2 flex-shrink-0">
                         NT$ {item.price.toFixed(0)}
                       </span>
                     </div>
 
                     {/* Item Description */}
                     {item.description && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
+                      <p className="text-gray-600 text-xs mb-2 line-clamp-2">{item.description}</p>
                     )}
 
                     {/* Item Category */}
                     {item.category && (
-                      <div className="mb-4">
+                      <div className="mb-2">
                         <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
                           {item.category}
                         </span>
@@ -410,6 +473,15 @@ function CustomerOrdersPageContent() {
           category={selectedCategory}
         />
       )}
+
+      {/* Cart Confirmation Modal */}
+      <CartConfirmationModal
+        isOpen={isCartModalOpen}
+        onClose={cancelAddToCart}
+        onConfirm={confirmAddToCart}
+        menuItem={selectedMenuItem}
+        quantity={selectedQuantity}
+      />
     </div>
   );
 }

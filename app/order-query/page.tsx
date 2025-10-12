@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { apiCall } from '@/lib/api';
+import { useSystemSettings } from '@/lib/useSystemSettings';
 
 interface Order {
   id: string;
   userPhone: string;
   totalAmount: number;
+  subtotalAmount: number | null;
+  shippingFee: number | null;
   status: string;
   deliveryType: string;
   deliveryInfo: string;
@@ -15,6 +18,7 @@ interface Order {
   paymentInfo: string;
   notes: string;
   estimatedDeliveryDate: string | null;
+  promotionInfo: string | null;
   createdAt: string;
   updatedAt: string;
   orderItems: Array<{
@@ -29,15 +33,24 @@ interface Order {
   }>;
 }
 
+interface PaymentForm {
+  bankName: string;
+  bankTransferLastFive: string;
+}
+
 export default function OrderQueryPage() {
+  const { settings } = useSystemSettings();
   const [phone, setPhone] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentForms, setPaymentForms] = useState<Record<string, PaymentForm>>({});
+  const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
+  const [success, setSuccess] = useState<Record<string, boolean>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) {
+    if (!phone || !phone.trim()) {
       setError('請輸入手機號碼');
       return;
     }
@@ -53,7 +66,7 @@ export default function OrderQueryPage() {
     setError(null);
 
     try {
-      const response = await apiCall(`/api/orders?phone=${phone.trim()}`);
+      const response = await apiCall(`/api/orders?phone=${phone?.trim() || ''}`);
       if (!response.ok) {
         if (response.status === 404) {
           setError('找不到該手機號碼的訂單');
@@ -66,6 +79,18 @@ export default function OrderQueryPage() {
       const data = await response.json();
       setOrders(data);
       
+      // 初始化匯款表單狀態
+      const initialForms: Record<string, PaymentForm> = {};
+      data.forEach((order: Order) => {
+        if (order.status === '待匯款' || order.status === 'PENDING') {
+          initialForms[order.id] = {
+            bankName: '',
+            bankTransferLastFive: ''
+          };
+        }
+      });
+      setPaymentForms(initialForms);
+      
       if (data.length === 0) {
         setError('找不到該手機號碼的訂單');
       }
@@ -77,8 +102,68 @@ export default function OrderQueryPage() {
     }
   };
 
+  const handlePaymentSubmit = async (orderId: string) => {
+    const form = paymentForms[orderId];
+    if (!form) return;
+
+    // 驗證表單
+    if (!form.bankName || !form.bankName.trim()) {
+      setError('請輸入銀行名稱');
+      return;
+    }
+    if (!form.bankTransferLastFive || !form.bankTransferLastFive.trim()) {
+      setError('請輸入匯款末五碼');
+      return;
+    }
+    if (form.bankTransferLastFive.length !== 5) {
+      setError('匯款末五碼必須是5位數字');
+      return;
+    }
+
+    setSubmitting(prev => ({ ...prev, [orderId]: true }));
+    setError(null);
+
+    try {
+      const response = await apiCall(`/api/orders/${orderId}/payment`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bankName: form.bankName.trim(),
+          bankTransferLastFive: form.bankTransferLastFive.trim()
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('提交匯款資訊失敗');
+      }
+
+      setSuccess(prev => ({ ...prev, [orderId]: true }));
+      // 重新載入訂單列表
+      await handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '提交失敗');
+    } finally {
+      setSubmitting(prev => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const updatePaymentForm = (orderId: string, field: keyof PaymentForm, value: string) => {
+    setPaymentForms(prev => ({
+      ...prev,
+      [orderId]: {
+        ...prev[orderId],
+        [field]: value
+      }
+    }));
+  };
+
   const getStatusText = (status: string) => {
     switch (status) {
+      case '待匯款': return '待匯款';
+      case '已匯款完成': return '已匯款完成';
+      case '訂單成立': return '訂單成立';
       case 'PENDING': return '待確認';
       case 'CONFIRMED': return '已確認';
       case 'PREPARING': return '製作中';
@@ -86,12 +171,15 @@ export default function OrderQueryPage() {
       case 'DELIVERED': return '已送達';
       case 'COMPLETED': return '訂單成立';
       case 'CANCELLED': return '已取消';
-      default: return '未知狀態';
+      default: return status;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case '待匯款': return 'bg-yellow-100 text-yellow-800';
+      case '已匯款完成': return 'bg-blue-100 text-blue-800';
+      case '訂單成立': return 'bg-green-100 text-green-800';
       case 'PENDING': return 'bg-yellow-100 text-yellow-800';
       case 'CONFIRMED': return 'bg-blue-100 text-blue-800';
       case 'PREPARING': return 'bg-orange-100 text-orange-800';
@@ -162,6 +250,21 @@ export default function OrderQueryPage() {
           )}
         </div>
 
+        {/* 訂單保留提醒 */}
+        {orders.length > 0 && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="text-orange-500 text-xl mr-3 mt-1">⏰</div>
+              <div>
+                <h3 className="font-semibold text-orange-900 mb-1">訂單保留提醒</h3>
+                <p className="text-orange-800 text-sm">
+                  未付款訂單將於下單後3天自動取消，請盡快完成匯款以保留您的訂單。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 訂單列表 */}
         {orders.length > 0 && (
           <div className="space-y-6">
@@ -178,7 +281,6 @@ export default function OrderQueryPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-gray-700 text-sm">
                   <div>
                     <p><span className="font-medium">訂單日期:</span> {new Date(order.createdAt).toLocaleString()}</p>
-                    <p><span className="font-medium">總金額:</span> NT$ {order.totalAmount.toFixed(0)}</p>
                     <p><span className="font-medium">取貨方式:</span> 
                       <span className="text-blue-600 font-medium">
                         {order.deliveryType === 'family_mart_store_to_store' ? '全家店到店' : '現場取貨'}
@@ -189,14 +291,19 @@ export default function OrderQueryPage() {
                     <p><span className="font-medium">
                       {order.deliveryType === 'family_mart_store_to_store' ? '全家店名:' : '取貨地址:'}
                     </span> 
-                      <span className="text-green-600 font-medium">{order.deliveryInfo}</span>
+                      <span className="text-green-600 font-medium">
+                        {order.deliveryType === 'family_mart_store_to_store' 
+                          ? order.deliveryInfo 
+                          : settings.store_address
+                        }
+                      </span>
                     </p>
                     <p><span className="font-medium">支付方式:</span> {order.paymentMethod === 'bank_transfer' ? '銀行轉帳' : '現金'}</p>
                     {order.paymentInfo && (
                       <p><span className="font-medium">匯款資訊:</span> <span className="text-green-600 font-medium">{order.paymentInfo}</span></p>
                     )}
                     {order.estimatedDeliveryDate && (
-                      <p><span className="font-medium">預計出貨日期:</span> {new Date(order.estimatedDeliveryDate).toLocaleDateString()}</p>
+                      <p><span className="font-medium">預計出貨日期:</span> <span className="text-blue-600 font-medium">{new Date(order.estimatedDeliveryDate).toLocaleDateString()}</span></p>
                     )}
                   </div>
                 </div>
@@ -215,10 +322,153 @@ export default function OrderQueryPage() {
                   </div>
                 </div>
 
+                {/* 金額分解 */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-gray-800 mb-2">金額分解:</h4>
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                    {order.subtotalAmount && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">商品小計:</span>
+                        <span className="font-medium">NT$ {order.subtotalAmount.toFixed(0)}</span>
+                      </div>
+                    )}
+                    {order.shippingFee !== null && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">運費:</span>
+                        <span className="font-medium">
+                          {order.shippingFee === 0 ? (
+                            <span className="text-green-600">免運費</span>
+                          ) : (
+                            `NT$ ${order.shippingFee.toFixed(0)}`
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center border-t pt-2">
+                      <span className="font-semibold text-gray-800">總金額:</span>
+                      <span className="font-bold text-lg">NT$ {order.totalAmount.toFixed(0)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 促銷信息顯示 */}
+                {order.promotionInfo && (() => {
+                  try {
+                    const promotion = JSON.parse(order.promotionInfo);
+                    const hasAnyPromotion = promotion.hasFreeShipping || promotion.hasGift;
+                    
+                    if (!hasAnyPromotion) return null;
+
+                    return (
+                      <div className="mb-4">
+                        <h4 className="font-semibold text-gray-800 mb-2">促銷優惠:</h4>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          {promotion.hasFreeShipping && promotion.hasGift && (
+                            <div className="text-sm text-blue-800">
+                              <div className="font-medium mb-1">✓ 已達免運費門檻</div>
+                              <div>✓ 贈品：{promotion.giftProductName || `隨機送${promotion.giftQuantity}瓶`}</div>
+                            </div>
+                          )}
+
+                          {promotion.hasFreeShipping && !promotion.hasGift && (
+                            <div className="text-sm text-blue-800">
+                              <div className="font-medium">✓ 已達免運費門檻</div>
+                            </div>
+                          )}
+
+                          {!promotion.hasFreeShipping && promotion.hasGift && (
+                            <div className="text-sm text-blue-800">
+                              <div>✓ 贈品：{promotion.giftProductName || `隨機送${promotion.giftQuantity}瓶`}</div>
+                            </div>
+                          )}
+
+                          {promotion.promotionText && (
+                            <div className="mt-2 text-xs text-gray-600">{promotion.promotionText}</div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  } catch (error) {
+                    return null;
+                  }
+                })()}
+
                 {order.notes && (
                   <div className="p-3 bg-blue-50 rounded-md text-sm text-blue-800">
                     <span className="font-medium">備註:</span>
                     <span className="ml-2">{order.notes}</span>
+                  </div>
+                )}
+
+                {/* 匯款表單 - 待匯款或待確認狀態才顯示 */}
+                {(order.status === '待匯款' || order.status === 'PENDING') && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    {success[order.id] ? (
+                      <div className="text-center py-4">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <h4 className="text-lg font-semibold text-green-800 mb-2">匯款資訊提交成功！</h4>
+                        <p className="text-green-600 text-sm">您的匯款資訊已提交，請等待管理者確認。</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-gray-800">填寫匯款資訊</h4>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            銀行名稱 *
+                          </label>
+                          <input
+                            type="text"
+                            value={paymentForms[order.id]?.bankName || ''}
+                            onChange={(e) => updatePaymentForm(order.id, 'bankName', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="請輸入銀行名稱 (例: 台灣銀行、中國信託、玉山銀行)"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            匯款末五碼 *
+                          </label>
+                          <input
+                            type="text"
+                            value={paymentForms[order.id]?.bankTransferLastFive || ''}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '').slice(0, 5);
+                              updatePaymentForm(order.id, 'bankTransferLastFive', value);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="請輸入5位數字"
+                            maxLength={5}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">請輸入銀行轉帳帳號的最後5位數字</p>
+                        </div>
+
+                        <button
+                          onClick={() => handlePaymentSubmit(order.id)}
+                          disabled={submitting[order.id]}
+                          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        >
+                          {submitting[order.id] ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              提交中...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                              </svg>
+                              完成匯款
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

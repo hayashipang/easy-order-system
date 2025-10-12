@@ -47,12 +47,15 @@ export async function POST(request: NextRequest) {
     const {
       userPhone,
       totalAmount,
+      subtotalAmount,
+      shippingFee,
       deliveryType,
       deliveryInfo,
       paymentMethod,
       paymentInfo,
       notes,
-      items
+      items,
+      promotionInfo
     } = body;
     
     // 創建訂單
@@ -60,12 +63,15 @@ export async function POST(request: NextRequest) {
       data: {
         userPhone,
         totalAmount: parseFloat(totalAmount),
-        status: 'PENDING',
+        subtotalAmount: subtotalAmount ? parseFloat(subtotalAmount) : null,
+        shippingFee: shippingFee ? parseFloat(shippingFee) : null,
+        status: '待匯款', // 新訂單狀態為待匯款
         deliveryType,
         deliveryInfo,
         paymentMethod,
         paymentInfo,
-        notes
+        notes,
+        promotionInfo: promotionInfo ? JSON.stringify(promotionInfo) : null
       }
     });
     

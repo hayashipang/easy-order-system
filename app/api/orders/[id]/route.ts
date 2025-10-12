@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { handleCors, addCorsHeaders } from '@/lib/cors';
+import { handleCors, addCorsHeaders, corsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
-// GET /api/orders/[id] - 獲取單個訂單
+// GET /api/orders/[id] - 獲取單個訂單詳情
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -23,64 +23,26 @@ export async function GET(
           include: {
             menuItem: true
           }
-        }
+        },
+        user: true  // 包含客戶信息
       }
     });
 
     if (!order) {
-      const response = NextResponse.json(
-        { error: 'Order not found' },
+      return NextResponse.json(
+        { error: '訂單不存在' },
         { status: 404 }
       );
-      return addCorsHeaders(response);
     }
-
+    
     const response = NextResponse.json(order);
     return addCorsHeaders(response);
   } catch (error) {
-    console.error('獲取訂單錯誤:', error);
-    const response = NextResponse.json(
+    console.error('獲取訂單詳情錯誤:', error);
+    return NextResponse.json(
       { error: 'Failed to fetch order' },
       { status: 500 }
     );
-    return addCorsHeaders(response);
-  }
-}
-
-// PUT /api/orders/[id] - 更新訂單
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  // Handle CORS
-  const corsResponse = handleCors(request);
-  if (corsResponse) return corsResponse;
-
-  try {
-    const orderId = params.id;
-    const body = await request.json();
-    
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
-      data: body,
-      include: {
-        orderItems: {
-          include: {
-            menuItem: true
-          }
-        }
-      }
-    });
-
-    const response = NextResponse.json(updatedOrder);
-    return addCorsHeaders(response);
-  } catch (error) {
-    console.error('更新訂單錯誤:', error);
-    const response = NextResponse.json(
-      { error: 'Failed to update order' },
-      { status: 500 }
-    );
-    return addCorsHeaders(response);
   }
 }
 
@@ -95,19 +57,38 @@ export async function DELETE(
 
   try {
     const orderId = params.id;
-    
+
+    // 檢查訂單是否存在
+    const existingOrder = await prisma.order.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!existingOrder) {
+      return NextResponse.json(
+        { error: '訂單不存在' },
+        { status: 404 }
+      );
+    }
+
+    // 刪除訂單（會自動刪除相關的 orderItems，因為有 onDelete: Cascade）
     await prisma.order.delete({
       where: { id: orderId }
     });
 
-    const response = NextResponse.json({ message: 'Order deleted successfully' });
-    return addCorsHeaders(response);
+    return NextResponse.json({ message: '訂單已刪除' });
   } catch (error) {
     console.error('刪除訂單錯誤:', error);
-    const response = NextResponse.json(
+    return NextResponse.json(
       { error: 'Failed to delete order' },
       { status: 500 }
     );
-    return addCorsHeaders(response);
   }
+}
+
+// Handle preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders(),
+  });
 }

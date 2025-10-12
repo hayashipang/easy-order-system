@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { apiCall } from '@/lib/api';
+import { useSystemSettings } from '@/lib/useSystemSettings';
 
 interface CartItem {
   menuItemId: string;
@@ -20,15 +21,24 @@ interface CheckoutForm {
   pickupMethod: string; // 取貨方式：'pickup' 或 'family_mart'
   storeName: string;
   deliveryAddress: string;
-  bankName: string; // 新增銀行名稱欄位
-  bankTransferLastFive: string;
   notes: string;
+}
+
+interface PromotionSettings {
+  isFreeShippingEnabled: boolean;
+  freeShippingThreshold: number;
+  isGiftEnabled: boolean;
+  giftThreshold: number;
+  giftQuantity: number;
+  giftProductName: string;
+  promotionText: string;
 }
 
 function CheckoutPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const phone = searchParams.get('phone');
+  const { settings } = useSystemSettings();
   
   const [cart, setCart] = useState<CartItem[]>([]);
   const [form, setForm] = useState<CheckoutForm>({
@@ -37,44 +47,110 @@ function CheckoutPageContent() {
     pickupMethod: 'family_mart', // 預設為全家店到店
     storeName: '',
     deliveryAddress: '',
-    bankName: '',
-    bankTransferLastFive: '',
     notes: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFormPrefilled, setIsFormPrefilled] = useState(false);
+  const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>({
+    isFreeShippingEnabled: false,
+    freeShippingThreshold: 20,
+    isGiftEnabled: false,
+    giftThreshold: 20,
+    giftQuantity: 1,
+    giftProductName: '',
+    promotionText: ''
+  });
 
   useEffect(() => {
     // 從 sessionStorage 讀取購物車數據
     const cartData = sessionStorage.getItem('checkoutCart');
     console.log('結帳頁面 - 從 sessionStorage 讀取的購物車數據:', cartData);
+    console.log('結帳頁面 - sessionStorage 是否可用:', typeof sessionStorage !== 'undefined');
     
     if (cartData) {
       try {
         const parsedCart = JSON.parse(cartData);
         console.log('結帳頁面 - 解析後的購物車:', parsedCart);
-        setCart(parsedCart);
+        console.log('結帳頁面 - 購物車項目數量:', parsedCart.length);
         
-        // 清除 sessionStorage 中的購物車數據
-        sessionStorage.removeItem('checkoutCart');
+        if (parsedCart.length > 0) {
+          setCart(parsedCart);
+          // 不要立即清除 sessionStorage，避免熱重載時丟失數據
+          // sessionStorage.removeItem('checkoutCart');
+        } else {
+          setError('購物車是空的，請先返回點餐頁面選擇商品');
+        }
       } catch (err) {
         console.error('結帳頁面 - 購物車數據解析錯誤:', err);
-        setError('購物車數據錯誤');
+        setError('購物車數據錯誤，請重新選擇商品');
       }
     } else {
       console.log('結帳頁面 - 沒有購物車數據');
-      setError('沒有找到購物車數據，請重新選擇商品');
+      setError('購物車是空的，請先返回點餐頁面選擇商品');
     }
     
     // 獲取客戶信息並預填表單
     if (phone) {
       fetchCustomerInfo();
     }
+    
+    // 獲取促銷設定
+    fetchPromotionSettings();
   }, [phone]);
 
   const getTotalAmount = () => {
     return cart.reduce((total, item) => total + (item.quantity * item.price), 0);
+  };
+
+  const fetchPromotionSettings = async () => {
+    try {
+      const response = await apiCall('/api/promotion-settings');
+      if (response.ok) {
+        const data = await response.json();
+        setPromotionSettings(data);
+      }
+    } catch (err) {
+      console.log('獲取促銷設定失敗，使用預設值');
+    }
+  };
+
+  const getTotalBottles = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const getShippingFee = () => {
+    if (form.pickupMethod === 'family_mart') {
+      // 只有當促銷設定啟用免運費時才檢查免運費條件
+      if (promotionSettings.isFreeShippingEnabled) {
+        const totalBottles = getTotalBottles();
+        return totalBottles >= promotionSettings.freeShippingThreshold ? 0 : parseInt(settings.shipping_fee) || 120;
+      }
+      
+      // 促銷設定未啟用免運費時，直接收取運費
+      return parseInt(settings.shipping_fee) || 120;
+    }
+    return 0;
+  };
+
+  const getPromotionInfo = () => {
+    const totalBottles = getTotalBottles();
+    const hasFreeShipping = promotionSettings.isFreeShippingEnabled && totalBottles >= promotionSettings.freeShippingThreshold;
+    const hasGift = promotionSettings.isGiftEnabled && totalBottles >= promotionSettings.giftThreshold;
+    
+    return {
+      hasFreeShipping,
+      hasGift,
+      totalBottles,
+      freeShippingThreshold: promotionSettings.freeShippingThreshold,
+      giftThreshold: promotionSettings.giftThreshold,
+      giftQuantity: promotionSettings.giftQuantity,
+      promotionText: promotionSettings.promotionText
+    };
+  };
+
+  const getFinalTotal = () => {
+    return getTotalAmount() + getShippingFee();
   };
 
   // 更新商品數量
@@ -133,13 +209,12 @@ function CheckoutPageContent() {
           // 可以從最新訂單中獲取地址和銀行信息
         }));
         
-        // 如果有最新訂單，可以從中獲取地址和銀行信息
+        // 如果有最新訂單，可以從中獲取地址信息
         if (customerData.orders && customerData.orders.length > 0) {
           const latestOrder = customerData.orders[0];
           setForm(prev => ({
             ...prev,
             deliveryAddress: latestOrder.deliveryInfo || '',
-            bankTransferLastFive: latestOrder.paymentInfo || '',
           }));
           setIsFormPrefilled(true);
         }
@@ -161,19 +236,6 @@ function CheckoutPageContent() {
       return;
     }
 
-    // 驗證銀行名稱
-    if (!form.bankName.trim()) {
-      setError('請輸入銀行名稱');
-      setLoading(false);
-      return;
-    }
-
-    // 驗證銀行轉帳末五碼
-    if (form.bankTransferLastFive.length !== 5) {
-      setError('銀行轉帳末五碼必須是5位數字');
-      setLoading(false);
-      return;
-    }
 
     // 驗證手機號碼格式
     const phoneRegex = /^09\d{8}$/;
@@ -194,17 +256,35 @@ function CheckoutPageContent() {
         }
       } else {
         // 現場取貨
-        deliveryInfo = form.deliveryAddress || '現場取貨';
+        deliveryInfo = settings.store_address;
       }
+
+      // 準備促銷信息
+      const promotionInfo = getPromotionInfo();
+      const orderPromotionInfo = {
+        hasFreeShipping: promotionInfo.hasFreeShipping,
+        hasGift: promotionInfo.hasGift,
+        totalBottles: promotionInfo.totalBottles,
+        freeShippingThreshold: promotionInfo.freeShippingThreshold,
+        giftThreshold: promotionInfo.giftThreshold,
+        giftQuantity: promotionInfo.giftQuantity,
+        promotionText: promotionInfo.promotionText,
+        isFreeShippingEnabled: promotionSettings.isFreeShippingEnabled,
+        isGiftEnabled: promotionSettings.isGiftEnabled,
+        giftProductName: promotionSettings.giftProductName
+      };
 
       const orderData = {
         userPhone: form.phone,
-        totalAmount: cart.reduce((total, item) => total + (item.quantity * item.price), 0),
+        totalAmount: getFinalTotal(),
+        subtotalAmount: getTotalAmount(),
+        shippingFee: getShippingFee(),
         deliveryType: form.pickupMethod === 'family_mart' ? 'family_mart_store_to_store' : 'pickup',
         deliveryInfo: deliveryInfo,
         paymentMethod: 'bank_transfer',
-        paymentInfo: `${form.bankName} - ${form.bankTransferLastFive}`,
+        paymentInfo: '', // 匯款資訊將在後續填寫
         notes: form.notes,
+        promotionInfo: orderPromotionInfo,
         items: cart.map(item => ({
           menuItemId: item.menuItemId,
           quantity: item.quantity,
@@ -242,6 +322,9 @@ function CheckoutPageContent() {
       } catch (err) {
         console.log('更新客戶信息失敗，但不影響訂單提交');
       }
+      
+      // 清除 sessionStorage 中的購物車數據
+      sessionStorage.removeItem('checkoutCart');
       
       // 跳轉到訂單確認頁面
       router.push(`/order-confirmation?orderId=${order.id}&phone=${form.phone}`);
@@ -360,11 +443,85 @@ function CheckoutPageContent() {
                   </div>
                   
                   <div className="border-t pt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-semibold">總計:</span>
-                      <span className="text-2xl font-bold text-blue-600">
-                        NT$ {getTotalAmount().toFixed(0)}
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">商品總計:</span>
+                        <span className="font-medium">
+                          NT$ {getTotalAmount().toFixed(0)}
+                        </span>
+                      </div>
+                      
+                      {/* 運費顯示 */}
+                      {form.pickupMethod === 'family_mart' && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">運費:</span>
+                          <span className="font-medium">
+                            {getShippingFee() === 0 ? (
+                              <span className="text-green-600">免運費</span>
+                            ) : (
+                              `NT$ ${getShippingFee()}`
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* 促銷信息顯示 */}
+                      {(() => {
+                        const promotionInfo = getPromotionInfo();
+                        const hasAnyPromotion = promotionSettings.isFreeShippingEnabled || promotionSettings.isGiftEnabled;
+                        
+                        // 即使促銷未啟用，也要顯示提示信息
+                        // if (!hasAnyPromotion) return null;
+                        
+                        return (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            {promotionInfo.hasFreeShipping && promotionInfo.hasGift && (
+                              <div className="text-sm text-blue-800">
+                                <div className="font-medium mb-1">促銷優惠：</div>
+                                <div>✓ 已達免運費門檻</div>
+                                <div>✓ 贈品：{promotionSettings.giftProductName || `隨機送${promotionInfo.giftQuantity}瓶`}</div>
+                              </div>
+                            )}
+                            
+                            {promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
+                              <div className="text-sm text-blue-800">
+                                <div className="font-medium mb-1">促銷優惠：</div>
+                                <div>✓ 已達免運費門檻</div>
+                              </div>
+                            )}
+                            
+                            {!promotionInfo.hasFreeShipping && promotionInfo.hasGift && (
+                              <div className="text-sm text-blue-800">
+                                <div className="font-medium mb-1">促銷優惠：</div>
+                                <div>✓ 贈品：{promotionSettings.giftProductName || `隨機送${promotionInfo.giftQuantity}瓶`}</div>
+                              </div>
+                            )}
+                            
+                            {!promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
+                              <div className="text-sm text-orange-600">
+                                {promotionSettings.isFreeShippingEnabled && promotionInfo.totalBottles < promotionInfo.freeShippingThreshold && (
+                                  <div>再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶即可享受免運費優惠</div>
+                                )}
+                                {promotionSettings.isGiftEnabled && promotionInfo.totalBottles < promotionInfo.giftThreshold && (
+                                  <div>再買{promotionInfo.giftThreshold - promotionInfo.totalBottles}瓶即可享受贈品優惠</div>
+                                )}
+                                {promotionSettings.promotionText && (
+                                  <div className="mt-1 text-xs text-gray-600">{promotionSettings.promotionText}</div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                      
+                      <div className="border-t pt-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-semibold">總計:</span>
+                          <span className="text-2xl font-bold text-blue-600">
+                            NT$ {getFinalTotal().toFixed(0)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </>
@@ -457,10 +614,29 @@ function CheckoutPageContent() {
                         name="pickupMethod"
                         value="pickup"
                         checked={form.pickupMethod === 'pickup'}
-                        onChange={(e) => setForm({ ...form, pickupMethod: e.target.value })}
+                        onChange={(e) => setForm({ 
+                          ...form, 
+                          pickupMethod: e.target.value,
+                          deliveryAddress: e.target.value === 'pickup' ? '' : form.deliveryAddress
+                        })}
                         className="mr-3"
                       />
-                      <span className="text-gray-700">現場取貨</span>
+                      <div>
+                        <span className="text-gray-700">現場取貨</span>
+                        {form.pickupMethod === 'pickup' && (
+                          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-sm text-blue-800">
+                              <strong>取貨地址：</strong>{settings.store_address}
+                            </p>
+                            <p className="text-sm text-blue-800 mt-1">
+                              <strong>取貨時間：</strong>{settings.store_hours}
+                            </p>
+                            <p className="text-sm text-blue-800 mt-1">
+                              <strong>注意事項：</strong>取貨1小時前，請至果然盈Line官網留言取貨時間（首頁可加入果然盈官方Line）
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </label>
                     <label className="flex items-center">
                       <input
@@ -468,7 +644,11 @@ function CheckoutPageContent() {
                         name="pickupMethod"
                         value="family_mart"
                         checked={form.pickupMethod === 'family_mart'}
-                        onChange={(e) => setForm({ ...form, pickupMethod: e.target.value })}
+                        onChange={(e) => setForm({ 
+                          ...form, 
+                          pickupMethod: e.target.value,
+                          deliveryAddress: e.target.value === 'pickup' ? '' : form.deliveryAddress
+                        })}
                         className="mr-3"
                       />
                       <span className="text-gray-700">全家店到店</span>
@@ -493,63 +673,25 @@ function CheckoutPageContent() {
                   </div>
                 )}
 
-                {/* Delivery Address */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {form.pickupMethod === 'pickup' ? '取貨地址' : '寄送地址'}
-                  </label>
-                  <textarea
-                    value={form.deliveryAddress}
-                    onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={3}
-                    placeholder={form.pickupMethod === 'pickup' 
-                      ? "請輸入取貨地址 (選填)" 
-                      : "請輸入完整的寄送地址，包含縣市、區、街道、門牌號碼 (選填)"
-                    }
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    {form.pickupMethod === 'pickup' ? '地址為選填項目' : '地址為選填項目'}
-                  </p>
-                </div>
+                {/* Delivery Address - 只有選擇全家店到店時才顯示 */}
+                {form.pickupMethod === 'family_mart' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      寄送地址
+                    </label>
+                    <textarea
+                      value={form.deliveryAddress}
+                      onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows={3}
+                      placeholder="請輸入完整的寄送地址，包含縣市、區、街道、門牌號碼 (可填寫或不填寫)"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      可填寫或不填寫
+                    </p>
+                  </div>
+                )}
 
-                {/* Bank Name */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">匯款銀行名稱</h3>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    銀行名稱 *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.bankName}
-                    onChange={(e) => setForm({ ...form, bankName: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="請輸入銀行名稱 (例: 台灣銀行、中國信託、玉山銀行)"
-                  />
-                </div>
-
-                {/* Bank Transfer Last Five Digits */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    銀行匯款末五碼 *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={5}
-                    minLength={5}
-                    pattern="[0-9]{5}"
-                    value={form.bankTransferLastFive}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 5);
-                      setForm({ ...form, bankTransferLastFive: value });
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="請輸入5位數字"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">請輸入銀行轉帳帳號的最後5位數字，用於確認付款</p>
-                </div>
 
                 {/* Notes */}
                 <div>
@@ -569,7 +711,7 @@ function CheckoutPageContent() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-medium text-blue-900 mb-2">付款方式</h3>
                   <p className="text-sm text-blue-700">
-                    請將款項匯至指定帳戶，並在備註中填寫匯款末五碼以確認付款。
+                    提交訂單後，請至「訂單查詢/匯款確認」頁面完成匯款資訊填寫。
                   </p>
                 </div>
 

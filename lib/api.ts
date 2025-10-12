@@ -8,6 +8,11 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
       return customApiUrl;
     }
     
+    // Check if we're in development mode
+    if (process.env.NODE_ENV === 'development') {
+      return 'http://localhost:4000';
+    }
+    
     // Default to Railway API URL for production
     return 'https://easy-order-system-production-0490.up.railway.app';
   };

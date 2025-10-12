@@ -153,11 +153,15 @@ export default function PreviewProductDetailPage() {
         return (
           <div key={item.id} className="mb-4">
             {item.imageUrl ? (
-              <div className="text-center">
+              <div>
                 <img
                   src={item.imageUrl}
                   alt={item.imageAlt || '圖片'}
-                  className="max-w-full h-auto rounded-lg shadow-md mx-auto"
+                  className="w-full h-auto rounded-lg shadow-md block"
+                  style={{ maxWidth: '100%', width: '100%' }}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>
             ) : (
@@ -285,7 +289,7 @@ export default function PreviewProductDetailPage() {
           <div className="p-6 space-y-6">
             {/* 主要內容 */}
             {content && content.length > 0 && (
-              <div className="prose max-w-none">
+              <div className="max-w-none">
                 {content.map(renderContentItem)}
               </div>
             )}
@@ -301,7 +305,11 @@ export default function PreviewProductDetailPage() {
                       <img
                         src={imageUrl}
                         alt={`${category}圖片 ${index + 1}`}
-                        className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
+                        className="w-full h-auto object-contain rounded-lg shadow-md group-hover:shadow-lg transition-shadow block"
+                        style={{ maxWidth: '100%', width: '100%' }}
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
                   ))}

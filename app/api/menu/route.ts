@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
+import { compressAndSaveImage } from '@/lib/imageCompression';
 
 const prisma = new PrismaClient();
 
@@ -48,14 +49,15 @@ export async function POST(request: NextRequest) {
       
       if (imageFile && imageFile.size > 0) {
         try {
-          // 將圖片轉換為 Base64 編碼存儲
+          // 將圖片轉換為 Buffer 並壓縮
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
-          const base64String = buffer.toString('base64');
-          const mimeType = imageFile.type || 'image/jpeg';
           
-          // 設置圖片URL為 Base64 data URL
-          imageUrl = `data:${mimeType};base64,${base64String}`;
+          // 使用壓縮函數處理圖片
+          const compressionResult = await compressAndSaveImage(buffer, 'menu');
+          imageUrl = compressionResult.url;
+          
+          console.log(`圖片壓縮完成: ${compressionResult.compressionRatio} 壓縮率`);
         } catch (error) {
           console.error('圖片上傳失敗:', error);
           return addCorsHeaders(NextResponse.json(

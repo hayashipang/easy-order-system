@@ -9,9 +9,12 @@ interface Order {
   id: string;
   userPhone: string;
   totalAmount: number;
+  subtotalAmount: number | null;
+  shippingFee: number | null;
   status: string;
   deliveryType: string;
   notes?: string;
+  promotionInfo: string | null;
   createdAt: string;
   orderItems: Array<{
     id: string;
@@ -172,11 +175,84 @@ function OrderConfirmationPageContent() {
             </div>
           </div>
 
+          {/* 金額分解 */}
+          <div className="mb-6">
+            <h4 className="font-medium text-gray-900 mb-3">金額分解:</h4>
+            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+              {order.subtotalAmount && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">商品小計:</span>
+                  <span className="font-medium">NT$ {order.subtotalAmount.toFixed(0)}</span>
+                </div>
+              )}
+              {order.shippingFee !== null && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">運費:</span>
+                  <span className="font-medium">
+                    {order.shippingFee === 0 ? (
+                      <span className="text-green-600">免運費</span>
+                    ) : (
+                      `NT$ ${order.shippingFee.toFixed(0)}`
+                    )}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between items-center border-t pt-2">
+                <span className="font-semibold text-gray-800">總金額:</span>
+                <span className="font-bold text-lg">NT$ {order.totalAmount.toFixed(0)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 促銷信息顯示 */}
+          {order.promotionInfo && (() => {
+            try {
+              const promotion = JSON.parse(order.promotionInfo);
+              const hasAnyPromotion = promotion.hasFreeShipping || promotion.hasGift;
+              
+              if (!hasAnyPromotion) return null;
+
+              return (
+                <div className="mb-6">
+                  <h4 className="font-medium text-gray-900 mb-3">促銷優惠:</h4>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    {promotion.hasFreeShipping && promotion.hasGift && (
+                      <div className="text-sm text-green-800">
+                        <div className="font-medium mb-1">✓ 已達免運費門檻</div>
+                        <div>✓ 贈品：{promotion.giftProductName || `隨機送${promotion.giftQuantity}瓶`}</div>
+                      </div>
+                    )}
+
+                    {promotion.hasFreeShipping && !promotion.hasGift && (
+                      <div className="text-sm text-green-800">
+                        <div className="font-medium">✓ 已達免運費門檻</div>
+                      </div>
+                    )}
+
+                    {!promotion.hasFreeShipping && promotion.hasGift && (
+                      <div className="text-sm text-green-800">
+                        <div>✓ 贈品：{promotion.giftProductName || `隨機送${promotion.giftQuantity}瓶`}</div>
+                      </div>
+                    )}
+
+                    {promotion.promotionText && (
+                      <div className="mt-2 text-xs text-gray-600">{promotion.promotionText}</div>
+                    )}
+                  </div>
+                </div>
+              );
+            } catch (error) {
+              return null;
+            }
+          })()}
+
           {/* Order Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <span className="text-gray-600">配送方式:</span>
-              <span className="ml-2 font-medium">{order.deliveryType}</span>
+              <span className="ml-2 font-medium">
+                {order.deliveryType === 'family_mart_store_to_store' ? '全家店到店' : '現場取貨'}
+              </span>
             </div>
             {order.notes && (
               <div>
@@ -191,10 +267,26 @@ function OrderConfirmationPageContent() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
           <h3 className="text-lg font-semibold text-blue-900 mb-3">付款說明</h3>
           <div className="text-blue-800 space-y-2">
+            <p>• 請返回首頁，至訂單查詢/匯款確認操作</p>
             <p>• 請將款項匯至指定帳戶</p>
             <p>• 匯款時請在備註中填寫您的匯款末五碼</p>
             <p>• 匯款完成後，我們會盡快確認並開始製作您的訂單</p>
             <p>• 如有任何問題，請聯繫客服</p>
+          </div>
+        </div>
+
+        {/* Order Retention Notice */}
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-8">
+          <div className="flex items-start">
+            <div className="text-orange-500 text-2xl mr-3 mt-1">⏰</div>
+            <div>
+              <h3 className="text-lg font-semibold text-orange-900 mb-2">重要提醒</h3>
+              <div className="text-orange-800 space-y-1">
+                <p className="font-medium">訂單保留期限：3天</p>
+                <p className="text-sm">為確保訂單處理效率，未付款訂單將於下單後3天自動取消。</p>
+                <p className="text-sm">請盡快完成匯款，以免訂單被系統自動刪除。</p>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -133,7 +133,7 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
             <div className="space-y-6">
               {/* 主要內容 */}
               {content && (
-                <div className="prose max-w-none">
+                <div className="max-w-none">
                   {Array.isArray(content) ? (
                     // 新格式：內容區塊數組
                     <div className="space-y-4">
@@ -153,15 +153,16 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
                               {item.content}
                             </div>
                           ) : item.type === 'image' ? (
-                            <div className="text-center my-4">
+                            <div className="my-4">
                               <img
                                 src={item.imageUrl}
                                 alt={item.imageAlt || '圖片'}
-                                className="max-w-full h-auto rounded-lg shadow-md mx-auto"
+                                className="w-full h-auto rounded-lg shadow-md block"
+                                style={{ maxWidth: '100%', width: '100%' }}
+                                loading="lazy"
+                                decoding="async"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                               />
-                              {item.imageAlt && (
-                                <p className="mt-2 text-sm text-gray-600">{item.imageAlt}</p>
-                              )}
                             </div>
                           ) : null}
                         </div>
@@ -217,7 +218,11 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
                         <img
                           src={imageUrl}
                           alt={`${category}圖片 ${index + 1}`}
-                          className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
+                          className="w-full h-auto object-contain rounded-lg shadow-md group-hover:shadow-lg transition-shadow block"
+                          style={{ maxWidth: '100%', width: '100%' }}
+                          loading="lazy"
+                          decoding="async"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       </div>
                     ))}
