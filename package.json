@@ -13,7 +13,8 @@
     "prisma:studio": "prisma studio",
     "railway:fix": "node scripts/railway-fix.js",
     "railway:force-fix": "node scripts/force-fix-railway.js",
-    "emergency-fix": "node scripts/emergency-fix.js"
+    "emergency-fix": "node scripts/emergency-fix.js",
+    "update-promotion": "node scripts/update-promotion-only.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
