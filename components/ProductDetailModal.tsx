@@ -157,12 +157,29 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
                               <img
                                 src={item.imageUrl}
                                 alt={item.imageAlt || '圖片'}
-                                className="w-full h-auto rounded-lg shadow-md block"
-                                style={{ maxWidth: '100%', width: '100%' }}
+                                className="w-full h-auto object-cover rounded-lg shadow-md"
                                 loading="lazy"
                                 decoding="async"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (nextElement) {
+                                    nextElement.style.display = 'flex';
+                                  }
+                                }}
                               />
+                              <div className="w-full h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center rounded-lg shadow-md" style={{display: 'none'}}>
+                                <div className="text-center">
+                                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-gray-600 text-xs font-medium">圖片載入失敗</p>
+                                  <p className="text-gray-400 text-xs mt-1">請重新上傳圖片</p>
+                                </div>
+                              </div>
                             </div>
                           ) : null}
                         </div>
