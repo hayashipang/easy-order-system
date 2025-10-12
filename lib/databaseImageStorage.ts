@@ -25,6 +25,31 @@ export async function storeImageInDatabase(
   prefix: string = 'image'
 ): Promise<ImageStorageResult> {
   try {
+    // 檢查 ImageStorage 表是否存在
+    try {
+      await prisma.imageStorage.count();
+    } catch (error) {
+      console.log('ImageStorage 表不存在，嘗試創建...');
+      try {
+        await prisma.$executeRaw`
+          CREATE TABLE IF NOT EXISTS "image_storage" (
+            "id" TEXT NOT NULL PRIMARY KEY,
+            "fileName" TEXT NOT NULL,
+            "dataUrl" TEXT NOT NULL,
+            "originalSize" INTEGER NOT NULL,
+            "compressedSize" INTEGER NOT NULL,
+            "compressionRatio" TEXT NOT NULL,
+            "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            "updatedAt" TIMESTAMP(3) NOT NULL
+          );
+        `;
+        console.log('ImageStorage 表創建成功');
+      } catch (createError) {
+        console.error('創建 ImageStorage 表失敗:', createError);
+        throw new Error('ImageStorage 表創建失敗');
+      }
+    }
+    
     // 生成唯一 ID
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
