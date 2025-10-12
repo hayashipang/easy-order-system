@@ -526,7 +526,7 @@ export default function AdminMenuPage() {
 
                     {/* Item Price */}
                     <div className="flex justify-between items-center mb-4">
-                        <span className="text-2xl font-bold text-gray-900">NT$ {Number(item.price).toFixed(0)}</span>
+                        <span className="text-2xl font-bold text-gray-900">NT$ {(Number(item.price) || 0).toFixed(0)}</span>
                     </div>
 
                     {/* Action Buttons */}

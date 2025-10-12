@@ -66,9 +66,9 @@ export async function POST(request: NextRequest) {
     const order = await prisma.order.create({
       data: {
         userPhone,
-        totalAmount: parseFloat(totalAmount),
-        subtotalAmount: subtotalAmount ? parseFloat(subtotalAmount) : null,
-        shippingFee: shippingFee ? parseFloat(shippingFee) : null,
+        totalAmount: parseFloat(totalAmount) || 0,
+        subtotalAmount: subtotalAmount ? parseFloat(subtotalAmount) || 0 : null,
+        shippingFee: shippingFee ? parseFloat(shippingFee) || 0 : null,
         status: '待匯款', // 新訂單狀態為待匯款
         deliveryType,
         deliveryInfo,

@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       createData = {
         name: formData.get('name') as string,
         description: formData.get('description') as string,
-        price: formData.get('price') ? parseFloat(formData.get('price') as string) : 0,
+        price: formData.get('price') ? parseFloat(formData.get('price') as string) || 0 : 0,
         category: formData.get('category') as string || 'general',
         productType: formData.get('productType') as string || null,
         isAvailable: formData.get('isAvailable') === 'true',
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       createData = {
         name: body.name,
         description: body.description,
-        price: parseFloat(body.price),
+        price: parseFloat(body.price) || 0,
         category: body.category || 'general',
         productType: body.productType || null,
         isAvailable: body.isAvailable !== undefined ? body.isAvailable : true,

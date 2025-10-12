@@ -124,11 +124,11 @@ function CheckoutPageContent() {
       // 只有當促銷設定啟用免運費時才檢查免運費條件
       if (promotionSettings.isFreeShippingEnabled) {
         const totalBottles = getTotalBottles();
-        return totalBottles >= promotionSettings.freeShippingThreshold ? 0 : parseInt(settings.shipping_fee) || 120;
+        return totalBottles >= promotionSettings.freeShippingThreshold ? 0 : parseInt(settings.shipping_fee || '120') || 120;
       }
       
       // 促銷設定未啟用免運費時，直接收取運費
-      return parseInt(settings.shipping_fee) || 120;
+      return parseInt(settings.shipping_fee || '120') || 120;
     }
     return 0;
   };
