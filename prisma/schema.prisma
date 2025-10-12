@@ -6,9 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
+// For local development, you can use SQLite by changing the provider above to "sqlite"
+// and the url to "file:./dev.db"
 
 model User {
   phone     String   @id // 使用手機號碼作為主鍵

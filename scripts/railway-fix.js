@@ -8,23 +8,32 @@ async function fixRailwayDatabase() {
   try {
     console.log('🔧 開始修復 Railway 資料庫...');
     
-    // 1. 測試資料庫連接
+    // 1. 檢查環境變數
+    console.log('🔍 檢查環境變數...');
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      console.error('❌ DATABASE_URL 環境變數未設置');
+      process.exit(1);
+    }
+    console.log('✅ DATABASE_URL 已設置');
+    
+    // 2. 測試資料庫連接
     console.log('📡 測試資料庫連接...');
     await prisma.$connect();
     console.log('✅ 資料庫連接成功');
     
-    // 2. 運行遷移
+    // 3. 運行遷移
     console.log('🔄 運行資料庫遷移...');
     const { execSync } = require('child_process');
     execSync('npx prisma migrate deploy', { stdio: 'inherit' });
     console.log('✅ 資料庫遷移完成');
     
-    // 3. 生成 Prisma 客戶端
+    // 4. 生成 Prisma 客戶端
     console.log('🔨 生成 Prisma 客戶端...');
     execSync('npx prisma generate', { stdio: 'inherit' });
     console.log('✅ Prisma 客戶端生成完成');
     
-    // 4. 初始化系統設定
+    // 5. 初始化系統設定
     console.log('⚙️ 初始化系統設定...');
     const existingSettings = await prisma.systemSetting.findMany();
     if (existingSettings.length === 0) {
