@@ -214,7 +214,8 @@ function OrderConfirmationPageContent() {
               const promotion = JSON.parse(order.promotionInfo);
               const hasAnyPromotion = promotion.hasFreeShipping || promotion.hasGift;
               
-              if (!hasAnyPromotion) return null;
+              // 總是顯示促銷資訊，即使沒有觸發促銷
+              // if (!hasAnyPromotion) return null;
 
               return (
                 <div className="mb-6">
@@ -236,6 +237,31 @@ function OrderConfirmationPageContent() {
                     {!promotion.hasFreeShipping && promotion.hasGift && (
                       <div className="text-sm text-green-800">
                         <div>✓ 感謝您購買{promotion.totalBottles}瓶，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶</div>
+                      </div>
+                    )}
+
+                    {!promotion.hasFreeShipping && !promotion.hasGift && (
+                      <div className="text-sm text-orange-600">
+                        {promotion.isFreeShippingEnabled && promotion.totalBottles < promotion.freeShippingThreshold && (
+                          <div>再買{promotion.freeShippingThreshold - promotion.totalBottles}瓶即可享受免運費優惠</div>
+                        )}
+                        {promotion.isGiftEnabled && (() => {
+                          try {
+                            const giftRules = JSON.parse(promotion.giftRules || '[]');
+                            const nextRule = giftRules
+                              .filter((rule: any) => promotion.totalBottles < rule.threshold)
+                              .sort((a: any, b: any) => a.threshold - b.threshold)[0];
+                            
+                            if (nextRule) {
+                              return (
+                                <div>再買{nextRule.threshold - promotion.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
+                              );
+                            }
+                            return null;
+                          } catch (error) {
+                            return null;
+                          }
+                        })()}
                       </div>
                     )}
 

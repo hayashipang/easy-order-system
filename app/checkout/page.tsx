@@ -508,7 +508,7 @@ function CheckoutPageContent() {
                               <div className="text-sm text-blue-800">
                                 <div className="font-medium mb-1">促銷優惠：</div>
                                 <div>✓ 已達免運費門檻</div>
-                                <div>✓ 贈品：{promotionSettings.giftProductName || `隨機送${promotionInfo.giftQuantity}瓶`}</div>
+                                <div>✓ 感謝您購買{promotionInfo.totalBottles}瓶，贈送{promotionSettings.giftProductName || '隨機'}{promotionInfo.giftQuantity}瓶</div>
                               </div>
                             )}
                             
@@ -522,7 +522,7 @@ function CheckoutPageContent() {
                             {!promotionInfo.hasFreeShipping && promotionInfo.hasGift && (
                               <div className="text-sm text-blue-800">
                                 <div className="font-medium mb-1">促銷優惠：</div>
-                                <div>✓ 贈品：{promotionSettings.giftProductName || `隨機送${promotionInfo.giftQuantity}瓶`}</div>
+                                <div>✓ 感謝您購買{promotionInfo.totalBottles}瓶，贈送{promotionSettings.giftProductName || '隨機'}{promotionInfo.giftQuantity}瓶</div>
                               </div>
                             )}
                             
@@ -531,9 +531,24 @@ function CheckoutPageContent() {
                                 {promotionSettings.isFreeShippingEnabled && promotionInfo.totalBottles < promotionInfo.freeShippingThreshold && (
                                   <div>再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶即可享受免運費優惠</div>
                                 )}
-                                {promotionSettings.isGiftEnabled && promotionInfo.totalBottles < promotionInfo.giftThreshold && (
-                                  <div>再買{promotionInfo.giftThreshold - promotionInfo.totalBottles}瓶即可享受贈品優惠</div>
-                                )}
+                                {promotionSettings.isGiftEnabled && (() => {
+                                  try {
+                                    const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules || '[]');
+                                    // 找到下一個可達到的贈品門檻
+                                    const nextRule = giftRules
+                                      .filter(rule => promotionInfo.totalBottles < rule.threshold)
+                                      .sort((a, b) => a.threshold - b.threshold)[0]; // 按門檻升序排列，取最低的
+                                    
+                                    if (nextRule) {
+                                      return (
+                                        <div>再買{nextRule.threshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
+                                      );
+                                    }
+                                    return null;
+                                  } catch (error) {
+                                    return null;
+                                  }
+                                })()}
                                 {promotionSettings.promotionText && (
                                   <div className="mt-1 text-xs text-gray-600">{promotionSettings.promotionText}</div>
                                 )}
