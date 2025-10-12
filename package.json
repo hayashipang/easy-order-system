@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "if [ \"$NODE_ENV\" = \"production\" ]; then prisma generate && (prisma migrate deploy || echo 'Migration failed, continuing...'); else echo 'Skipping Prisma for frontend deployment'; fi",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:studio": "prisma studio"
