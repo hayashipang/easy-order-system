@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-          "startCommand": "node scripts/start-railway.js",
+    "startCommand": "npm start",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
@@ -13,15 +13,8 @@
   "environments": {
     "production": {
       "variables": {
-        "NODE_ENV": "production",
-        "DATABASE_URL": "postgresql://postgres:TXnbENPucrNvDdPCwzTdQfVpvPGHdIGY@postgres.railway.internal:5432/railway"
+        "NODE_ENV": "production"
       }
     }
-  },
-  "volumes": [
-    {
-      "name": "uploads",
-      "mountPath": "/app/public/uploads"
-    }
-  ]
+  }
 }
