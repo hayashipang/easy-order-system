@@ -74,8 +74,8 @@ async function fixRailwayDatabase() {
       console.log('ℹ️ 系統設定已存在，跳過初始化');
     }
     
-    // 5. 更新促銷設定資料庫結構
-    console.log('🔧 更新促銷設定資料庫結構...');
+    // 5. 強制更新促銷設定資料庫結構
+    console.log('🔧 強制更新促銷設定資料庫結構...');
     try {
       // 檢查是否已有 giftRules 欄位
       try {
@@ -90,27 +90,24 @@ async function fixRailwayDatabase() {
         console.log('✅ giftRules 欄位添加成功');
       }
 
-      // 更新現有的促銷設定為多層級
-      const existingPromotion = await prisma.promotionSetting.findFirst();
-      if (existingPromotion && !existingPromotion.giftRules) {
-        // 使用多層級促銷規則
-        const multiLevelGiftRules = JSON.stringify([
-          { threshold: 15, quantity: 1 },
-          { threshold: 20, quantity: 2 },
-          { threshold: 30, quantity: 3 }
-        ]);
+      // 強制更新促銷設定為多層級（不管是否已存在）
+      const multiLevelGiftRules = JSON.stringify([
+        { threshold: 15, quantity: 1 },
+        { threshold: 20, quantity: 2 },
+        { threshold: 30, quantity: 3 }
+      ]);
 
-        await prisma.promotionSetting.update({
-          where: { id: existingPromotion.id },
-          data: { 
-            giftRules: multiLevelGiftRules,
-            promotionText: '【果然盈預購活動】出貨期間：10/27～11/30、『滿15瓶送1瓶』、『滿20瓶送2瓶』、『滿30瓶送3瓶』'
-          }
-        });
-        console.log('✅ 促銷設定更新為多層級成功');
-      }
+      const updatedSettings = await prisma.promotionSetting.update({
+        where: { id: 'default-promotion' },
+        data: { 
+          giftRules: multiLevelGiftRules,
+          promotionText: '【果然盈預購活動】出貨期間：10/27～11/30、『滿15瓶送1瓶』、『滿20瓶送2瓶』、『滿30瓶送3瓶』'
+        }
+      });
+      console.log('✅ 促銷設定強制更新為多層級成功');
+      console.log('📋 更新後的 giftRules:', updatedSettings.giftRules);
     } catch (error) {
-      console.error('❌ 更新促銷設定結構失敗:', error.message);
+      console.error('❌ 強制更新促銷設定結構失敗:', error.message);
     }
 
     // 6. 初始化促銷設定（如果不存在）
