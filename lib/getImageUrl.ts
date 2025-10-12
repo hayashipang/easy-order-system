@@ -16,12 +16,13 @@ export function getImageUrl(imagePath: string): string {
   // 根據環境決定基礎 URL
   let baseUrl = '';
   
-  if (process.env.VERCEL_URL) {
-    baseUrl = `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+  // 優先檢查 Railway 環境
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
     baseUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
   } else if (process.env.RAILWAY_STATIC_URL) {
     baseUrl = process.env.RAILWAY_STATIC_URL;
+  } else if (process.env.VERCEL_URL) {
+    baseUrl = `https://${process.env.VERCEL_URL}`;
   } else if (process.env.NEXT_PUBLIC_APP_URL) {
     baseUrl = process.env.NEXT_PUBLIC_APP_URL;
   } else if (process.env.NODE_ENV === 'production') {
