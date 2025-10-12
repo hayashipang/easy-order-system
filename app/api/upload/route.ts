@@ -65,12 +65,39 @@ export async function POST(request: NextRequest) {
     const compressedSize = compressedBuffer.length;
     const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
     
-    // 存儲到資料庫
-    const storageResult = await storeImageInDatabase(compressedBuffer, fileName, 'detail');
+    // 嘗試存儲到資料庫，失敗則使用文件系統
+    let fileUrl;
+    let finalFileName = fileName;
+    
+    try {
+      const storageResult = await storeImageInDatabase(compressedBuffer, fileName, 'detail');
+      fileUrl = storageResult.url;
+      finalFileName = storageResult.fileName;
+    } catch (dbError) {
+      console.error('資料庫存儲失敗，使用文件系統:', dbError);
+      
+      // Fallback 到文件系統存儲
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+      
+      const filePath = path.join(uploadsDir, fileName);
+      fs.writeFileSync(filePath, compressedBuffer);
+      
+      // 返回文件 URL
+      const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}`
+        : process.env.RAILWAY_PUBLIC_DOMAIN
+        ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+        : '';
+      
+      fileUrl = baseUrl ? `${baseUrl}/uploads/${fileName}` : `/uploads/${fileName}`;
+    }
     
     const response = NextResponse.json({
-      url: storageResult.url,
-      fileName: storageResult.fileName,
+      url: fileUrl,
+      fileName: finalFileName,
       originalSize: originalSize,
       compressedSize: compressedSize,
       compressionRatio: `${compressionRatio}%`,

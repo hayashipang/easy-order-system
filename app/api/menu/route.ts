@@ -81,11 +81,18 @@ export async function POST(request: NextRequest) {
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
           
-          // 使用資料庫存儲圖片
-          const storageResult = await storeImageInDatabase(buffer, imageFile.name, 'menu');
-          imageUrl = storageResult.url;
-          
-          console.log(`圖片存儲完成: ${storageResult.compressionRatio} 壓縮率`);
+          // 嘗試使用資料庫存儲圖片
+          try {
+            const storageResult = await storeImageInDatabase(buffer, imageFile.name, 'menu');
+            imageUrl = storageResult.url;
+            console.log(`圖片存儲完成: ${storageResult.compressionRatio} 壓縮率`);
+          } catch (dbError) {
+            console.error('資料庫存儲失敗，使用文件系統:', dbError);
+            // Fallback 到文件系統存儲
+            const compressionResult = await compressAndSaveImage(buffer, 'menu');
+            imageUrl = compressionResult.url;
+            console.log(`圖片壓縮完成: ${compressionResult.compressionRatio} 壓縮率`);
+          }
         } catch (error) {
           console.error('圖片上傳失敗:', error);
           return addCorsHeaders(NextResponse.json(
