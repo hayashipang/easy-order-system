@@ -14,7 +14,7 @@
     "production": {
       "variables": {
         "NODE_ENV": "production",
-        "DATABASE_URL": "${{DATABASE_URL}}"
+        "DATABASE_URL": "postgresql://postgres:TXnbENPucrNvDdPCwzTdQfVpvPGHdIGY@postgres.railway.internal:5432/railway"
       }
     }
   },
