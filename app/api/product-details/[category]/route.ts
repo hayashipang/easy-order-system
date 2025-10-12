@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,10 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { category: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const category = decodeURIComponent(params.category);
     
@@ -16,19 +21,20 @@ export async function GET(
     });
     
     if (!productDetail) {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: 'Product detail not found' },
         { status: 404 }
-      );
+      ));
     }
     
-    return NextResponse.json(productDetail);
+    const response = NextResponse.json(productDetail);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取產品詳情錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to fetch product detail' },
       { status: 500 }
-    );
+    ));
   }
 }
 
@@ -37,6 +43,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { category: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const category = decodeURIComponent(params.category);
     const body = await request.json();
@@ -59,13 +69,14 @@ export async function PUT(
       }
     });
     
-    return NextResponse.json(productDetail);
+    const response = NextResponse.json(productDetail);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('更新產品詳情錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to update product detail' },
       { status: 500 }
-    );
+    ));
   }
 }
 
