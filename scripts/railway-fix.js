@@ -80,7 +80,23 @@ async function fixRailwayDatabase() {
       console.log('ℹ️ 促銷設定已存在，跳過初始化');
     }
     
-    // 6. 遷移現有圖片到資料庫（可選）
+    // 6. 檢查 ImageStorage 表是否存在
+    console.log('🖼️ 檢查 ImageStorage 表...');
+    try {
+      const imageStorageCount = await prisma.imageStorage.count();
+      console.log(`✅ ImageStorage 表存在，記錄數量: ${imageStorageCount}`);
+    } catch (error) {
+      console.error('❌ ImageStorage 表不存在或無法訪問:', error.message);
+      console.log('🔧 嘗試重新運行遷移...');
+      try {
+        execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+        console.log('✅ 遷移重新執行完成');
+      } catch (migrateError) {
+        console.error('❌ 遷移失敗:', migrateError.message);
+      }
+    }
+    
+    // 7. 遷移現有圖片到資料庫（可選）
     console.log('🖼️ 檢查是否需要遷移圖片...');
     const existingImages = await prisma.menuItem.findMany({
       where: {
