@@ -444,7 +444,7 @@ export default function AdminMenuPage() {
                 <div key={item.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                   {/* Item Image */}
                   {item.imageUrl ? (
-                    <div className="h-48 bg-gray-100 flex items-center justify-center">
+                    <div className="h-48 bg-gray-100 flex items-center justify-center relative">
                       <img
                         src={`${item.imageUrl}`}
                         alt={item.name}
@@ -452,6 +452,7 @@ export default function AdminMenuPage() {
                         loading="lazy"
                         decoding="async"
                         onError={(e) => {
+                          console.log('圖片載入失敗:', item.imageUrl);
                           e.currentTarget.style.display = 'none';
                           const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
                           if (nextElement) {
@@ -467,6 +468,7 @@ export default function AdminMenuPage() {
                             </svg>
                           </div>
                           <p className="text-gray-600 text-xs font-medium">圖片載入失敗</p>
+                          <p className="text-gray-400 text-xs mt-1">請重新上傳圖片</p>
                         </div>
                       </div>
                     </div>

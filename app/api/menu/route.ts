@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import { compressAndSaveImage } from '@/lib/imageCompression';
 import { getImageUrl } from '@/lib/getImageUrl';
+import { isRailwayEnvironment } from '@/lib/railwayImageHandler';
 
 const prisma = new PrismaClient();
 
@@ -19,10 +20,24 @@ export async function GET(request: NextRequest) {
     });
     
     // 處理圖片 URL，確保返回正確的絕對路徑
-    const menuItemsWithCorrectUrls = menuItems.map(item => ({
-      ...item,
-      imageUrl: item.imageUrl ? getImageUrl(item.imageUrl) : null
-    }));
+    const menuItemsWithCorrectUrls = menuItems.map(item => {
+      let imageUrl = null;
+      
+      if (item.imageUrl) {
+        // 在 Railway 環境中，檢查圖片是否存在
+        if (isRailwayEnvironment()) {
+          // 暫時返回 null，讓前端顯示佔位符
+          imageUrl = null;
+        } else {
+          imageUrl = getImageUrl(item.imageUrl);
+        }
+      }
+      
+      return {
+        ...item,
+        imageUrl: imageUrl
+      };
+    });
     
     const response = NextResponse.json(menuItemsWithCorrectUrls);
     return addCorsHeaders(response);
