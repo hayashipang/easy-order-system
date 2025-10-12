@@ -26,17 +26,7 @@ async function startRailway() {
       });
     });
     
-    // 3. 運行 railway-fix
-    console.log('🔧 運行 Railway 修復腳本...');
-    const fixProcess = spawn('npm', ['run', 'railway:fix'], { stdio: 'inherit' });
-    await new Promise((resolve, reject) => {
-      fixProcess.on('close', (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`Railway fix failed with code ${code}`));
-      });
-    });
-    
-    // 4. 啟動服務
+    // 3. 啟動服務（移除 railway-fix 步驟）
     console.log('🎯 啟動 Next.js 服務...');
     const serverProcess = spawn('node', ['.next/standalone/server.js'], { stdio: 'inherit' });
     
