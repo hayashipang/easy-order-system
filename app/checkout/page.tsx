@@ -33,7 +33,9 @@ interface PromotionSettings {
   isFreeShippingEnabled: boolean;
   freeShippingThreshold: number;
   isGiftEnabled: boolean;
-  giftRules: string; // JSON string
+  giftRules?: string; // JSON string (optional for backward compatibility)
+  giftThreshold?: number; // For backward compatibility
+  giftQuantity?: number; // For backward compatibility
   giftProductName: string;
   promotionText: string;
 }
@@ -166,8 +168,8 @@ function CheckoutPageContent() {
           }
         } else {
           // 向後相容：使用舊的 giftThreshold 和 giftQuantity
-          const oldGiftThreshold = (promotionSettings as any).giftThreshold || 20;
-          const oldGiftQuantity = (promotionSettings as any).giftQuantity || 1;
+          const oldGiftThreshold = promotionSettings.giftThreshold || 20;
+          const oldGiftQuantity = promotionSettings.giftQuantity || 1;
           
           if (totalBottles >= oldGiftThreshold) {
             hasGift = true;
@@ -561,8 +563,8 @@ function CheckoutPageContent() {
                                       }
                                     } else {
                                       // 向後相容：使用舊的 giftThreshold
-                                      const oldGiftThreshold = (promotionSettings as any).giftThreshold || 20;
-                                      const oldGiftQuantity = (promotionSettings as any).giftQuantity || 1;
+                                      const oldGiftThreshold = promotionSettings.giftThreshold || 20;
+                                      const oldGiftQuantity = promotionSettings.giftQuantity || 1;
                                       
                                       if (promotionInfo.totalBottles < oldGiftThreshold) {
                                         return (
