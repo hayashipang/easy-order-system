@@ -10,18 +10,23 @@ async function fixRailwayDatabase() {
     
     // 1. 檢查環境變數
     console.log('🔍 檢查環境變數...');
+    console.log('所有環境變數:', Object.keys(process.env).filter(key => key.includes('DATABASE') || key.includes('POSTGRES') || key.includes('RAILWAY')));
+    
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
       console.error('❌ DATABASE_URL 環境變數未設置');
       console.log('🔧 嘗試使用 Railway PostgreSQL 連接...');
       // 嘗試使用 Railway 的默認 PostgreSQL 連接
-      const railwayDbUrl = process.env.RAILWAY_DATABASE_URL || process.env.POSTGRES_URL;
+      const railwayDbUrl = process.env.RAILWAY_DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
       if (railwayDbUrl) {
         process.env.DATABASE_URL = railwayDbUrl;
         console.log('✅ 使用 Railway PostgreSQL 連接');
       } else {
         console.error('❌ 無法找到 PostgreSQL 連接字符串');
-        process.exit(1);
+        console.log('🔧 強制使用 Railway 默認連接...');
+        // 強制設置 Railway 的默認 PostgreSQL 連接
+        process.env.DATABASE_URL = 'postgresql://postgres:password@localhost:5432/railway';
+        console.log('⚠️ 使用默認連接字符串');
       }
     } else {
       console.log('✅ DATABASE_URL 已設置');
