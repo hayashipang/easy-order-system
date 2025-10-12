@@ -23,6 +23,12 @@ export function getImageUrl(imagePath: string): string {
     baseUrl = 'https://easy-order-system-production-0490.up.railway.app';
   }
   
+  // 在 Railway 環境中，使用 API 路由來服務靜態文件
+  if (baseUrl.includes('railway.app') && imagePath.startsWith('/uploads/')) {
+    const fileName = imagePath.replace('/uploads/', '');
+    return `${baseUrl}/api/static/${fileName}`;
+  }
+  
   // 確保路徑以 / 開頭
   const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   
