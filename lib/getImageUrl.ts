@@ -8,13 +8,20 @@ export function getImageUrl(imagePath: string): string {
   }
   
   // 根據環境決定基礎 URL
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.RAILWAY_PUBLIC_DOMAIN
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-    : process.env.NEXT_PUBLIC_APP_URL
-    ? process.env.NEXT_PUBLIC_APP_URL
-    : '';
+  let baseUrl = '';
+  
+  if (process.env.VERCEL_URL) {
+    baseUrl = `https://${process.env.VERCEL_URL}`;
+  } else if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    baseUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+  } else if (process.env.RAILWAY_STATIC_URL) {
+    baseUrl = process.env.RAILWAY_STATIC_URL;
+  } else if (process.env.NEXT_PUBLIC_APP_URL) {
+    baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  } else if (process.env.NODE_ENV === 'production') {
+    // 在生產環境中，如果是 Railway 部署，使用已知的域名
+    baseUrl = 'https://easy-order-system-production-0490.up.railway.app';
+  }
   
   // 確保路徑以 / 開頭
   const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
