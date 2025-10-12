@@ -13,8 +13,12 @@ interface Order {
   shippingFee: number | null;
   status: string;
   deliveryType: string;
+  deliveryInfo: string;
+  paymentMethod: string;
+  paymentInfo: string;
   notes?: string;
   promotionInfo: string | null;
+  estimatedDeliveryDate: string | null;
   createdAt: string;
   orderItems: Array<{
     id: string;

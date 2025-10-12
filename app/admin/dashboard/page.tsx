@@ -19,6 +19,7 @@ interface Order {
   paymentInfo: string;
   notes: string;
   promotionInfo: string | null;
+  estimatedDeliveryDate: string | null;
   createdAt: string;
   updatedAt: string;
   orderItems: Array<{
