@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     console.error('獲取系統設定錯誤:', error);
     return NextResponse.json({ 
       error: 'Failed to fetch settings',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest) {
     console.error('更新系統設定錯誤:', error);
     return NextResponse.json({ 
       error: 'Failed to update settings',
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
