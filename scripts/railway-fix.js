@@ -90,18 +90,24 @@ async function fixRailwayDatabase() {
         console.log('✅ giftRules 欄位添加成功');
       }
 
-      // 更新現有的促銷設定
+      // 更新現有的促銷設定為多層級
       const existingPromotion = await prisma.promotionSetting.findFirst();
       if (existingPromotion && !existingPromotion.giftRules) {
-        const giftRules = JSON.stringify([
-          { threshold: existingPromotion.giftThreshold || 20, quantity: existingPromotion.giftQuantity || 1 }
+        // 使用多層級促銷規則
+        const multiLevelGiftRules = JSON.stringify([
+          { threshold: 15, quantity: 1 },
+          { threshold: 20, quantity: 2 },
+          { threshold: 30, quantity: 3 }
         ]);
 
         await prisma.promotionSetting.update({
           where: { id: existingPromotion.id },
-          data: { giftRules: giftRules }
+          data: { 
+            giftRules: multiLevelGiftRules,
+            promotionText: '【果然盈預購活動】出貨期間：10/27～11/30、『滿15瓶送1瓶』、『滿20瓶送2瓶』、『滿30瓶送3瓶』'
+          }
         });
-        console.log('✅ 促銷設定更新成功');
+        console.log('✅ 促銷設定更新為多層級成功');
       }
     } catch (error) {
       console.error('❌ 更新促銷設定結構失敗:', error.message);
