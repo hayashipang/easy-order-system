@@ -30,9 +30,9 @@ export async function GET() {
     }
 
     // 向後相容：如果沒有 giftRules，使用舊的 giftThreshold 和 giftQuantity
-    if (!promotionSettings.giftRules && promotionSettings.giftThreshold && promotionSettings.giftQuantity) {
+    if (!promotionSettings.giftRules && (promotionSettings as any).giftThreshold && (promotionSettings as any).giftQuantity) {
       const legacyGiftRules = JSON.stringify([
-        { threshold: promotionSettings.giftThreshold, quantity: promotionSettings.giftQuantity }
+        { threshold: (promotionSettings as any).giftThreshold, quantity: (promotionSettings as any).giftQuantity }
       ]);
       promotionSettings.giftRules = legacyGiftRules;
     }
