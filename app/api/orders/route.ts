@@ -42,6 +42,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/orders - 創建新訂單
 export async function POST(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const body = await request.json();
     const {
@@ -99,12 +103,13 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    return NextResponse.json(fullOrder, { status: 201 });
+    const response = NextResponse.json(fullOrder, { status: 201 });
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('創建訂單錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to create order' },
       { status: 500 }
-    );
+    ));
   }
 }
