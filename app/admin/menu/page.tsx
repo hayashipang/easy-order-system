@@ -437,6 +437,11 @@ export default function AdminMenuPage() {
               </div>
               <p className="text-gray-500 text-lg">目前沒有菜單項目</p>
               <p className="text-gray-400 text-sm mt-2">點擊上方按鈕開始新增菜單項目</p>
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-700 text-sm">
+                  <strong>注意：</strong>Railway 部署後圖片會丟失，請在每次部署後重新上傳圖片
+                </p>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -459,6 +464,9 @@ export default function AdminMenuPage() {
                             nextElement.style.display = 'flex';
                           }
                         }}
+                        onLoad={() => {
+                          console.log('圖片載入成功:', item.imageUrl);
+                        }}
                       />
                       <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center absolute inset-0" style={{display: 'none'}}>
                         <div className="text-center">
@@ -468,7 +476,8 @@ export default function AdminMenuPage() {
                             </svg>
                           </div>
                           <p className="text-gray-600 text-xs font-medium">圖片載入失敗</p>
-                          <p className="text-gray-400 text-xs mt-1">請重新上傳圖片</p>
+                          <p className="text-gray-400 text-xs mt-1">Railway 部署後圖片會丟失</p>
+                          <p className="text-gray-400 text-xs">請重新上傳圖片</p>
                         </div>
                       </div>
                     </div>
