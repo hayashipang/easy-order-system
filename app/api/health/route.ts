@@ -1,26 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { handleCors, addCorsHeaders } from '@/lib/cors';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  // Handle CORS
-  const corsResponse = handleCors(request);
-  if (corsResponse) return corsResponse;
-
+export async function GET() {
   try {
-    return addCorsHeaders(NextResponse.json({ 
+    return NextResponse.json({ 
       status: 'ok', 
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV,
-      hasDatabaseUrl: !!process.env.DATABASE_URL,
-      version: '1.2.8',
-      corsMethods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      deploymentTime: new Date().toISOString()
-    }));
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.2.8'
+    });
   } catch (error) {
     console.error('Health check error:', error);
-    return addCorsHeaders(NextResponse.json({ 
+    return NextResponse.json({ 
       status: 'error', 
       error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 }));
+    }, { status: 500 });
   }
 }
