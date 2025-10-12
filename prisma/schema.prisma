@@ -10,6 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 如果 DATABASE_URL 未設置，使用 Railway PostgreSQL
+// 在 Railway 環境中，強制使用 PostgreSQL
+
 // For local development, you can use SQLite by changing the provider above to "sqlite"
 // and the url to "file:./dev.db"
 
