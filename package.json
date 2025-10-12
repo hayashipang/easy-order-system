@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "railway:fix": "node scripts/railway-fix.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
