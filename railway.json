@@ -16,5 +16,11 @@
         "NODE_ENV": "production"
       }
     }
-  }
+  },
+  "volumes": [
+    {
+      "name": "uploads",
+      "mountPath": "/app/public/uploads"
+    }
+  ]
 }

@@ -117,3 +117,16 @@ model PromotionSetting {
 
   @@map("promotion_settings")
 }
+
+model ImageStorage {
+  id                String   @id @default(cuid())
+  fileName          String
+  dataUrl           String   // base64 格式的圖片數據
+  originalSize      Int
+  compressedSize    Int
+  compressionRatio  String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("image_storage")
+}
