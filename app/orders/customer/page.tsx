@@ -370,7 +370,10 @@ function CustomerOrdersPageContent() {
                         sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling.style.display = 'flex';
+                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (nextElement) {
+                            nextElement.style.display = 'flex';
+                          }
                         }}
                       />
                       <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center absolute inset-0" style={{display: 'none'}}>
