@@ -80,19 +80,29 @@ async function fixRailwayDatabase() {
       console.log('ℹ️ 促銷設定已存在，跳過初始化');
     }
     
-    // 6. 檢查 ImageStorage 表是否存在
-    console.log('🖼️ 檢查 ImageStorage 表...');
+    // 6. 強制創建 ImageStorage 表
+    console.log('🖼️ 強制創建 ImageStorage 表...');
     try {
       const imageStorageCount = await prisma.imageStorage.count();
       console.log(`✅ ImageStorage 表存在，記錄數量: ${imageStorageCount}`);
     } catch (error) {
-      console.error('❌ ImageStorage 表不存在或無法訪問:', error.message);
-      console.log('🔧 嘗試重新運行遷移...');
+      console.error('❌ ImageStorage 表不存在，強制創建...');
       try {
-        execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-        console.log('✅ 遷移重新執行完成');
-      } catch (migrateError) {
-        console.error('❌ 遷移失敗:', migrateError.message);
+        await prisma.$executeRaw`
+          CREATE TABLE IF NOT EXISTS "image_storage" (
+            "id" TEXT NOT NULL PRIMARY KEY,
+            "fileName" TEXT NOT NULL,
+            "dataUrl" TEXT NOT NULL,
+            "originalSize" INTEGER NOT NULL,
+            "compressedSize" INTEGER NOT NULL,
+            "compressionRatio" TEXT NOT NULL,
+            "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            "updatedAt" TIMESTAMP(3) NOT NULL
+          );
+        `;
+        console.log('✅ ImageStorage 表創建成功');
+      } catch (createError) {
+        console.error('❌ 創建 ImageStorage 表失敗:', createError.message);
       }
     }
     
