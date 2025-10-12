@@ -29,6 +29,14 @@ export async function GET() {
       });
     }
 
+    // 向後相容：如果沒有 giftRules，使用舊的 giftThreshold 和 giftQuantity
+    if (!promotionSettings.giftRules && promotionSettings.giftThreshold && promotionSettings.giftQuantity) {
+      const legacyGiftRules = JSON.stringify([
+        { threshold: promotionSettings.giftThreshold, quantity: promotionSettings.giftQuantity }
+      ]);
+      promotionSettings.giftRules = legacyGiftRules;
+    }
+    
     return NextResponse.json(promotionSettings);
   } catch (error) {
     console.error('Error fetching promotion settings:', error);

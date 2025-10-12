@@ -151,16 +151,29 @@ function CheckoutPageContent() {
     
     if (promotionSettings.isGiftEnabled) {
       try {
-        const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules || '[]');
-        // 找到符合條件的最高層級促銷
-        const applicableRule = giftRules
-          .filter(rule => totalBottles >= rule.threshold)
-          .sort((a, b) => b.threshold - a.threshold)[0]; // 按門檻降序排列，取最高的
-        
-        if (applicableRule) {
-          hasGift = true;
-          giftQuantity = applicableRule.quantity;
-          giftThreshold = applicableRule.threshold;
+        // 檢查是否有新的 giftRules 結構
+        if (promotionSettings.giftRules) {
+          const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules);
+          // 找到符合條件的最高層級促銷
+          const applicableRule = giftRules
+            .filter(rule => totalBottles >= rule.threshold)
+            .sort((a, b) => b.threshold - a.threshold)[0]; // 按門檻降序排列，取最高的
+          
+          if (applicableRule) {
+            hasGift = true;
+            giftQuantity = applicableRule.quantity;
+            giftThreshold = applicableRule.threshold;
+          }
+        } else {
+          // 向後相容：使用舊的 giftThreshold 和 giftQuantity
+          const oldGiftThreshold = (promotionSettings as any).giftThreshold || 20;
+          const oldGiftQuantity = (promotionSettings as any).giftQuantity || 1;
+          
+          if (totalBottles >= oldGiftThreshold) {
+            hasGift = true;
+            giftQuantity = oldGiftQuantity;
+            giftThreshold = oldGiftThreshold;
+          }
         }
       } catch (error) {
         console.error('解析贈品規則失敗:', error);
@@ -533,16 +546,29 @@ function CheckoutPageContent() {
                                 )}
                                 {promotionSettings.isGiftEnabled && (() => {
                                   try {
-                                    const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules || '[]');
-                                    // 找到下一個可達到的贈品門檻
-                                    const nextRule = giftRules
-                                      .filter(rule => promotionInfo.totalBottles < rule.threshold)
-                                      .sort((a, b) => a.threshold - b.threshold)[0]; // 按門檻升序排列，取最低的
-                                    
-                                    if (nextRule) {
-                                      return (
-                                        <div>再買{nextRule.threshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
-                                      );
+                                    // 檢查是否有新的 giftRules 結構
+                                    if (promotionSettings.giftRules) {
+                                      const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules);
+                                      // 找到下一個可達到的贈品門檻
+                                      const nextRule = giftRules
+                                        .filter(rule => promotionInfo.totalBottles < rule.threshold)
+                                        .sort((a, b) => a.threshold - b.threshold)[0]; // 按門檻升序排列，取最低的
+                                      
+                                      if (nextRule) {
+                                        return (
+                                          <div>再買{nextRule.threshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
+                                        );
+                                      }
+                                    } else {
+                                      // 向後相容：使用舊的 giftThreshold
+                                      const oldGiftThreshold = (promotionSettings as any).giftThreshold || 20;
+                                      const oldGiftQuantity = (promotionSettings as any).giftQuantity || 1;
+                                      
+                                      if (promotionInfo.totalBottles < oldGiftThreshold) {
+                                        return (
+                                          <div>再買{oldGiftThreshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{oldGiftQuantity}瓶）</div>
+                                        );
+                                      }
                                     }
                                     return null;
                                   } catch (error) {
