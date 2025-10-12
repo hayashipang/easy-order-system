@@ -74,7 +74,33 @@ async function fixRailwayDatabase() {
       console.log('ℹ️ 系統設定已存在，跳過初始化');
     }
     
-    // 5. 強制更新促銷設定資料庫結構
+    // 5. 初始化促銷設定（如果不存在）
+    console.log('🎁 初始化促銷設定...');
+    const existingPromotion = await prisma.promotionSetting.findFirst();
+    if (!existingPromotion) {
+      const defaultGiftRules = JSON.stringify([
+        { threshold: 15, quantity: 1 },
+        { threshold: 20, quantity: 2 },
+        { threshold: 30, quantity: 3 }
+      ]);
+      
+      await prisma.promotionSetting.create({
+        data: {
+          id: 'default-promotion',
+          isFreeShippingEnabled: false,
+          freeShippingThreshold: 20,
+          isGiftEnabled: false,
+          giftRules: defaultGiftRules,
+          giftProductName: '隨機送一瓶',
+          promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
+        }
+      });
+      console.log('✅ 促銷設定初始化完成');
+    } else {
+      console.log('ℹ️ 促銷設定已存在，跳過初始化');
+    }
+
+    // 6. 強制更新促銷設定資料庫結構
     console.log('🔧 強制更新促銷設定資料庫結構...');
     try {
       // 檢查是否已有 giftRules 欄位
@@ -108,32 +134,6 @@ async function fixRailwayDatabase() {
       console.log('📋 更新後的 giftRules:', updatedSettings.giftRules);
     } catch (error) {
       console.error('❌ 強制更新促銷設定結構失敗:', error.message);
-    }
-
-    // 6. 初始化促銷設定（如果不存在）
-    console.log('🎁 初始化促銷設定...');
-    const existingPromotion = await prisma.promotionSetting.findFirst();
-    if (!existingPromotion) {
-      const defaultGiftRules = JSON.stringify([
-        { threshold: 15, quantity: 1 },
-        { threshold: 20, quantity: 2 },
-        { threshold: 30, quantity: 3 }
-      ]);
-      
-      await prisma.promotionSetting.create({
-        data: {
-          id: 'default-promotion',
-          isFreeShippingEnabled: false,
-          freeShippingThreshold: 20,
-          isGiftEnabled: false,
-          giftRules: defaultGiftRules,
-          giftProductName: '隨機送一瓶',
-          promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
-        }
-      });
-      console.log('✅ 促銷設定初始化完成');
-    } else {
-      console.log('ℹ️ 促銷設定已存在，跳過初始化');
     }
     
     // 6. 強制創建 ImageStorage 表
