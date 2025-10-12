@@ -704,7 +704,7 @@ function CheckoutPageContent() {
                               <strong>取貨時間：</strong>{settings.store_hours}
                             </p>
                             <p className="text-sm text-blue-800 mt-1">
-                              <strong>注意事項：</strong>取貨1小時前，請至果然盈Line官網留言取貨時間（首頁可加入果然盈官方Line）
+                              <strong>注意事項：</strong>來店取貨時，為維持商品品質與出貨順暢，我們將為您安排取貨日期，並於備貨完成後由官方 LINE 主動通知。請於匯款完成後留意官方 LINE 訊息。
                             </p>
                           </div>
                         )}
