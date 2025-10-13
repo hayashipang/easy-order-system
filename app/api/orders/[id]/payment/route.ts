@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders, corsHeaders } from '@/lib/cors';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // PUT /api/orders/[id]/payment - 更新訂單匯款資訊
 export async function PUT(

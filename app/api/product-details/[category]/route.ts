@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // GET /api/product-details/[category] - 獲取特定分類的產品詳情
 export async function GET(

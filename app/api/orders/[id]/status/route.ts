@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // PATCH /api/orders/[id]/status - 更新訂單狀態
 export async function PATCH(
