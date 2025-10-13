@@ -15,7 +15,8 @@
     "railway:force-fix": "node scripts/force-fix-railway.js",
     "emergency-fix": "node scripts/emergency-fix.js",
     "update-promotion": "node scripts/update-promotion-only.js",
-    "init-railway": "node scripts/init-railway-db.js"
+    "init-railway": "node scripts/init-railway-db.js",
+    "railway:start": "node scripts/start-with-init.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

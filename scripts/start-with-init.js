@@ -83,17 +83,15 @@ async function initDatabase() {
 async function startApp() {
   console.log('🚀 啟動 Next.js 應用程式...');
   
-  // 設置端口
-  const port = process.env.PORT || 8080;
-  console.log(`📡 監聽端口: ${port}`);
+  // 檢查 Railway 分配的端口
+  const port = process.env.PORT;
+  console.log(`📡 Railway 分配的端口: ${port}`);
+  console.log(`📡 所有環境變數:`, Object.keys(process.env).filter(key => key.includes('PORT') || key.includes('RAILWAY')));
   
-  // 啟動 Next.js
+  // 啟動 Next.js，讓它使用 Railway 分配的端口
   const nextProcess = spawn('node', ['.next/standalone/server.js'], {
     stdio: 'inherit',
-    env: {
-      ...process.env,
-      PORT: port
-    }
+    env: process.env
   });
   
   nextProcess.on('error', (error) => {
