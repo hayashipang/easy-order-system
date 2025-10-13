@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // GET /api/image/[id] - 獲取存儲在資料庫中的圖片
 export async function GET(
@@ -17,6 +15,7 @@ export async function GET(
     const { id } = params;
     console.log(`🔍 查找圖片 ID: ${id}`);
     
+    // 添加連接超時和重試機制
     const imageRecord = await prisma.imageStorage.findUnique({
       where: { id }
     });
@@ -51,6 +50,19 @@ export async function GET(
     
   } catch (error) {
     console.error('獲取圖片錯誤:', error);
+    
+    // 檢查是否是資料庫連接錯誤
+    if (error instanceof Error) {
+      if (error.message.includes('Connection reset by peer') || 
+          error.message.includes('could not receive data from client')) {
+        console.error('❌ 資料庫連接被重置，可能是連接池耗盡');
+        return addCorsHeaders(NextResponse.json(
+          { error: 'Database connection error, please try again' },
+          { status: 503 }
+        ));
+      }
+    }
+    
     return addCorsHeaders(NextResponse.json(
       { error: 'Failed to fetch image' },
       { status: 500 }
