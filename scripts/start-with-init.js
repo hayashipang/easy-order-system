@@ -22,21 +22,27 @@ async function initDatabase() {
     
     // 初始化系統設定
     console.log('⚙️ 初始化系統設定...');
-    const existingSettings = await prisma.systemSettings.findFirst();
+    const existingSettings = await prisma.systemSetting.findFirst();
     if (!existingSettings) {
-      await prisma.systemSettings.create({
+      await prisma.systemSetting.create({
         data: {
-          id: 'default',
-          storeName: '果然盈',
-          storePhone: '0912345678',
-          storeAddress: '台北市信義區信義路五段7號',
-          isShippingEnabled: true,
-          shippingFee: 100,
-          freeShippingThreshold: 1000,
-          isGiftPromotionEnabled: true,
-          giftPromotionThreshold: 15,
-          giftPromotionQuantity: 1,
-          promotionText: '【果然盈預購活動】出貨期間：10/27～11/30、『滿15瓶送1瓶』、『滿20瓶送2瓶』、『滿30瓶送3瓶』'
+          key: 'store_name',
+          value: '果然盈',
+          description: '商店名稱'
+        }
+      });
+      await prisma.systemSetting.create({
+        data: {
+          key: 'store_phone',
+          value: '0912345678',
+          description: '商店電話'
+        }
+      });
+      await prisma.systemSetting.create({
+        data: {
+          key: 'store_address',
+          value: '台北市信義區信義路五段7號',
+          description: '商店地址'
         }
       });
       console.log('✅ 系統設定初始化完成');
@@ -46,11 +52,10 @@ async function initDatabase() {
     
     // 初始化促銷設定
     console.log('🎁 初始化促銷設定...');
-    const existingPromotion = await prisma.promotionSettings.findFirst();
+    const existingPromotion = await prisma.promotionSetting.findFirst();
     if (!existingPromotion) {
-      await prisma.promotionSettings.create({
+      await prisma.promotionSetting.create({
         data: {
-          id: 'default-promotion',
           isGiftEnabled: true,
           giftRules: JSON.stringify([
             { threshold: 15, quantity: 1 },
