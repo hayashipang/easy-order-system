@@ -2,19 +2,19 @@
 export const apiCall = async (endpoint: string, options?: RequestInit) => {
   // Get API base URL at runtime
   const getApiBaseUrl = () => {
-    // Check if we have a custom API URL set (for local development)
-    const customApiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (customApiUrl) {
-      return customApiUrl;
-    }
-    
     // Check if we're in development mode
     if (process.env.NODE_ENV === 'development') {
+      // In development, check for custom API URL
+      const customApiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (customApiUrl) {
+        return customApiUrl;
+      }
       return 'http://localhost:4000';
     }
     
-    // For production, use relative URLs (same domain)
+    // For production, ALWAYS use relative URLs (same domain)
     // This will use the current domain's API endpoints
+    // Ignore NEXT_PUBLIC_API_URL in production to avoid Railway conflicts
     return '';
   };
 
