@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { compressAndSaveImage } from '@/lib/imageCompression';
+import { storeImageInDatabase } from '@/lib/databaseImageStorage';
 
 const prisma = new PrismaClient();
 
@@ -52,15 +52,15 @@ export async function PUT(
       
       if (imageFile && imageFile.size > 0) {
         try {
-          // 將圖片轉換為 Buffer 並壓縮
+          // 將圖片轉換為 Buffer
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
           
-          // 使用壓縮函數處理圖片
-          const compressionResult = await compressAndSaveImage(buffer, 'menu');
-          imageUrl = compressionResult.url;
+          // 使用資料庫存儲圖片
+          const storageResult = await storeImageInDatabase(buffer, imageFile.name, 'menu');
+          imageUrl = storageResult.url;
           
-          console.log(`圖片壓縮完成: ${compressionResult.compressionRatio} 壓縮率`);
+          console.log(`圖片存儲完成: ${storageResult.compressionRatio} 壓縮率`);
         } catch (error) {
           console.error('圖片上傳失敗:', error);
           return NextResponse.json(
