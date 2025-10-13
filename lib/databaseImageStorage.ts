@@ -71,13 +71,14 @@ export async function storeImageInDatabase(
       }
     });
     
-    // 生成完整的圖片 URL - 強制使用 Railway URL
-    let baseUrl = 'https://easy-order-system-production-0490.up.railway.app';
+    // 生成完整的圖片 URL
+    let baseUrl = '';
     
     // 在開發環境中使用本地 URL
     if (process.env.NODE_ENV === 'development') {
       baseUrl = 'http://localhost:4000';
     }
+    // 在生產環境中使用相對路徑（當前域名）
     
     return {
       id: imageRecord.id,

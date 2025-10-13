@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
             ? `https://${process.env.VERCEL_URL}`
             : process.env.RAILWAY_PUBLIC_DOMAIN
             ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-            : 'https://easy-order-system-production-0490.up.railway.app';
+            : '';
           imageUrl = `${baseUrl}${item.imageUrl}`;
         } else {
           // 舊的文件系統圖片 URL，轉換為資料庫 URL

@@ -26,8 +26,8 @@ export function getImageUrl(imagePath: string): string {
   } else if (process.env.NEXT_PUBLIC_APP_URL) {
     baseUrl = process.env.NEXT_PUBLIC_APP_URL;
   } else if (process.env.NODE_ENV === 'production') {
-    // 在生產環境中，如果是 Railway 部署，使用已知的域名
-    baseUrl = 'https://easy-order-system-production-0490.up.railway.app';
+    // 在生產環境中，使用相對路徑（當前域名）
+    baseUrl = '';
   }
   
   // 在 Railway 環境中，使用 API 路由來服務靜態文件

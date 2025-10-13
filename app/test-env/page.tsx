@@ -15,7 +15,7 @@ export default function TestEnvPage() {
           <strong>NEXT_PUBLIC_API_URL:</strong> {apiUrl || '未設置'}
         </div>
         <div>
-          <strong>預期 API URL:</strong> https://easy-order-system-production-0490.up.railway.app
+          <strong>預期 API URL:</strong> 相對路徑（當前域名）
         </div>
         <div className="mt-4">
           <button 
