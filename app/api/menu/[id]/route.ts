@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { storeImageInDatabase } from '@/lib/databaseImageStorage';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
 // GET /api/menu/[id] - 獲取特定菜單項目
