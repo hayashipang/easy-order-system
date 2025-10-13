@@ -13,8 +13,9 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
       return 'http://localhost:4000';
     }
     
-    // Default to Railway API URL for production
-    return 'https://easy-order-system-production-0490.up.railway.app';
+    // For production, use relative URLs (same domain)
+    // This will use the current domain's API endpoints
+    return '';
   };
 
   const baseUrl = getApiBaseUrl();
