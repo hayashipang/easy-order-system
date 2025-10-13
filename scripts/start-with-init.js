@@ -83,10 +83,17 @@ async function initDatabase() {
 async function startApp() {
   console.log('🚀 啟動 Next.js 應用程式...');
   
+  // 設置端口
+  const port = process.env.PORT || 8080;
+  console.log(`📡 監聽端口: ${port}`);
+  
   // 啟動 Next.js
   const nextProcess = spawn('node', ['.next/standalone/server.js'], {
     stdio: 'inherit',
-    env: process.env
+    env: {
+      ...process.env,
+      PORT: port
+    }
   });
   
   nextProcess.on('error', (error) => {
