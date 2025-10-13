@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
+// OPTIONS /api/image/[id] - 處理 CORS 預檢請求
+export async function OPTIONS(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
 // GET /api/image/[id] - 獲取存儲在資料庫中的圖片
 export async function GET(
   request: NextRequest,
@@ -43,8 +59,9 @@ export async function GET(
         'Content-Type': mimeType,
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
       },
     });
     
