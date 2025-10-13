@@ -34,6 +34,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const contentType = request.headers.get('content-type') || '';
     const isFormData = contentType.includes('multipart/form-data');
@@ -61,10 +65,10 @@ export async function PUT(
           console.log(`圖片存儲完成: ${storageResult.compressionRatio} 壓縮率`);
         } catch (error) {
           console.error('圖片上傳失敗:', error);
-          return NextResponse.json(
+          return addCorsHeaders(NextResponse.json(
             { error: 'Failed to upload image' },
             { status: 500 }
-          );
+          ));
         }
       }
       
@@ -110,10 +114,10 @@ export async function PUT(
         });
         
         if (existingItem) {
-          return NextResponse.json(
+          return addCorsHeaders(NextResponse.json(
             { error: '菜單項目名稱已存在' },
             { status: 400 }
-          );
+          ));
         }
       }
     }
@@ -128,10 +132,10 @@ export async function PUT(
       });
       
       if (existingItem) {
-        return NextResponse.json(
+        return addCorsHeaders(NextResponse.json(
           { error: '菜單項目名稱已存在' },
           { status: 400 }
-        );
+        ));
       }
     }
 
@@ -140,22 +144,23 @@ export async function PUT(
       data: updateData
     });
     
-    return NextResponse.json(menuItem);
+    const response = NextResponse.json(menuItem);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('更新菜單項目錯誤:', error);
     
     // 處理唯一約束錯誤
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
-      return NextResponse.json(
+      return addCorsHeaders(NextResponse.json(
         { error: '菜單項目名稱已存在' },
         { status: 400 }
-      );
+      ));
     }
     
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to update menu item' },
       { status: 500 }
-    );
+    ));
   }
 }
 
