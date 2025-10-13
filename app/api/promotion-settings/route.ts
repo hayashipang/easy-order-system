@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
+// Force redeploy to fix PUT method issue
+
 // GET - 獲取促銷設定
 export async function GET(request: NextRequest) {
   // Handle CORS
