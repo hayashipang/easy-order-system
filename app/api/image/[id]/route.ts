@@ -15,17 +15,21 @@ export async function GET(
 
   try {
     const { id } = params;
+    console.log(`🔍 查找圖片 ID: ${id}`);
     
     const imageRecord = await prisma.imageStorage.findUnique({
       where: { id }
     });
     
     if (!imageRecord) {
+      console.log(`❌ 圖片不存在: ${id}`);
       return addCorsHeaders(NextResponse.json(
         { error: 'Image not found' },
         { status: 404 }
       ));
     }
+    
+    console.log(`✅ 找到圖片: ${id}, 大小: ${imageRecord.dataUrl.length} 字符`);
     
     // 解析 dataUrl
     const [header, base64Data] = imageRecord.dataUrl.split(',');
