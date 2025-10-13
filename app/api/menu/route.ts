@@ -23,14 +23,10 @@ export async function GET(request: NextRequest) {
       let imageUrl = null;
       
       if (item.imageUrl) {
-        // 如果是資料庫圖片 URL（/api/image/），直接使用
+        // 如果是資料庫圖片 URL（/api/image/），直接使用相對路徑
         if (item.imageUrl.startsWith('/api/image/')) {
-          const baseUrl = process.env.VERCEL_URL 
-            ? `https://${process.env.VERCEL_URL}`
-            : process.env.RAILWAY_PUBLIC_DOMAIN
-            ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-            : '';
-          imageUrl = `${baseUrl}${item.imageUrl}`;
+          // 在生產環境中使用相對路徑，避免域名不匹配問題
+          imageUrl = item.imageUrl;
         } else {
           // 舊的文件系統圖片 URL，轉換為資料庫 URL
           imageUrl = getImageUrl(item.imageUrl);
