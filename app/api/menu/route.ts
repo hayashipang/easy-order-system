@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import { compressAndSaveImage } from '@/lib/imageCompression';
 import { getImageUrl } from '@/lib/getImageUrl';
 import { isRailwayEnvironment } from '@/lib/railwayImageHandler';
 import { storeImageInDatabase } from '@/lib/databaseImageStorage';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // GET /api/menu - 獲取所有菜單項目
 export async function GET(request: NextRequest) {

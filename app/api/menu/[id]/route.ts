@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { storeImageInDatabase } from '@/lib/databaseImageStorage';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // GET /api/menu/[id] - 獲取特定菜單項目
 export async function GET(

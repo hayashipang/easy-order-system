@@ -3,9 +3,7 @@
  * 將圖片以 base64 格式存儲在資料庫中，避免 Railway 文件系統丟失問題
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from './prisma';
 
 export interface ImageStorageResult {
   id: string;
@@ -25,11 +23,14 @@ export async function storeImageInDatabase(
   prefix: string = 'image'
 ): Promise<ImageStorageResult> {
   try {
+    console.log(`🖼️ 開始存儲圖片: ${fileName}, 大小: ${buffer.length} bytes`);
+    
     // 檢查 ImageStorage 表是否存在
     try {
       await prisma.imageStorage.count();
+      console.log('✅ ImageStorage 表存在');
     } catch (error) {
-      console.log('ImageStorage 表不存在，嘗試創建...');
+      console.log('❌ ImageStorage 表不存在，嘗試創建...');
       try {
         await prisma.$executeRaw`
           CREATE TABLE IF NOT EXISTS "image_storage" (
@@ -43,9 +44,9 @@ export async function storeImageInDatabase(
             "updatedAt" TIMESTAMP(3) NOT NULL
           );
         `;
-        console.log('ImageStorage 表創建成功');
+        console.log('✅ ImageStorage 表創建成功');
       } catch (createError) {
-        console.error('創建 ImageStorage 表失敗:', createError);
+        console.error('❌ 創建 ImageStorage 表失敗:', createError);
         throw new Error('ImageStorage 表創建失敗');
       }
     }
@@ -54,12 +55,15 @@ export async function storeImageInDatabase(
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
     const id = `${prefix}-${timestamp}-${randomString}`;
+    console.log(`🆔 生成圖片 ID: ${id}`);
     
     // 將圖片轉換為 base64
     const base64Data = buffer.toString('base64');
     const dataUrl = `data:image/webp;base64,${base64Data}`;
+    console.log(`📝 轉換為 base64，大小: ${dataUrl.length} 字符`);
     
     // 存儲到資料庫
+    console.log(`💾 開始存儲到資料庫...`);
     const imageRecord = await prisma.imageStorage.create({
       data: {
         id: id,
@@ -70,6 +74,7 @@ export async function storeImageInDatabase(
         compressionRatio: '0%'
       }
     });
+    console.log(`✅ 圖片存儲成功: ${imageRecord.id}`);
     
     // 生成完整的圖片 URL
     let baseUrl = '';
@@ -80,9 +85,12 @@ export async function storeImageInDatabase(
     }
     // 在生產環境中使用相對路徑（當前域名）
     
+    const finalUrl = baseUrl ? `${baseUrl}/api/image/${imageRecord.id}` : `/api/image/${imageRecord.id}`;
+    console.log(`🔗 生成圖片 URL: ${finalUrl}`);
+    
     return {
       id: imageRecord.id,
-      url: baseUrl ? `${baseUrl}/api/image/${imageRecord.id}` : `/api/image/${imageRecord.id}`,
+      url: finalUrl,
       fileName: imageRecord.fileName,
       originalSize: imageRecord.originalSize,
       compressedSize: imageRecord.compressedSize,
