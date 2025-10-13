@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
-// Force redeploy to fix PUT method issue
-
 // GET - 獲取促銷設定
 export async function GET(request: NextRequest) {
   // Handle CORS
@@ -55,12 +53,17 @@ export async function GET(request: NextRequest) {
 
 // PUT - 更新促銷設定
 export async function PUT(request: NextRequest) {
+  console.log('PUT method called for promotion settings');
+  
   // Handle CORS
   const corsResponse = handleCors(request);
   if (corsResponse) return corsResponse;
 
   try {
-    const { promotionSettings } = await request.json();
+    const body = await request.json();
+    console.log('Request body:', body);
+    
+    const { promotionSettings } = body;
 
     // 獲取或創建促銷設定
     let existingSettings = await prisma.promotionSetting.findFirst();
@@ -83,6 +86,7 @@ export async function PUT(request: NextRequest) {
         }
       });
       
+      console.log('Updated settings:', updatedSettings);
       const response = NextResponse.json(updatedSettings);
       return addCorsHeaders(response);
     } else {
@@ -102,6 +106,7 @@ export async function PUT(request: NextRequest) {
         }
       });
       
+      console.log('Created new settings:', newSettings);
       const response = NextResponse.json(newSettings);
       return addCorsHeaders(response);
     }
