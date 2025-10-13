@@ -1,12 +1,4 @@
 {
   "name": "easy-order-system",
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "buildCommand": "npx prisma generate && npm run build",
-  "installCommand": "npm install"
+  "version": 2
 }
