@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm run railway:simple"
+    "startCommand": "npm start"
   }
 }
