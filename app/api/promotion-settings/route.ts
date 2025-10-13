@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
 // GET - 獲取促銷設定
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     // 獲取或創建促銷設定
     let promotionSettings = await prisma.promotionSetting.findFirst();
@@ -35,18 +40,23 @@ export async function GET() {
       promotionSettings.giftRules = legacyGiftRules;
     }
     
-    return NextResponse.json(promotionSettings);
+    const response = NextResponse.json(promotionSettings);
+    return addCorsHeaders(response);
   } catch (error) {
     console.error('Error fetching promotion settings:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to fetch promotion settings' },
       { status: 500 }
-    );
+    ));
   }
 }
 
 // PUT - 更新促銷設定
 export async function PUT(request: NextRequest) {
+  // Handle CORS
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
+
   try {
     const { promotionSettings } = await request.json();
 
@@ -71,7 +81,8 @@ export async function PUT(request: NextRequest) {
         }
       });
       
-      return NextResponse.json(updatedSettings);
+      const response = NextResponse.json(updatedSettings);
+      return addCorsHeaders(response);
     } else {
       // 創建新設定
       const newSettings = await prisma.promotionSetting.create({
@@ -89,13 +100,14 @@ export async function PUT(request: NextRequest) {
         }
       });
       
-      return NextResponse.json(newSettings);
+      const response = NextResponse.json(newSettings);
+      return addCorsHeaders(response);
     }
   } catch (error) {
     console.error('Error updating promotion settings:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to update promotion settings' },
       { status: 500 }
-    );
+    ));
   }
 }
