@@ -375,6 +375,9 @@ function CustomerOrdersPageContent() {
                             nextElement.style.display = 'flex';
                           }
                         }}
+                        onLoad={() => {
+                          console.log('圖片載入成功:', item.imageUrl);
+                        }}
                       />
                       <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center absolute inset-0" style={{display: 'none'}}>
                         <div className="text-center">

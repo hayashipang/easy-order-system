@@ -62,6 +62,11 @@ export async function GET(
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Max-Age': '86400',
+        // 添加壓縮和優化標頭
+        'Content-Encoding': 'gzip',
+        'Vary': 'Accept-Encoding',
+        // 添加 ETag 用於緩存
+        'ETag': `"${id}"`,
       },
     });
     
