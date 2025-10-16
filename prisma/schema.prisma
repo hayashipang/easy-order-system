@@ -7,11 +7,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_NEW")
+  url      = env("DATABASE_URL")
 }
 
-// 如果 DATABASE_URL 未設置，使用 Railway PostgreSQL
-// 在 Railway 環境中，強制使用 PostgreSQL
+// 使用 PostgreSQL 資料庫
+// 在 Vercel 環境中，使用 Vercel Postgres
 
 // For local development, you can use SQLite by changing the provider above to "sqlite"
 // and the url to "file:./dev.db"

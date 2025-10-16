@@ -6,7 +6,9 @@
       "use": "@vercel/next"
     }
   ],
-  "env": {
-    "DATABASE_URL": "@database_url"
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
   }
 }

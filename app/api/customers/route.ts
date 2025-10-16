@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
+// OPTIONS /api/customers - Handle preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
+
 // GET /api/customers - 獲取所有客戶
 export async function GET(request: NextRequest) {
   // Handle CORS

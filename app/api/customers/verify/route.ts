@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
+// OPTIONS /api/customers/verify - Handle preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
+
 // POST /api/customers/verify - 驗證用戶登入（手機號碼 + 生日）
 export async function POST(request: NextRequest) {
   // Handle CORS

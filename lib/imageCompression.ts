@@ -51,8 +51,6 @@ export async function compressAndSaveImage(
   // 返回文件 URL - 根據環境決定是否使用絕對路徑
   const baseUrl = process.env.VERCEL_URL 
     ? `https://${process.env.VERCEL_URL}`
-    : process.env.RAILWAY_PUBLIC_DOMAIN
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
     : '';
   
   const fileUrl = baseUrl ? `${baseUrl}/uploads/${fileName}` : `/uploads/${fileName}`;

@@ -12,8 +12,8 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
       return 'http://localhost:4000';
     }
     
-    // For production, use relative URLs (same domain as frontend)
-    // This will work when both frontend and backend are on Vercel
+    // For production, ALWAYS use relative URLs (same domain as frontend)
+    // This ensures we never accidentally call external APIs
     return ''; // Empty string means relative URL
   };
 
@@ -24,7 +24,7 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
   const cleanEndpoint = endpoint.replace(/^\//, '');
   const url = cleanBaseUrl ? `${cleanBaseUrl}/${cleanEndpoint}` : `/${cleanEndpoint}`;
   
-  console.log('API Call:', url); // Debug log - Railway deleted, Vercel only
+  console.log('API Call:', url, 'Base URL:', baseUrl); // Debug log - Vercel only
   
   return fetch(url, options);
 };

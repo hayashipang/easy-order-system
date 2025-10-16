@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import { compressAndSaveImage } from '@/lib/imageCompression';
 import { getImageUrl } from '@/lib/getImageUrl';
-import { isRailwayEnvironment } from '@/lib/railwayImageHandler';
 import { storeImageInDatabase } from '@/lib/databaseImageStorage';
 import prisma from '@/lib/prisma';
+
+// OPTIONS /api/menu - Handle preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
 
 // GET /api/menu - 獲取所有菜單項目
 export async function GET(request: NextRequest) {

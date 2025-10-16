@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
+// OPTIONS /api/orders - Handle preflight requests
+export async function OPTIONS(request: NextRequest) {
+  return handleCors(request);
+}
+
 // GET /api/orders - 獲取所有訂單或按手機號碼查詢
 export async function GET(request: NextRequest) {
   // Handle CORS
@@ -31,10 +36,10 @@ export async function GET(request: NextRequest) {
     return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取訂單錯誤:', error);
-    return NextResponse.json(
+    return addCorsHeaders(NextResponse.json(
       { error: 'Failed to fetch orders' },
       { status: 500 }
-    );
+    ));
   }
 }
 
