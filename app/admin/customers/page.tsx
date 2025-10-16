@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiCall } from '@/lib/api';
 import Link from 'next/link';
+import EditCustomerPasswordModal from '@/components/EditCustomerPasswordModal';
 
 interface Customer {
   id: string;
   phone: string;
   name: string;
+  birthday: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,6 +36,7 @@ export default function AdminCustomersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -133,6 +136,16 @@ export default function AdminCustomersPage() {
       console.error('刪除客戶錯誤:', error);
       alert('刪除客戶失敗');
     }
+  };
+
+  const handleEditPassword = (customer: Customer) => {
+    setEditingCustomer(customer);
+  };
+
+  const handlePasswordEditSuccess = () => {
+    // 重新載入客戶列表
+    fetchCustomers();
+    alert('客戶密碼已成功修改');
   };
 
   if (loading) {
@@ -308,6 +321,13 @@ export default function AdminCustomersPage() {
                               查看訂單
                             </button>
                             <button
+                              onClick={() => handleEditPassword(customer)}
+                              className="text-green-600 hover:text-green-900"
+                              title="修改密碼"
+                            >
+                              🔑
+                            </button>
+                            <button
                               onClick={() => deleteCustomer(customer.id, customer.phone)}
                               className="text-red-600 hover:text-red-900"
                               title="刪除客戶"
@@ -395,6 +415,14 @@ export default function AdminCustomersPage() {
             </div>
           </div>
         )}
+
+        {/* Edit Password Modal */}
+        <EditCustomerPasswordModal
+          isOpen={editingCustomer !== null}
+          onClose={() => setEditingCustomer(null)}
+          customer={editingCustomer}
+          onSuccess={handlePasswordEditSuccess}
+        />
       </div>
     </div>
   );
