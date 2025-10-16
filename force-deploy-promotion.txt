@@ -1,0 +1,7 @@
+Force deploy trigger - promotion settings
+Timestamp: 2024-01-15
+Changes: Fix promotion settings synchronization
+- Ensure promotion settings are properly loaded in checkout
+- Fix promotion text to match actual gift rules
+- Clear any cached promotion data
+- Verify multi-level gift promotion works correctly
