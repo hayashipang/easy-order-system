@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL_NEW")
 }
 
 // 如果 DATABASE_URL 未設置，使用 Railway PostgreSQL
