@@ -112,7 +112,7 @@ export default function LoginConfirmationModal({
                   重要提醒
                 </h3>
                 <div className="mt-2 text-sm text-amber-700">
-                  <p>請確保資訊正確，錯誤的資訊可能導致無法正常登入或創建帳戶。</p>
+                  <p>為了讓我們能順利與您聯繫出貨及提供後續服務，請確認資料正確無誤。若生日填寫有誤，請透過 LINE 官方帳號與我們聯繫。</p>
                 </div>
               </div>
             </div>
