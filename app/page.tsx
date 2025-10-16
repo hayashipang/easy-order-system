@@ -11,7 +11,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
   const router = useRouter();
 
   // 檢查用戶是否存在
@@ -45,9 +44,7 @@ export default function HomePage() {
       return;
     }
 
-    // 檢查用戶是否存在
-    const userExists = await checkUserExists(phone);
-    setIsNewUser(!userExists);
+    // 直接顯示確認彈跳視窗
     setShowModal(true);
   };
 
@@ -57,8 +54,28 @@ export default function HomePage() {
     setError(null);
 
     try {
-      if (isNewUser) {
-        // 創建新用戶
+      // 先嘗試驗證現有用戶
+      const verifyResponse = await apiCall('/api/customers/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone,
+          birthday
+        }),
+      });
+
+      if (verifyResponse.ok) {
+        // 驗證成功，跳轉到點餐頁面
+        setShowModal(false);
+        router.push(`/orders/customer?phone=${phone}`);
+        return;
+      }
+
+      // 如果驗證失敗，檢查是否是用戶不存在
+      if (verifyResponse.status === 404) {
+        // 用戶不存在，創建新用戶
         const createResponse = await apiCall('/api/customers', {
           method: 'POST',
           headers: {
@@ -75,31 +92,14 @@ export default function HomePage() {
         if (!createResponse.ok) {
           throw new Error('創建客戶失敗');
         }
+
+        // 跳轉到點餐頁面
+        setShowModal(false);
+        router.push(`/orders/customer?phone=${phone}`);
       } else {
-        // 驗證現有用戶
-        const verifyResponse = await apiCall('/api/customers/verify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            phone,
-            birthday
-          }),
-        });
-
-        if (!verifyResponse.ok) {
-          if (verifyResponse.status === 401) {
-            throw new Error('出生年月日不正確，請重新輸入');
-          } else {
-            throw new Error('登入驗證失敗');
-          }
-        }
+        // 生日錯誤
+        throw new Error('出生年月日不正確，請重新輸入');
       }
-
-      // 登入成功，跳轉到點餐頁面
-      setShowModal(false);
-      router.push(`/orders/customer?phone=${phone}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '登入失敗');
       setShowModal(false);
@@ -262,7 +262,6 @@ export default function HomePage() {
           onEdit={handleEditInfo}
           phone={phone}
           birthday={birthday}
-          isNewUser={isNewUser}
           loading={loading}
         />
       </div>
