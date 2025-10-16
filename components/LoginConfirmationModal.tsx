@@ -31,12 +31,7 @@ export default function LoginConfirmationModal({
   };
 
   const formatBirthday = (birthday: string) => {
-    if (birthday.length === 6) {
-      const year = parseInt(birthday.slice(0, 2)) + 1911; // 民國年轉西元年
-      const month = birthday.slice(2, 4);
-      const day = birthday.slice(4, 6);
-      return `${year}年${month}月${day}日 (民國${birthday.slice(0, 2)}年${month}月${day}日)`;
-    }
+    // 直接顯示用戶輸入的數字，不做任何格式化
     return birthday;
   };
 
