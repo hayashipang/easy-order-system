@@ -525,14 +525,13 @@ function CheckoutPageContent() {
                                 <div>✓ 已達免運費門檻</div>
                                 <div>✓ {(() => {
                                   const totalBottles = promotionInfo.totalBottles;
-                                  if (totalBottles >= 30) {
-                                    return `感謝您購買${totalBottles}瓶，贈送隨機瓶3瓶`;
-                                  } else if (totalBottles >= 20) {
-                                    return `感謝您購買${totalBottles}瓶，贈送隨機瓶2瓶`;
-                                  } else if (totalBottles >= 15) {
-                                    return `感謝您購買${totalBottles}瓶，贈送隨機瓶1瓶`;
+                                  const giftQuantity = promotionInfo.giftQuantity;
+                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶';
+                                  
+                                  if (giftQuantity > 0) {
+                                    return `感謝您購買${totalBottles}瓶，贈送${giftProductName}${giftQuantity}瓶`;
                                   } else {
-                                    return `感謝您購買${totalBottles}瓶，贈送${promotionSettings.giftProductName || '隨機'}{promotionInfo.giftQuantity}瓶`;
+                                    return `感謝您購買${totalBottles}瓶`;
                                   }
                                 })()}</div>
                               </div>
@@ -550,14 +549,13 @@ function CheckoutPageContent() {
                                 <div className="font-medium mb-1">促銷優惠：</div>
                                 <div>✓ {(() => {
                                   const totalBottles = promotionInfo.totalBottles;
-                                  if (totalBottles >= 30) {
-                                    return `感謝您購買${totalBottles}瓶，贈送隨機瓶3瓶`;
-                                  } else if (totalBottles >= 20) {
-                                    return `感謝您購買${totalBottles}瓶，贈送隨機瓶2瓶`;
-                                  } else if (totalBottles >= 15) {
-                                    return `感謝您購買${totalBottles}瓶，贈送隨機瓶1瓶`;
+                                  const giftQuantity = promotionInfo.giftQuantity;
+                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶';
+                                  
+                                  if (giftQuantity > 0) {
+                                    return `感謝您購買${totalBottles}瓶，贈送${giftProductName}${giftQuantity}瓶`;
                                   } else {
-                                    return `感謝您購買${totalBottles}瓶，贈送${promotionSettings.giftProductName || '隨機'}{promotionInfo.giftQuantity}瓶`;
+                                    return `感謝您購買${totalBottles}瓶`;
                                   }
                                 })()}</div>
                               </div>
