@@ -150,6 +150,25 @@ export default function AdminSettingsPage() {
     }));
   };
 
+  // 自動生成促銷文字
+  const generatePromotionText = () => {
+    try {
+      const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules);
+      const rules = giftRules
+        .sort((a, b) => a.threshold - b.threshold)
+        .map(rule => `滿${rule.threshold}送${rule.quantity}瓶`)
+        .join('，');
+      
+      const newPromotionText = rules + (promotionSettings.giftProductName ? `，${promotionSettings.giftProductName}` : '');
+      setPromotionSettings(prev => ({
+        ...prev,
+        promotionText: newPromotionText
+      }));
+    } catch (error) {
+      console.error('Error generating promotion text:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -444,9 +463,18 @@ export default function AdminSettingsPage() {
                 <div className="bg-white border border-purple-200 rounded-lg p-4">
                   <h4 className="text-md font-medium text-purple-800 mb-4">促銷文字</h4>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      自定義促銷描述
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        自定義促銷描述
+                      </label>
+                      <button
+                        type="button"
+                        onClick={generatePromotionText}
+                        className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200 transition-colors"
+                      >
+                        🔄 同步規則
+                      </button>
+                    </div>
                     <textarea
                       value={promotionSettings.promotionText}
                       onChange={(e) => handlePromotionChange('promotionText', e.target.value)}
@@ -455,7 +483,7 @@ export default function AdminSettingsPage() {
                       placeholder="例如：買20送1瓶＋免運費"
                     />
                     <p className="text-sm text-gray-500 mt-1">
-                      此文字將顯示在結帳頁面的促銷信息中
+                      此文字將顯示在結帳頁面的促銷信息中。點擊「同步規則」可根據贈品規則自動生成。
                     </p>
                   </div>
                 </div>
