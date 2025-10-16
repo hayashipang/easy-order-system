@@ -40,8 +40,6 @@ function CustomerOrdersPageContent() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [menuLoading, setMenuLoading] = useState(true);
-  const [customerLoading, setCustomerLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [itemQuantities, setItemQuantities] = useState<{ [key: string]: number }>({});
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -54,9 +52,13 @@ function CustomerOrdersPageContent() {
 
   useEffect(() => {
     if (phone) {
-      // 並行載入，不等待彼此完成
-      fetchMenuItems();
-      fetchCustomerInfo();
+      // 並行載入，等待所有完成後關閉載入狀態
+      Promise.all([
+        fetchMenuItems(),
+        fetchCustomerInfo()
+      ]).finally(() => {
+        setLoading(false);
+      });
     }
   }, [phone]);
 
@@ -70,12 +72,6 @@ function CustomerOrdersPageContent() {
       setMenuItems(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setMenuLoading(false);
-      // 如果客戶資訊也載入完成，則關閉總載入狀態
-      if (!customerLoading) {
-        setLoading(false);
-      }
     }
   };
 
@@ -90,12 +86,6 @@ function CustomerOrdersPageContent() {
       }
     } catch (err) {
       console.log('客戶信息獲取失敗，可能是新客戶');
-    } finally {
-      setCustomerLoading(false);
-      // 如果菜單也載入完成，則關閉總載入狀態
-      if (!menuLoading) {
-        setLoading(false);
-      }
     }
   };
 
@@ -267,11 +257,7 @@ function CustomerOrdersPageContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">載入中...</p>
-          <div className="mt-4 text-sm text-gray-500">
-            {menuLoading && <p>載入菜單中...</p>}
-            {customerLoading && <p>載入客戶資訊中...</p>}
-          </div>
+          <p className="text-gray-600">載入菜單中...</p>
         </div>
       </div>
     );
