@@ -69,6 +69,8 @@ export default function HomePage() {
       if (verifyResponse.ok) {
         // 驗證成功，跳轉到點餐頁面
         setShowModal(false);
+        // 預載入菜單數據
+        preloadMenuData();
         router.push(`/orders/customer?phone=${phone}`);
         return;
       }
@@ -95,6 +97,8 @@ export default function HomePage() {
 
         // 跳轉到點餐頁面
         setShowModal(false);
+        // 預載入菜單數據
+        preloadMenuData();
         router.push(`/orders/customer?phone=${phone}`);
       } else {
         // 生日錯誤
@@ -112,6 +116,20 @@ export default function HomePage() {
   const handleEditInfo = () => {
     setShowModal(false);
     setError(null);
+  };
+
+  // 預載入菜單數據
+  const preloadMenuData = () => {
+    // 在背景預載入菜單數據，不等待結果
+    apiCall('/api/menu')
+      .then(response => {
+        if (response.ok) {
+          console.log('菜單數據預載入成功');
+        }
+      })
+      .catch(err => {
+        console.log('菜單數據預載入失敗:', err);
+      });
   };
 
   return (
