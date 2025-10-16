@@ -29,7 +29,7 @@ export default function DebugEnv() {
               <div key={key} className="flex">
                 <span className="font-mono bg-gray-100 px-2 py-1 rounded w-48">{key}:</span>
                 <span className="font-mono bg-blue-100 px-2 py-1 rounded ml-2">
-                  {value || '未設置'}
+                  {value ?? '未設置'}
                 </span>
               </div>
             ))}

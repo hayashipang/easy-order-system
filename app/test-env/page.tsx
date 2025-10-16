@@ -12,7 +12,7 @@ export default function TestEnvPage() {
           <strong>NODE_ENV:</strong> {nodeEnv}
         </div>
         <div>
-          <strong>NEXT_PUBLIC_API_URL:</strong> {apiUrl || '未設置'}
+          <strong>NEXT_PUBLIC_API_URL:</strong> {apiUrl ?? '未設置'}
         </div>
         <div>
           <strong>預期 API URL:</strong> 相對路徑（當前域名）

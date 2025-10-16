@@ -14,7 +14,7 @@ export default function DebugApi() {
     };
     
     console.log('Environment variables:', vars);
-    setApiUrl(process.env.NEXT_PUBLIC_API_URL || '未設置');
+    setApiUrl(process.env.NEXT_PUBLIC_API_URL ?? '未設置');
   }, []);
 
   const testApiCall = async () => {
@@ -46,7 +46,7 @@ export default function DebugApi() {
           <h2 className="text-lg font-semibold">環境變數：</h2>
           <p><strong>NODE_ENV:</strong> {process.env.NODE_ENV}</p>
           <p><strong>NEXT_PUBLIC_API_URL:</strong> {apiUrl}</p>
-          <p><strong>VERCEL_URL:</strong> {process.env.VERCEL_URL || '未設置'}</p>
+          <p><strong>VERCEL_URL:</strong> {process.env.VERCEL_URL ?? '未設置'}</p>
         </div>
         
         <div>
