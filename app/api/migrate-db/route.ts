@@ -95,6 +95,61 @@ export async function POST(request: NextRequest) {
         )
       `;
       
+      // 創建 ProductDetail 表
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "product_details" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "category" TEXT NOT NULL UNIQUE,
+          "title" TEXT NOT NULL,
+          "content" TEXT NOT NULL,
+          "rules" TEXT,
+          "images" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL
+        )
+      `;
+      
+      // 創建 SystemSetting 表
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "system_settings" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "key" TEXT NOT NULL UNIQUE,
+          "value" TEXT NOT NULL,
+          "description" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL
+        )
+      `;
+      
+      // 創建 PromotionSetting 表
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "promotion_settings" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "isFreeShippingEnabled" BOOLEAN NOT NULL DEFAULT false,
+          "freeShippingThreshold" INTEGER NOT NULL DEFAULT 20,
+          "isGiftEnabled" BOOLEAN NOT NULL DEFAULT false,
+          "giftRules" TEXT,
+          "giftProductName" TEXT,
+          "promotionText" TEXT,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL
+        )
+      `;
+      
+      // 創建 ImageStorage 表
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS "image_storage" (
+          "id" TEXT NOT NULL PRIMARY KEY,
+          "fileName" TEXT NOT NULL,
+          "dataUrl" TEXT NOT NULL,
+          "originalSize" INTEGER NOT NULL,
+          "compressedSize" INTEGER NOT NULL,
+          "compressionRatio" TEXT NOT NULL,
+          "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" TIMESTAMP(3) NOT NULL
+        )
+      `;
+      
       console.log('資料表創建完成');
     }
     
