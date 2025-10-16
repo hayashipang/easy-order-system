@@ -13,11 +13,9 @@ const nextConfig = {
   // 配置圖片優化
   images: {
     domains: [
-      'easy-order-system.vercel.app',
-      'web-production-6ebe9.up.railway.app',
-      'easy-order-system-production-0490.up.railway.app'
+      'easy-order-system.vercel.app'
     ],
-    unoptimized: true, // 在 Railway 環境中禁用圖片優化
+    unoptimized: true, // 在 Vercel 環境中禁用圖片優化
   },
   
   // 配置輸出 - 移除standalone模式以解決Railway部署問題

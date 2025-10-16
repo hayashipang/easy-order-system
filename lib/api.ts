@@ -12,15 +12,9 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
       return 'http://localhost:4000';
     }
     
-    // For production, use Railway backend URL
-    // Check if we have a custom API URL set
-    const customApiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (customApiUrl) {
-      return customApiUrl;
-    }
-    
-    // Fallback to Railway backend (if no custom URL is set)
-    return 'https://easy-order-system-production-0490.up.railway.app';
+    // For production, use relative URLs (same domain as frontend)
+    // This will work when both frontend and backend are on Vercel
+    return ''; // Empty string means relative URL
   };
 
   const baseUrl = getApiBaseUrl();
@@ -28,7 +22,7 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
   // Remove trailing slash from base URL and leading slash from endpoint
   const cleanBaseUrl = baseUrl.replace(/\/$/, '');
   const cleanEndpoint = endpoint.replace(/^\//, '');
-  const url = `${cleanBaseUrl}/${cleanEndpoint}`;
+  const url = cleanBaseUrl ? `${cleanBaseUrl}/${cleanEndpoint}` : `/${cleanEndpoint}`;
   
   console.log('API Call:', url); // Debug log
   
