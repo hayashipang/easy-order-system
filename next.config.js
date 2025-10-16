@@ -20,8 +20,8 @@ const nextConfig = {
     unoptimized: true, // 在 Railway 環境中禁用圖片優化
   },
   
-  // 配置輸出
-  output: 'standalone',
+  // 配置輸出 - 移除standalone模式以解決Railway部署問題
+  // output: 'standalone',
   
   // 配置環境變數
   env: {
