@@ -4,7 +4,8 @@ import prisma from '@/lib/prisma';
 
 // OPTIONS /api/customers/verify - Handle preflight requests
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request);
+  const corsResponse = handleCors(request);
+  return corsResponse || new NextResponse(null, { status: 200 });
 }
 
 // POST /api/customers/verify - 驗證用戶登入（手機號碼 + 生日）

@@ -7,7 +7,8 @@ import prisma from '@/lib/prisma';
 
 // OPTIONS /api/menu - Handle preflight requests
 export async function OPTIONS(request: NextRequest) {
-  return handleCors(request);
+  const corsResponse = handleCors(request);
+  return corsResponse || new NextResponse(null, { status: 200 });
 }
 
 // GET /api/menu - 獲取所有菜單項目
