@@ -564,7 +564,7 @@ function CheckoutPageContent() {
                             {!promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
                               <div className="text-sm text-orange-600">
                                 {promotionSettings.isFreeShippingEnabled && promotionInfo.totalBottles < promotionInfo.freeShippingThreshold && (
-                                  <div>再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶即可享受免運費優惠</div>
+                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶即可享受免運費優惠</div>
                                 )}
                                 {promotionSettings.isGiftEnabled && (() => {
                                   try {
@@ -578,7 +578,7 @@ function CheckoutPageContent() {
                                       
                                       if (nextRule) {
                                         return (
-                                          <div>再買{nextRule.threshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
+                                          <div>🎁 再買{nextRule.threshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
                                         );
                                       }
                                     } else {
@@ -588,7 +588,7 @@ function CheckoutPageContent() {
                                       
                                       if (promotionInfo.totalBottles < oldGiftThreshold) {
                                         return (
-                                          <div>再買{oldGiftThreshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{oldGiftQuantity}瓶）</div>
+                                          <div>🎁 再買{oldGiftThreshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{oldGiftQuantity}瓶）</div>
                                         );
                                       }
                                     }
