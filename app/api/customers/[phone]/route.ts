@@ -52,13 +52,14 @@ export async function PUT(
   try {
     const { phone } = params;
     const body = await request.json();
-    const { name, email } = body;
+    const { name, email, birthday } = body;
 
     const customer = await prisma.user.update({
       where: { phone },
       data: {
         name,
-        email
+        email,
+        birthday
       }
     });
 

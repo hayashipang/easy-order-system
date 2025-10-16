@@ -41,6 +41,7 @@ interface PaymentForm {
 export default function OrderQueryPage() {
   const { settings } = useSystemSettings();
   const [phone, setPhone] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +56,11 @@ export default function OrderQueryPage() {
       return;
     }
 
+    if (!birthday || !birthday.trim()) {
+      setError('請輸入出生年月日');
+      return;
+    }
+
     // 驗證手機號碼格式 (必須是10碼，以09開頭)
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(phone)) {
@@ -62,10 +68,42 @@ export default function OrderQueryPage() {
       return;
     }
 
+    // 驗證生日格式 (必須是6碼數字)
+    const birthdayRegex = /^\d{6}$/;
+    if (!birthdayRegex.test(birthday)) {
+      setError('請輸入正確的出生年月日格式 (例: 660111)');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
+      // 先驗證用戶身份
+      const verifyResponse = await apiCall('/api/customers/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phone.trim(),
+          birthday: birthday.trim()
+        }),
+      });
+
+      if (!verifyResponse.ok) {
+        if (verifyResponse.status === 404) {
+          setError('找不到該用戶，請確認手機號碼是否正確');
+        } else if (verifyResponse.status === 401) {
+          setError('出生年月日不正確，請重新輸入');
+        } else {
+          setError('身份驗證失敗，請稍後再試');
+        }
+        setOrders([]);
+        return;
+      }
+
+      // 身份驗證成功，查詢訂單
       const response = await apiCall(`/api/orders?phone=${phone?.trim() || ''}`);
       if (!response.ok) {
         if (response.status === 404) {
@@ -199,7 +237,7 @@ export default function OrderQueryPage() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">訂單查詢</h1>
-              <p className="text-gray-600 mt-1">輸入手機號碼查詢您的訂單</p>
+              <p className="text-gray-600 mt-1">輸入手機號碼和出生年月日查詢您的訂單</p>
             </div>
             <Link
               href="/"
@@ -214,10 +252,13 @@ export default function OrderQueryPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 查詢表單 */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">查詢訂單</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">安全查詢訂單</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                手機號碼 *
+              </label>
               <input
                 type="tel"
                 value={phone}
@@ -234,12 +275,34 @@ export default function OrderQueryPage() {
               />
               <p className="text-sm text-gray-500 mt-1">請輸入10位數字的手機號碼，您下單時使用的手機號碼</p>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                出生年月日 *
+              </label>
+              <input
+                type="text"
+                value={birthday}
+                onChange={(e) => {
+                  // 只允許數字，並限制為6位
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  setBirthday(value);
+                }}
+                placeholder="請輸入出生年月日 (例: 660111)"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={6}
+                minLength={6}
+                required
+              />
+              <p className="text-sm text-gray-500 mt-1">請輸入6位數字的出生年月日 (例: 660111 表示民國66年1月11日)</p>
+            </div>
+
             <button
               type="submit"
-              disabled={loading || phone.length !== 10}
+              disabled={loading || phone.length !== 10 || birthday.length !== 6}
               className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? '查詢中...' : phone.length !== 10 ? '請輸入完整的手機號碼' : '查詢訂單'}
+              {loading ? '查詢中...' : phone.length !== 10 || birthday.length !== 6 ? '請輸入完整的手機號碼和出生年月日' : '安全查詢訂單'}
             </button>
           </form>
 

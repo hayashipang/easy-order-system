@@ -6,6 +6,7 @@ import { apiCall } from '@/lib/api';
 
 export default function HomePage() {
   const [phone, setPhone] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -23,21 +24,36 @@ export default function HomePage() {
       return;
     }
 
+    // 驗證生日格式
+    const birthdayRegex = /^\d{6}$/;
+    if (!birthdayRegex.test(birthday)) {
+      setError('請輸入正確的出生年月日格式 (例: 660111)');
+      setLoading(false);
+      return;
+    }
+
     try {
-      // 檢查客戶是否存在
-      const response = await apiCall('/api/customers');
-      if (!response.ok) {
-        throw new Error('無法連接到服務器');
+      // 先嘗試驗證現有用戶
+      const verifyResponse = await apiCall('/api/customers/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone,
+          birthday
+        }),
+      });
+
+      if (verifyResponse.ok) {
+        // 驗證成功，跳轉到點餐頁面
+        router.push(`/orders/customer?phone=${phone}`);
+        return;
       }
 
-      const customers = await response.json();
-      const existingCustomer = customers.find((customer: any) => customer.phone === phone);
-
-      if (existingCustomer) {
-        // 客戶存在，跳轉到點餐頁面
-        router.push(`/orders/customer?phone=${phone}`);
-      } else {
-        // 客戶不存在，創建新客戶
+      // 如果驗證失敗，檢查是否是用戶不存在
+      if (verifyResponse.status === 404) {
+        // 用戶不存在，創建新用戶
         const createResponse = await apiCall('/api/customers', {
           method: 'POST',
           headers: {
@@ -46,7 +62,8 @@ export default function HomePage() {
           body: JSON.stringify({
             phone,
             name: '',
-            email: `${phone}@customer.local`
+            email: `${phone}@customer.local`,
+            birthday
           }),
         });
 
@@ -56,6 +73,9 @@ export default function HomePage() {
 
         // 跳轉到點餐頁面
         router.push(`/orders/customer?phone=${phone}`);
+      } else {
+        // 生日錯誤
+        setError('出生年月日不正確，請重新輸入');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '登入失敗');
@@ -83,8 +103,8 @@ export default function HomePage() {
                 className="w-full h-full object-contain rounded-lg"
               />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">手機號碼登入</h2>
-            <p className="text-gray-600">輸入手機號碼開始點餐</p>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">安全登入</h2>
+            <p className="text-gray-600">輸入手機號碼和出生年月日開始點餐</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -111,6 +131,29 @@ export default function HomePage() {
               </p>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                出生年月日 *
+              </label>
+              <input
+                type="text"
+                value={birthday}
+                onChange={(e) => {
+                  // 只允許數字，並限制為6位
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  setBirthday(value);
+                }}
+                placeholder="請輸入出生年月日 (例: 660111)"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={6}
+                minLength={6}
+                required
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                請輸入6位數字的出生年月日 (例: 660111 表示民國66年1月11日)
+              </p>
+            </div>
+
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-red-600 text-sm">{error}</p>
@@ -119,7 +162,7 @@ export default function HomePage() {
 
             <button
               type="submit"
-              disabled={loading || phone.length !== 10}
+              disabled={loading || phone.length !== 10 || birthday.length !== 6}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             >
               {loading ? (
@@ -127,19 +170,19 @@ export default function HomePage() {
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   處理中...
                 </>
-              ) : phone.length !== 10 ? (
+              ) : phone.length !== 10 || birthday.length !== 6 ? (
                 <>
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
-                  請輸入完整的手機號碼
+                  請輸入完整的手機號碼和出生年月日
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  開始點餐
+                  安全登入
                 </>
               )}
             </button>

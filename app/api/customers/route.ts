@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { phone, name, email } = body;
+    const { phone, name, email, birthday } = body;
     
     if (!phone) {
       return addCorsHeaders(NextResponse.json(
@@ -55,7 +55,8 @@ export async function POST(request: NextRequest) {
       data: {
         phone,
         name: name || `User-${phone}`,
-        email
+        email,
+        birthday
       }
     });
     
