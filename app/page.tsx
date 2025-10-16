@@ -3,24 +3,38 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiCall } from '@/lib/api';
+import LoginConfirmationModal from '@/components/LoginConfirmationModal';
 
 export default function HomePage() {
   const [phone, setPhone] = useState('');
   const [birthday, setBirthday] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   const router = useRouter();
 
+  // 檢查用戶是否存在
+  const checkUserExists = async (phone: string) => {
+    try {
+      const response = await apiCall(`/api/customers/${phone}`, {
+        method: 'GET',
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  // 處理表單提交 - 現在只做格式驗證和顯示確認彈跳視窗
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
     // 驗證手機號碼格式
     const phoneRegex = /^09\d{8}$/;
     if (!phoneRegex.test(phone)) {
       setError('請輸入正確的手機號碼格式 (例: 0912345678)');
-      setLoading(false);
       return;
     }
 
@@ -28,32 +42,23 @@ export default function HomePage() {
     const birthdayRegex = /^\d{6}$/;
     if (!birthdayRegex.test(birthday)) {
       setError('請輸入正確的出生年月日格式 (例: 660111)');
-      setLoading(false);
       return;
     }
 
+    // 檢查用戶是否存在
+    const userExists = await checkUserExists(phone);
+    setIsNewUser(!userExists);
+    setShowModal(true);
+  };
+
+  // 處理確認登入
+  const handleConfirmLogin = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      // 先嘗試驗證現有用戶
-      const verifyResponse = await apiCall('/api/customers/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phone,
-          birthday
-        }),
-      });
-
-      if (verifyResponse.ok) {
-        // 驗證成功，跳轉到點餐頁面
-        router.push(`/orders/customer?phone=${phone}`);
-        return;
-      }
-
-      // 如果驗證失敗，檢查是否是用戶不存在
-      if (verifyResponse.status === 404) {
-        // 用戶不存在，創建新用戶
+      if (isNewUser) {
+        // 創建新用戶
         const createResponse = await apiCall('/api/customers', {
           method: 'POST',
           headers: {
@@ -70,18 +75,43 @@ export default function HomePage() {
         if (!createResponse.ok) {
           throw new Error('創建客戶失敗');
         }
-
-        // 跳轉到點餐頁面
-        router.push(`/orders/customer?phone=${phone}`);
       } else {
-        // 生日錯誤
-        setError('出生年月日不正確，請重新輸入');
+        // 驗證現有用戶
+        const verifyResponse = await apiCall('/api/customers/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phone,
+            birthday
+          }),
+        });
+
+        if (!verifyResponse.ok) {
+          if (verifyResponse.status === 401) {
+            throw new Error('出生年月日不正確，請重新輸入');
+          } else {
+            throw new Error('登入驗證失敗');
+          }
+        }
       }
+
+      // 登入成功，跳轉到點餐頁面
+      setShowModal(false);
+      router.push(`/orders/customer?phone=${phone}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '登入失敗');
+      setShowModal(false);
     } finally {
       setLoading(false);
     }
+  };
+
+  // 處理修改資訊
+  const handleEditInfo = () => {
+    setShowModal(false);
+    setError(null);
   };
 
   return (
@@ -223,6 +253,18 @@ export default function HomePage() {
             </a>
           </div>
         </div>
+
+        {/* Login Confirmation Modal */}
+        <LoginConfirmationModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onConfirm={handleConfirmLogin}
+          onEdit={handleEditInfo}
+          phone={phone}
+          birthday={birthday}
+          isNewUser={isNewUser}
+          loading={loading}
+        />
       </div>
     </div>
   );
