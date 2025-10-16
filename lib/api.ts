@@ -24,7 +24,7 @@ export const apiCall = async (endpoint: string, options?: RequestInit) => {
   const cleanEndpoint = endpoint.replace(/^\//, '');
   const url = cleanBaseUrl ? `${cleanBaseUrl}/${cleanEndpoint}` : `/${cleanEndpoint}`;
   
-  console.log('API Call:', url); // Debug log
+  console.log('API Call:', url); // Debug log - Vercel deployment
   
   return fetch(url, options);
 };
