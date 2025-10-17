@@ -62,11 +62,12 @@ export async function GET(
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Max-Age': '86400',
-        // 添加壓縮和優化標頭
-        'Content-Encoding': 'gzip',
+        // 移除錯誤的壓縮標頭，讓 Vercel 自動處理
         'Vary': 'Accept-Encoding',
         // 添加 ETag 用於緩存
         'ETag': `"${id}"`,
+        // 添加內容長度
+        'Content-Length': buffer.length.toString(),
       },
     });
     
