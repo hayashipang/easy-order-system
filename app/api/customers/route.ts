@@ -19,7 +19,12 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
     
-    const response = NextResponse.json(users);
+    const response = NextResponse.json(users, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      }
+    });
     return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取客戶錯誤:', error);

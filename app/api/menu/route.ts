@@ -44,7 +44,12 @@ export async function GET(request: NextRequest) {
       };
     });
     
-    const response = NextResponse.json(menuItemsWithCorrectUrls);
+    const response = NextResponse.json(menuItemsWithCorrectUrls, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      }
+    });
     return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取菜單錯誤:', error);

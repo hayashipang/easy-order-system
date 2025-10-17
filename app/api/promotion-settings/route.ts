@@ -43,7 +43,12 @@ export async function GET(request: NextRequest) {
       promotionSettings.giftRules = legacyGiftRules;
     }
     
-    const response = NextResponse.json(promotionSettings);
+    const response = NextResponse.json(promotionSettings, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      }
+    });
     return addCorsHeaders(response);
   } catch (error) {
     console.error('Error fetching promotion settings:', error);

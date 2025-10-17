@@ -33,7 +33,12 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
     
-    const response = NextResponse.json(orders);
+    const response = NextResponse.json(orders, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      }
+    });
     return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取訂單錯誤:', error);

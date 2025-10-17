@@ -7,3 +7,4 @@ Changes: Fix promotion settings synchronization
 - Verify multi-level gift promotion works correctly
 
 
+
