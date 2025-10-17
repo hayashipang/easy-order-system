@@ -33,6 +33,7 @@ interface GiftRule {
 interface PromotionSettings {
   isFreeShippingEnabled: boolean;
   freeShippingThreshold: number;
+  shippingFee?: number; // 運費金額
   isGiftEnabled: boolean;
   giftRules?: string; // JSON string (optional for backward compatibility)
   giftThreshold?: number; // For backward compatibility
@@ -61,7 +62,8 @@ function CheckoutPageContent() {
   const [isFormPrefilled, setIsFormPrefilled] = useState(false);
   const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>({
     isFreeShippingEnabled: false,
-    freeShippingThreshold: 20,
+    freeShippingThreshold: 2590,
+    shippingFee: 120,
     isGiftEnabled: false,
     giftRules: JSON.stringify([
       { threshold: 15, quantity: 1 },

@@ -20,6 +20,7 @@ interface GiftRule {
 interface PromotionSettings {
   isFreeShippingEnabled: boolean;
   freeShippingThreshold: number;
+  shippingFee?: number; // 運費金額
   isGiftEnabled: boolean;
   giftRules: string; // JSON string
   giftProductName: string;
@@ -37,6 +38,7 @@ export default function AdminSettingsPage() {
   const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>({
     isFreeShippingEnabled: false,
     freeShippingThreshold: 2590,
+    shippingFee: 120,
     isGiftEnabled: false,
     giftRules: JSON.stringify([
       { threshold: 15, quantity: 1 },
