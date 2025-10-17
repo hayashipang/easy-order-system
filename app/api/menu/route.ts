@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         description: formData.get('description') as string,
         price: formData.get('price') ? parseFloat(formData.get('price') as string) || 0 : 0,
         category: formData.get('category') as string || 'general',
-        productType: formData.get('productType') as string || null,
+        productType: (formData.get('productType') as string) || null,
         isAvailable: formData.get('isAvailable') === 'true',
         stock: formData.get('stock') ? parseInt(formData.get('stock') as string) : 999,
         imageUrl: imageUrl
@@ -138,6 +138,8 @@ export async function POST(request: NextRequest) {
     }
     
     // 檢查是否已存在（考慮產品類型）
+    console.log(`🔍 檢查產品重複: name="${createData.name}", productType="${createData.productType}"`);
+    
     const existingItem = await prisma.menuItem.findFirst({
       where: { 
         name: createData.name,
