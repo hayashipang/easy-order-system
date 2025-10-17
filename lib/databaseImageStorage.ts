@@ -15,7 +15,7 @@ export interface ImageStorageResult {
 }
 
 /**
- * 將圖片存儲到資料庫
+ * 將圖片存儲到資料庫 - 優化版本
  */
 export async function storeImageInDatabase(
   buffer: Buffer,
@@ -57,21 +57,36 @@ export async function storeImageInDatabase(
     const id = `${prefix}-${timestamp}-${randomString}`;
     console.log(`🆔 生成圖片 ID: ${id}`);
     
-    // 將圖片轉換為 base64
-    const base64Data = buffer.toString('base64');
+    // 先壓縮圖片再轉換為 base64
+    const sharp = require('sharp');
+    const compressedBuffer = await sharp(buffer)
+      .resize(600, 450, { 
+        fit: 'inside',
+        withoutEnlargement: true 
+      })
+      .webp({ 
+        quality: 75,
+        effort: 4,
+        smartSubsample: true
+      })
+      .toBuffer();
+    
+    const base64Data = compressedBuffer.toString('base64');
     const dataUrl = `data:image/webp;base64,${base64Data}`;
-    console.log(`📝 轉換為 base64，大小: ${dataUrl.length} 字符`);
+    console.log(`📝 壓縮並轉換為 base64，原始大小: ${buffer.length}, 壓縮後: ${compressedBuffer.length}, base64 大小: ${dataUrl.length} 字符`);
     
     // 存儲到資料庫
     console.log(`💾 開始存儲到資料庫...`);
+    const compressionRatio = ((buffer.length - compressedBuffer.length) / buffer.length * 100).toFixed(1);
+    
     const imageRecord = await prisma.imageStorage.create({
       data: {
         id: id,
         fileName: fileName,
         dataUrl: dataUrl,
         originalSize: buffer.length,
-        compressedSize: buffer.length,
-        compressionRatio: '0%'
+        compressedSize: compressedBuffer.length,
+        compressionRatio: `${compressionRatio}%`
       }
     });
     console.log(`✅ 圖片存儲成功: ${imageRecord.id}`);

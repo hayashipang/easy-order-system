@@ -82,24 +82,18 @@ export async function POST(request: NextRequest) {
       
       if (imageFile && imageFile.size > 0) {
         try {
-          // 將圖片轉換為 Buffer 並壓縮
+          console.log(`📤 開始處理圖片: ${imageFile.name}, 大小: ${imageFile.size} bytes`);
+          
+          // 將圖片轉換為 Buffer
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
           
-          // 嘗試使用資料庫存儲圖片
-          try {
-            const storageResult = await storeImageInDatabase(buffer, imageFile.name, 'menu');
-            imageUrl = storageResult.url;
-            console.log(`圖片存儲完成: ${storageResult.compressionRatio} 壓縮率`);
-          } catch (dbError) {
-            console.error('資料庫存儲失敗，使用文件系統:', dbError);
-            // Fallback 到文件系統存儲
-            const compressionResult = await compressAndSaveImage(buffer, 'menu');
-            imageUrl = compressionResult.url;
-            console.log(`圖片壓縮完成: ${compressionResult.compressionRatio} 壓縮率`);
-          }
+          // 直接使用資料庫存儲（已包含壓縮）
+          const storageResult = await storeImageInDatabase(buffer, imageFile.name, 'menu');
+          imageUrl = storageResult.url;
+          console.log(`✅ 圖片處理完成: ${storageResult.compressionRatio} 壓縮率`);
         } catch (error) {
-          console.error('圖片上傳失敗:', error);
+          console.error('❌ 圖片上傳失敗:', error);
           return addCorsHeaders(NextResponse.json(
             { error: 'Failed to upload image' },
             { status: 500 }

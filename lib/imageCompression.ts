@@ -28,15 +28,16 @@ export async function compressAndSaveImage(
   
   const filePath = path.join(uploadsDir, fileName);
   
-  // 使用 Sharp 壓縮圖片
+  // 使用 Sharp 壓縮圖片 - 優化設置
   const compressedBuffer = await sharp(buffer)
-    .resize(800, 600, { 
+    .resize(600, 450, { 
       fit: 'inside',
       withoutEnlargement: true 
     })
     .webp({ 
-      quality: 80,
-      effort: 6 
+      quality: 75,  // 降低品質以減少檔案大小
+      effort: 4,    // 降低 effort 以提升速度
+      smartSubsample: true  // 啟用智能子採樣
     })
     .toBuffer();
   

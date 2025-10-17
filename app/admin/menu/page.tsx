@@ -37,6 +37,8 @@ export default function AdminMenuPage() {
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     // 檢查管理員登入狀態
@@ -67,6 +69,8 @@ export default function AdminMenuPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setUploading(true);
+    setUploadProgress(0);
 
     try {
       const url = editingItem 
@@ -86,19 +90,28 @@ export default function AdminMenuPage() {
       
       if (selectedImage) {
         formDataToSend.append('image', selectedImage);
+        setUploadProgress(20); // 開始上傳
       }
+      
+      setUploadProgress(40); // 準備發送請求
       
       const response = await apiCall(url, {
         method,
         body: formDataToSend,
       });
+      
+      setUploadProgress(80); // 請求完成
 
       if (!response.ok) {
         throw new Error(editingItem ? 'Failed to update menu item' : 'Failed to create menu item');
       }
 
+      setUploadProgress(90); // 處理響應
+      
       // 重新獲取菜單項目
       await fetchMenuItems();
+      
+      setUploadProgress(100); // 完成
       
       // 重置表單
       setFormData({
@@ -115,6 +128,9 @@ export default function AdminMenuPage() {
       setEditingItem(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save menu item');
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -381,15 +397,37 @@ export default function AdminMenuPage() {
                   可供應
                 </label>
               </div>
+              {/* 上傳進度條 */}
+              {uploading && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-600">上傳中...</span>
+                    <span className="text-sm text-gray-600">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex space-x-4">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  disabled={uploading}
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    uploading 
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 >
-                  {editingItem ? '更新' : '新增'}
+                  {uploading ? '上傳中...' : (editingItem ? '更新' : '新增')}
                 </button>
                 <button
                   type="button"
+                  disabled={uploading}
                   onClick={() => {
                     setShowAddForm(false);
                     setEditingItem(null);
@@ -404,7 +442,11 @@ export default function AdminMenuPage() {
                     setSelectedImage(null);
                     setImagePreview(null);
                   }}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    uploading 
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                      : 'bg-gray-600 text-white hover:bg-gray-700'
+                  }`}
                 >
                   取消
                 </button>
