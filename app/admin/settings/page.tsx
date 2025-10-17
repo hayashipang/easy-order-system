@@ -349,20 +349,41 @@ export default function AdminSettingsPage() {
                   </div>
                   
                   {promotionSettings.isFreeShippingEnabled && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        免運費門檻（金額）
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          min="1"
-                          value={promotionSettings.freeShippingThreshold}
-                          onChange={(e) => handlePromotionChange('freeShippingThreshold', parseInt(e.target.value))}
-                          className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="例如：2590"
-                        />
-                        <span className="absolute right-3 top-2 text-gray-500 text-sm">元</span>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          免運費門檻（金額）
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="1"
+                            value={promotionSettings.freeShippingThreshold}
+                            onChange={(e) => handlePromotionChange('freeShippingThreshold', parseInt(e.target.value))}
+                            className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="例如：2590"
+                          />
+                          <span className="absolute right-3 top-2 text-gray-500 text-sm">元</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">滿此金額即可免運費</p>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          運費金額
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            value={promotionSettings.shippingFee || 120}
+                            onChange={(e) => handlePromotionChange('shippingFee', parseInt(e.target.value))}
+                            className="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="例如：120"
+                          />
+                          <span className="absolute right-3 top-2 text-gray-500 text-sm">元</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">未達免運門檻時收取的運費</p>
                       </div>
                     </div>
                   )}

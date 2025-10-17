@@ -134,11 +134,12 @@ function CheckoutPageContent() {
       // 只有當促銷設定啟用免運費時才檢查免運費條件
       if (promotionSettings.isFreeShippingEnabled) {
         const totalAmount = getTotalAmount();
-        return totalAmount >= promotionSettings.freeShippingThreshold ? 0 : parseInt(settings.shipping_fee || '120') || 120;
+        const shippingFee = promotionSettings.shippingFee || 120;
+        return totalAmount >= promotionSettings.freeShippingThreshold ? 0 : shippingFee;
       }
       
       // 促銷設定未啟用免運費時，直接收取運費
-      return parseInt(settings.shipping_fee || '120') || 120;
+      return promotionSettings.shippingFee || 120;
     }
     return 0;
   };
@@ -567,7 +568,7 @@ function CheckoutPageContent() {
                             {!promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
                               <div className="text-sm text-orange-600">
                                 {promotionSettings.isFreeShippingEnabled && getTotalAmount() < promotionInfo.freeShippingThreshold && (
-                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - getTotalAmount()}元即可享受免運費優惠</div>
+                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - getTotalAmount()}元即可享受免運費優惠（省{promotionSettings.shippingFee || 120}元運費）</div>
                                 )}
                                 {promotionSettings.isGiftEnabled && (() => {
                                   try {
