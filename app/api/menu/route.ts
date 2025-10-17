@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const contentType = request.headers.get('content-type') || '';
+    console.log('🔍 POST /api/menu - Content-Type:', contentType);
     
     let createData: any = {};
     
@@ -116,6 +117,8 @@ export async function POST(request: NextRequest) {
         stock: formData.get('stock') ? parseInt(formData.get('stock') as string) : 999,
         imageUrl: imageUrl
       };
+      
+      console.log('📝 FormData 解析結果:', createData);
     } else {
       // 處理JSON數據
       const body = await request.json();
@@ -131,12 +134,22 @@ export async function POST(request: NextRequest) {
       };
     }
     
+    // 驗證必填欄位
+    if (!createData.name || createData.name.trim() === '') {
+      console.log('❌ 產品名稱不能為空');
+      return addCorsHeaders(NextResponse.json(
+        { error: 'Product name is required' },
+        { status: 400 }
+      ));
+    }
+    
     // 檢查是否已存在
     const existingItem = await prisma.menuItem.findUnique({
       where: { name: createData.name }
     });
     
     if (existingItem) {
+      console.log('❌ 產品名稱已存在:', createData.name);
       return addCorsHeaders(NextResponse.json(
         { error: 'Menu item with this name already exists' },
         { status: 400 }
