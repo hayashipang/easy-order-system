@@ -1,0 +1,9 @@
+Force deploy trigger - v3
+Timestamp: 2024-01-15
+Changes: Simplified birthday display in login confirmation modal
+- Remove Western calendar conversion
+- Remove year/month/day formatting  
+- Display only raw input numbers (e.g., 660111)
+- Keep it simple and match user input exactly
+
+

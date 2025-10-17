@@ -4,3 +4,5 @@ Changes: Fix birthday display in login confirmation modal
 - Ensure birthday shows only raw input numbers (e.g., 660111)
 - Remove any Western calendar or ROC calendar formatting
 - Force browser cache refresh for modal component
+
+

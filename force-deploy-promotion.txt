@@ -5,3 +5,5 @@ Changes: Fix promotion settings synchronization
 - Fix promotion text to match actual gift rules
 - Clear any cached promotion data
 - Verify multi-level gift promotion works correctly
+
+

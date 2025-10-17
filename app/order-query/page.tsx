@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { apiCall } from '@/lib/api';
 import { useSystemSettings } from '@/lib/useSystemSettings';
+import PromotionTextGrid from '@/components/PromotionTextGrid';
 
 interface Order {
   id: string;
@@ -445,15 +446,31 @@ export default function OrderQueryPage() {
                             </div>
                           )}
 
-                          {promotion.promotionText && (
-                            <div className="mt-2 text-xs text-gray-600">{promotion.promotionText}</div>
-                          )}
                         </div>
                       </div>
                     );
                   } catch (error) {
                     return null;
                   }
+                })()}
+
+                {/* 促銷文字獨立 Grid */}
+                {order.promotionInfo && (() => {
+                  try {
+                    const promotion = JSON.parse(order.promotionInfo);
+                    if (promotion.promotionText) {
+                      return (
+                        <div className="mb-4">
+                          <PromotionTextGrid 
+                            promotionText={promotion.promotionText}
+                          />
+                        </div>
+                      );
+                    }
+                  } catch (error) {
+                    return null;
+                  }
+                  return null;
                 })()}
 
                 {order.notes && (

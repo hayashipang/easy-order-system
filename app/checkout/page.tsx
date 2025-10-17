@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { apiCall } from '@/lib/api';
 import { useSystemSettings } from '@/lib/useSystemSettings';
+import PromotionTextGrid from '@/components/PromotionTextGrid';
 
 interface CartItem {
   menuItemId: string;
@@ -597,14 +598,21 @@ function CheckoutPageContent() {
                                     return null;
                                   }
                                 })()}
-                                {promotionSettings.promotionText && (
-                                  <div className="mt-1 text-xs text-gray-600">{promotionSettings.promotionText}</div>
-                                )}
                               </div>
                             )}
                           </div>
                         );
                       })()}
+                      
+                      {/* 促銷文字獨立 Grid */}
+                      {promotionSettings.promotionText && (
+                        <div className="mt-4">
+                          <PromotionTextGrid 
+                            promotionText={promotionSettings.promotionText}
+                            className="mb-4"
+                          />
+                        </div>
+                      )}
                       
                       <div className="border-t pt-2">
                         <div className="flex justify-between items-center">
