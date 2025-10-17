@@ -171,8 +171,7 @@ export async function POST(request: NextRequest) {
     console.error('❌ 創建菜單項目錯誤:', error);
     console.error('❌ 錯誤詳情:', {
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      createData: createData
+      stack: error instanceof Error ? error.stack : undefined
     });
     return addCorsHeaders(NextResponse.json(
       { 
