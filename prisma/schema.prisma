@@ -113,7 +113,7 @@ model SystemSetting {
 model PromotionSetting {
   id                    String   @id @default(cuid())
   isFreeShippingEnabled Boolean  @default(false) // 免運費開關
-  freeShippingThreshold Int      @default(20)    // 免運費門檻
+  freeShippingThreshold Int      @default(2590)  // 免運費門檻（金額，單位：元）
   
   // 多層級贈品促銷設定
   isGiftEnabled         Boolean  @default(false) // 贈品開關

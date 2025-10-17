@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
       
       promotionSettings = await prisma.promotionSetting.create({
         data: {
-          isFreeShippingEnabled: false,
-          freeShippingThreshold: 20,
+          isFreeShippingEnabled: true,
+          freeShippingThreshold: 2590, // 預設 2590 元免運
           isGiftEnabled: false,
           giftRules: defaultGiftRules,
           giftProductName: '隨機送一瓶',

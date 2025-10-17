@@ -133,8 +133,8 @@ function CheckoutPageContent() {
     if (form.pickupMethod === 'family_mart') {
       // 只有當促銷設定啟用免運費時才檢查免運費條件
       if (promotionSettings.isFreeShippingEnabled) {
-        const totalBottles = getTotalBottles();
-        return totalBottles >= promotionSettings.freeShippingThreshold ? 0 : parseInt(settings.shipping_fee || '120') || 120;
+        const totalAmount = getTotalAmount();
+        return totalAmount >= promotionSettings.freeShippingThreshold ? 0 : parseInt(settings.shipping_fee || '120') || 120;
       }
       
       // 促銷設定未啟用免運費時，直接收取運費
@@ -145,7 +145,8 @@ function CheckoutPageContent() {
 
   const getPromotionInfo = () => {
     const totalBottles = getTotalBottles();
-    const hasFreeShipping = promotionSettings.isFreeShippingEnabled && totalBottles >= promotionSettings.freeShippingThreshold;
+    const totalAmount = getTotalAmount();
+    const hasFreeShipping = promotionSettings.isFreeShippingEnabled && totalAmount >= promotionSettings.freeShippingThreshold;
     
     // 計算多層級贈品促銷
     let hasGift = false;
@@ -187,6 +188,7 @@ function CheckoutPageContent() {
       hasFreeShipping,
       hasGift,
       totalBottles,
+      totalAmount,
       freeShippingThreshold: promotionSettings.freeShippingThreshold,
       giftThreshold,
       giftQuantity,
@@ -564,8 +566,8 @@ function CheckoutPageContent() {
                             
                             {!promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
                               <div className="text-sm text-orange-600">
-                                {promotionSettings.isFreeShippingEnabled && promotionInfo.totalBottles < promotionInfo.freeShippingThreshold && (
-                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶/包即可享受免運費優惠</div>
+                                {promotionSettings.isFreeShippingEnabled && getTotalAmount() < promotionInfo.freeShippingThreshold && (
+                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - getTotalAmount()}元即可享受免運費優惠</div>
                                 )}
                                 {promotionSettings.isGiftEnabled && (() => {
                                   try {
