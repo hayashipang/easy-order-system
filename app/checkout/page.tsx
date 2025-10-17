@@ -567,44 +567,49 @@ function CheckoutPageContent() {
                               </div>
                             )}
                             
-                            {!promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
-                              <div className="text-sm text-orange-600">
-                                {promotionSettings.isFreeShippingEnabled && getTotalAmount() < promotionInfo.freeShippingThreshold && (
-                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - getTotalAmount()}元即可享受免運費優惠（省{promotionSettings.shippingFee || 120}元運費）</div>
-                                )}
-                                {promotionSettings.isGiftEnabled && (() => {
-                                  try {
-                                    // 檢查是否有新的 giftRules 結構
-                                    if (promotionSettings.giftRules) {
-                                      const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules);
-                                      // 找到下一個可達到的贈品門檻
-                                      const nextRule = giftRules
-                                        .filter(rule => promotionInfo.totalBottles < rule.threshold)
-                                        .sort((a, b) => a.threshold - b.threshold)[0]; // 按門檻升序排列，取最低的
-                                      
-                                      if (nextRule) {
-                                        return (
-                                          <div>🎁 再買{nextRule.threshold - promotionInfo.totalBottles}瓶/包即可享受贈品優惠（送{nextRule.quantity}瓶/包）</div>
-                                        );
-                                      }
-                                    } else {
-                                      // 向後相容：使用舊的 giftThreshold
-                                      const oldGiftThreshold = promotionSettings.giftThreshold || 20;
-                                      const oldGiftQuantity = promotionSettings.giftQuantity || 1;
-                                      
-                                      if (promotionInfo.totalBottles < oldGiftThreshold) {
-                                        return (
-                                          <div>🎁 再買{oldGiftThreshold - promotionInfo.totalBottles}瓶/包即可享受贈品優惠（送{oldGiftQuantity}瓶/包）</div>
-                                        );
-                                      }
-                                    }
-                                    return null;
-                                  } catch (error) {
-                                    return null;
-                                  }
-                                })()}
+                            {/* 免運費提醒 - 獨立顯示 */}
+                            {promotionSettings.isFreeShippingEnabled && !promotionInfo.hasFreeShipping && (
+                              <div className="text-sm text-orange-600 mb-2">
+                                <div>🚚 再買{promotionInfo.freeShippingThreshold - getTotalAmount()}元即可享受免運費優惠（省{promotionSettings.shippingFee || 120}元運費）</div>
                               </div>
                             )}
+                            
+                            {/* 贈品促銷提醒 - 獨立顯示 */}
+                            {promotionSettings.isGiftEnabled && !promotionInfo.hasGift && (() => {
+                              try {
+                                // 檢查是否有新的 giftRules 結構
+                                if (promotionSettings.giftRules) {
+                                  const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules);
+                                  // 找到下一個可達到的贈品門檻
+                                  const nextRule = giftRules
+                                    .filter(rule => promotionInfo.totalBottles < rule.threshold)
+                                    .sort((a, b) => a.threshold - b.threshold)[0]; // 按門檻升序排列，取最低的
+                                  
+                                  if (nextRule) {
+                                    return (
+                                      <div className="text-sm text-orange-600">
+                                        <div>🎁 再買{nextRule.threshold - promotionInfo.totalBottles}瓶/包即可享受贈品優惠（送{nextRule.quantity}瓶/包）</div>
+                                      </div>
+                                    );
+                                  }
+                                } else {
+                                  // 向後相容：使用舊的 giftThreshold
+                                  const oldGiftThreshold = promotionSettings.giftThreshold || 20;
+                                  const oldGiftQuantity = promotionSettings.giftQuantity || 1;
+                                  
+                                  if (promotionInfo.totalBottles < oldGiftThreshold) {
+                                    return (
+                                      <div className="text-sm text-orange-600">
+                                        <div>🎁 再買{oldGiftThreshold - promotionInfo.totalBottles}瓶/包即可享受贈品優惠（送{oldGiftQuantity}瓶/包）</div>
+                                      </div>
+                                    );
+                                  }
+                                }
+                                return null;
+                              } catch (error) {
+                                return null;
+                              }
+                            })()}
                           </div>
                         );
                       })()}
