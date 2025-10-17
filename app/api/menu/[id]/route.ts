@@ -105,36 +105,38 @@ export async function PUT(
         updateData.imageUrl = body.imageUrl;
       }
       
-      // 檢查名稱是否與其他項目重複
+      // 檢查名稱是否與其他項目重複（考慮產品類型）
       if (body.name) {
         const existingItem = await prisma.menuItem.findFirst({
           where: {
             name: body.name,
+            productType: body.productType || null,
             id: { not: params.id }
           }
         });
         
         if (existingItem) {
           return addCorsHeaders(NextResponse.json(
-            { error: '菜單項目名稱已存在' },
+            { error: `Product "${body.name}" of type "${body.productType}" already exists` },
             { status: 400 }
           ));
         }
       }
     }
     
-    // 對於FormData，檢查名稱是否與其他項目重複
+    // 對於FormData，檢查名稱是否與其他項目重複（考慮產品類型）
     if (isFormData && updateData.name) {
       const existingItem = await prisma.menuItem.findFirst({
         where: {
           name: updateData.name,
+          productType: updateData.productType || null,
           id: { not: params.id }
         }
       });
       
       if (existingItem) {
         return addCorsHeaders(NextResponse.json(
-          { error: '菜單項目名稱已存在' },
+          { error: `Product "${updateData.name}" of type "${updateData.productType}" already exists` },
           { status: 400 }
         ));
       }

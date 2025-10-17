@@ -137,36 +137,23 @@ export async function POST(request: NextRequest) {
       ));
     }
     
-    // 檢查是否已存在，如果存在則添加後綴
-    let finalName = createData.name;
-    let counter = 1;
+    // 檢查是否已存在（考慮產品類型）
+    const existingItem = await prisma.menuItem.findFirst({
+      where: { 
+        name: createData.name,
+        productType: createData.productType
+      }
+    });
     
-    while (true) {
-      const existingItem = await prisma.menuItem.findUnique({
-        where: { name: finalName }
-      });
-      
-      if (!existingItem) {
-        break; // 名稱可用
-      }
-      
-      console.log(`⚠️ 產品名稱已存在: ${finalName}，嘗試添加後綴`);
-      finalName = `${createData.name}-${counter}`;
-      counter++;
-      
-      // 防止無限循環
-      if (counter > 100) {
-        console.log('❌ 無法生成唯一產品名稱');
-        return addCorsHeaders(NextResponse.json(
-          { error: 'Unable to generate unique product name' },
-          { status: 400 }
-        ));
-      }
+    if (existingItem) {
+      console.log(`❌ 產品已存在: ${createData.name} (${createData.productType})`);
+      return addCorsHeaders(NextResponse.json(
+        { error: `Product "${createData.name}" of type "${createData.productType}" already exists` },
+        { status: 400 }
+      ));
     }
     
-    // 更新最終名稱
-    createData.name = finalName;
-    console.log(`✅ 使用產品名稱: ${finalName}`);
+    console.log(`✅ 產品名稱可用: ${createData.name} (${createData.productType})`);
     
     const menuItem = await prisma.menuItem.create({
       data: createData
