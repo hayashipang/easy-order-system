@@ -25,6 +25,11 @@ export async function storeImageInDatabase(
   try {
     console.log(`🖼️ 開始存儲圖片: ${fileName}, 大小: ${buffer.length} bytes`);
     
+    // 檢查 buffer 是否有效
+    if (!buffer || buffer.length === 0) {
+      throw new Error('Invalid image buffer');
+    }
+    
     // 檢查 ImageStorage 表是否存在
     try {
       await prisma.imageStorage.count();
@@ -58,18 +63,29 @@ export async function storeImageInDatabase(
     console.log(`🆔 生成圖片 ID: ${id}`);
     
     // 先壓縮圖片再轉換為 base64
-    const sharp = require('sharp');
-    const compressedBuffer = await sharp(buffer)
-      .resize(600, 450, { 
-        fit: 'inside',
-        withoutEnlargement: true 
-      })
-      .webp({ 
-        quality: 75,
-        effort: 4,
-        smartSubsample: true
-      })
-      .toBuffer();
+    console.log('🔧 開始壓縮圖片...');
+    let compressedBuffer: Buffer;
+    
+    try {
+      const sharp = (await import('sharp')).default;
+      
+      compressedBuffer = await sharp(buffer)
+        .resize(600, 450, { 
+          fit: 'inside',
+          withoutEnlargement: true 
+        })
+        .webp({ 
+          quality: 75,
+          effort: 4,
+          smartSubsample: true
+        })
+        .toBuffer();
+      
+      console.log('✅ 圖片壓縮完成');
+    } catch (compressionError) {
+      console.error('❌ 圖片壓縮失敗，使用原始圖片:', compressionError);
+      compressedBuffer = buffer; // 使用原始 buffer 作為 fallback
+    }
     
     const base64Data = compressedBuffer.toString('base64');
     const dataUrl = `data:image/webp;base64,${base64Data}`;
