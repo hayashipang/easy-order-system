@@ -157,16 +157,28 @@ export async function POST(request: NextRequest) {
     
     console.log(`✅ 產品名稱可用: ${createData.name} (${createData.productType})`);
     
+    console.log('💾 開始創建產品:', createData);
+    
     const menuItem = await prisma.menuItem.create({
       data: createData
     });
     
+    console.log('✅ 產品創建成功:', menuItem.id);
+    
     const response = NextResponse.json(menuItem, { status: 201 });
     return addCorsHeaders(response);
   } catch (error) {
-    console.error('創建菜單項目錯誤:', error);
+    console.error('❌ 創建菜單項目錯誤:', error);
+    console.error('❌ 錯誤詳情:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      createData: createData
+    });
     return addCorsHeaders(NextResponse.json(
-      { error: 'Failed to create menu item' },
+      { 
+        error: 'Failed to create menu item',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     ));
   }
