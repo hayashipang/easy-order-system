@@ -22,7 +22,7 @@ export default function PromotionTextGrid({ promotionText, className = '' }: Pro
         
         {/* 促銷文字內容 */}
         <div className="flex-1">
-          <h4 className="text-sm font-semibold text-yellow-800 mb-1">🎉 促銷活動</h4>
+          <h4 className="text-sm font-semibold text-yellow-800 mb-1">促銷活動</h4>
           <p className="text-sm text-yellow-700 leading-relaxed">
             {promotionText}
           </p>
