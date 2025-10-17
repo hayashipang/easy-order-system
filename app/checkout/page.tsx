@@ -68,8 +68,8 @@ function CheckoutPageContent() {
       { threshold: 20, quantity: 2 },
       { threshold: 30, quantity: 3 }
     ]),
-    giftProductName: '隨機送一瓶',
-    promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
+    giftProductName: '隨機送一瓶/包/包',
+    promotionText: '滿15送1瓶/包/包，滿20送2瓶/包/包，滿30送3瓶/包/包'
   });
 
   useEffect(() => {
@@ -527,12 +527,12 @@ function CheckoutPageContent() {
                                 <div>✓ {(() => {
                                   const totalBottles = promotionInfo.totalBottles;
                                   const giftQuantity = promotionInfo.giftQuantity;
-                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶';
+                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶/包';
                                   
                                   if (giftQuantity > 0) {
-                                    return `感謝您購買${totalBottles}瓶，贈送${giftProductName}${giftQuantity}瓶`;
+                                    return `感謝您購買${totalBottles}瓶/包，贈送${giftProductName}${giftQuantity}瓶/包`;
                                   } else {
-                                    return `感謝您購買${totalBottles}瓶`;
+                                    return `感謝您購買${totalBottles}瓶/包`;
                                   }
                                 })()}</div>
                               </div>
@@ -551,12 +551,12 @@ function CheckoutPageContent() {
                                 <div>✓ {(() => {
                                   const totalBottles = promotionInfo.totalBottles;
                                   const giftQuantity = promotionInfo.giftQuantity;
-                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶';
+                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶/包';
                                   
                                   if (giftQuantity > 0) {
-                                    return `感謝您購買${totalBottles}瓶，贈送${giftProductName}${giftQuantity}瓶`;
+                                    return `感謝您購買${totalBottles}瓶/包，贈送${giftProductName}${giftQuantity}瓶/包`;
                                   } else {
-                                    return `感謝您購買${totalBottles}瓶`;
+                                    return `感謝您購買${totalBottles}瓶/包`;
                                   }
                                 })()}</div>
                               </div>
@@ -565,7 +565,7 @@ function CheckoutPageContent() {
                             {!promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
                               <div className="text-sm text-orange-600">
                                 {promotionSettings.isFreeShippingEnabled && promotionInfo.totalBottles < promotionInfo.freeShippingThreshold && (
-                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶即可享受免運費優惠</div>
+                                  <div>🚚 再買{promotionInfo.freeShippingThreshold - promotionInfo.totalBottles}瓶/包即可享受免運費優惠</div>
                                 )}
                                 {promotionSettings.isGiftEnabled && (() => {
                                   try {
@@ -579,7 +579,7 @@ function CheckoutPageContent() {
                                       
                                       if (nextRule) {
                                         return (
-                                          <div>🎁 再買{nextRule.threshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
+                                          <div>🎁 再買{nextRule.threshold - promotionInfo.totalBottles}瓶/包即可享受贈品優惠（送{nextRule.quantity}瓶/包）</div>
                                         );
                                       }
                                     } else {
@@ -589,7 +589,7 @@ function CheckoutPageContent() {
                                       
                                       if (promotionInfo.totalBottles < oldGiftThreshold) {
                                         return (
-                                          <div>🎁 再買{oldGiftThreshold - promotionInfo.totalBottles}瓶即可享受贈品優惠（送{oldGiftQuantity}瓶）</div>
+                                          <div>🎁 再買{oldGiftThreshold - promotionInfo.totalBottles}瓶/包即可享受贈品優惠（送{oldGiftQuantity}瓶/包）</div>
                                         );
                                       }
                                     }

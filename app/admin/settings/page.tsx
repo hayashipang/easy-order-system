@@ -43,8 +43,8 @@ export default function AdminSettingsPage() {
       { threshold: 20, quantity: 2 },
       { threshold: 30, quantity: 3 }
     ]),
-    giftProductName: '隨機送一瓶',
-    promotionText: '滿15送1瓶，滿20送2瓶，滿30送3瓶'
+    giftProductName: '隨機送一瓶/包',
+    promotionText: '滿15送1瓶/包，滿20送2瓶/包，滿30送3瓶/包'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -156,7 +156,7 @@ export default function AdminSettingsPage() {
       const giftRules: GiftRule[] = JSON.parse(promotionSettings.giftRules);
       const rules = giftRules
         .sort((a, b) => a.threshold - b.threshold)
-        .map(rule => `滿${rule.threshold}送${rule.quantity}瓶`)
+        .map(rule => `滿${rule.threshold}送${rule.quantity}瓶/包`)
         .join('，');
       
       const newPromotionText = rules + (promotionSettings.giftProductName ? `，${promotionSettings.giftProductName}` : '');
@@ -351,7 +351,7 @@ export default function AdminSettingsPage() {
                   {promotionSettings.isFreeShippingEnabled && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        免運費門檻（瓶數）
+                        免運費門檻（瓶/包數）
                       </label>
                       <input
                         type="number"
@@ -405,7 +405,7 @@ export default function AdminSettingsPage() {
                                       handlePromotionChange('giftRules', JSON.stringify(newRules));
                                     }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                    placeholder="瓶數"
+                                    placeholder="瓶/包數"
                                   />
                                 </div>
                                 <div className="text-center text-gray-500">
@@ -425,11 +425,11 @@ export default function AdminSettingsPage() {
                                       handlePromotionChange('giftRules', JSON.stringify(newRules));
                                     }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                    placeholder="瓶數"
+                                    placeholder="瓶/包數"
                                   />
                                 </div>
                                 <div className="text-center text-gray-500">
-                                  <span className="text-sm">瓶</span>
+                                  <span className="text-sm">瓶/包</span>
                                 </div>
                               </div>
                             ));
@@ -449,7 +449,7 @@ export default function AdminSettingsPage() {
                           value={promotionSettings.giftProductName}
                           onChange={(e) => handlePromotionChange('giftProductName', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="例如：隨機送一瓶"
+                          placeholder="例如：隨機送一瓶/包"
                         />
                         <p className="text-sm text-gray-500 mt-1">
                           此名稱將顯示在結帳頁面的贈品信息中
@@ -480,7 +480,7 @@ export default function AdminSettingsPage() {
                       onChange={(e) => handlePromotionChange('promotionText', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       rows={3}
-                      placeholder="例如：買20送1瓶＋免運費"
+                      placeholder="例如：買20送1瓶/包＋免運費"
                     />
                     <p className="text-sm text-gray-500 mt-1">
                       此文字將顯示在結帳頁面的促銷信息中。點擊「同步規則」可根據贈品規則自動生成。

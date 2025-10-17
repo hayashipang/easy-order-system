@@ -225,7 +225,7 @@ function OrderConfirmationPageContent() {
                     {promotion.hasFreeShipping && promotion.hasGift && (
                       <div className="text-sm text-green-800">
                         <div className="font-medium mb-1">✓ 已達免運費門檻</div>
-                        <div>✓ 感謝您購買{promotion.totalBottles}瓶，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶</div>
+                        <div>✓ 感謝您購買{promotion.totalBottles}瓶/包，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶/包</div>
                       </div>
                     )}
 
@@ -237,14 +237,14 @@ function OrderConfirmationPageContent() {
 
                     {!promotion.hasFreeShipping && promotion.hasGift && (
                       <div className="text-sm text-green-800">
-                        <div>✓ 感謝您購買{promotion.totalBottles}瓶，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶</div>
+                        <div>✓ 感謝您購買{promotion.totalBottles}瓶/包，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶/包</div>
                       </div>
                     )}
 
                     {!promotion.hasFreeShipping && !promotion.hasGift && (
                       <div className="text-sm text-orange-600">
                         {promotion.isFreeShippingEnabled && promotion.totalBottles < promotion.freeShippingThreshold && (
-                          <div>再買{promotion.freeShippingThreshold - promotion.totalBottles}瓶即可享受免運費優惠</div>
+                          <div>再買{promotion.freeShippingThreshold - promotion.totalBottles}瓶/包即可享受免運費優惠</div>
                         )}
                         {promotion.isGiftEnabled && (() => {
                           try {
@@ -255,7 +255,7 @@ function OrderConfirmationPageContent() {
                             
                             if (nextRule) {
                               return (
-                                <div>再買{nextRule.threshold - promotion.totalBottles}瓶即可享受贈品優惠（送{nextRule.quantity}瓶）</div>
+                                <div>再買{nextRule.threshold - promotion.totalBottles}瓶/包即可享受贈品優惠（送{nextRule.quantity}瓶/包）</div>
                               );
                             }
                             return null;

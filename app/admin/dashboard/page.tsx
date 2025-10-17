@@ -401,7 +401,7 @@ export default function AdminDashboard() {
                           {promotion.hasFreeShipping && promotion.hasGift && (
                             <div className="text-sm text-purple-800">
                               <div className="font-medium mb-1">✓ 已達免運費門檻</div>
-                              <div>✓ 感謝您購買{promotion.totalBottles}瓶，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶</div>
+                              <div>✓ 感謝您購買{promotion.totalBottles}瓶/包，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶/包</div>
                             </div>
                           )}
 
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
 
                           {!promotion.hasFreeShipping && promotion.hasGift && (
                             <div className="text-sm text-purple-800">
-                              <div>✓ 感謝您購買{promotion.totalBottles}瓶，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶</div>
+                              <div>✓ 感謝您購買{promotion.totalBottles}瓶/包，贈送{promotion.giftProductName || '隨機'}{promotion.giftQuantity}瓶/包</div>
                             </div>
                           )}
 
