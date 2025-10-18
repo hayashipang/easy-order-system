@@ -30,11 +30,11 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    // 檢查文件大小 (3MB - 更保守的限制)
-    const maxSize = 3 * 1024 * 1024;
+    // 檢查文件大小 (5MB - 允許較大的原始文件)
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       return addCorsHeaders(NextResponse.json(
-        { error: 'File too large. Maximum size is 3MB.' },
+        { error: 'File too large. Maximum size is 5MB.' },
         { status: 400 }
       ));
     }
@@ -52,17 +52,17 @@ export async function POST(request: NextRequest) {
     const image = sharp(buffer);
     const metadata = await image.metadata();
     
-    // 根據原始解析度決定目標解析度 - 非常保守的設置
-    let targetWidth = 1200;
-    let targetHeight = 1600;
+    // 根據原始解析度決定目標解析度 - 平衡品質和文件大小
+    let targetWidth = 1800;
+    let targetHeight = 2400;
     
     if (metadata.width && metadata.height) {
       const aspectRatio = metadata.width / metadata.height;
       
-      // 對於高解析度圖片，使用更保守的解析度
+      // 對於高解析度圖片，使用較高的解析度
       if (metadata.width > 2000 || metadata.height > 2000) {
-        targetWidth = 1400; // 進一步降低解析度
-        targetHeight = Math.round(1400 / aspectRatio);
+        targetWidth = 2000; // 提升解析度以獲得更好品質
+        targetHeight = Math.round(2000 / aspectRatio);
       }
     }
     
@@ -74,17 +74,17 @@ export async function POST(request: NextRequest) {
         kernel: sharp.kernel.lanczos3 // 使用更好的重採樣算法
       })
       .webp({ 
-        quality: 80, // 進一步降低品質
+        quality: 85, // 提升品質以獲得更好效果
         effort: 6,
         lossless: false,
         nearLossless: false
       })
       .toBuffer();
     
-    // 如果文件還是太大，進一步降低品質
-    const maxCompressedSize = 1.5 * 1024 * 1024; // 1.5MB - 非常保守的限制
+    // 如果文件還是太大，稍微降低品質
+    const maxCompressedSize = 2.5 * 1024 * 1024; // 2.5MB - 目標類似您的 1.3MB JPG
     if (compressedBuffer.length > maxCompressedSize) {
-      // 降低品質到 75%
+      // 降低品質到 80%
       compressedBuffer = await image
         .resize(targetWidth, targetHeight, { 
           fit: 'inside',
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           kernel: sharp.kernel.lanczos3
         })
         .webp({ 
-          quality: 75,
+          quality: 80,
           effort: 6,
           lossless: false,
           nearLossless: false
