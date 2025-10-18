@@ -48,65 +48,47 @@ export async function POST(request: NextRequest) {
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileName = `detail-${timestamp}-${randomString}.webp`;
     
-    // 使用和產品管理相同的壓縮設置（清晰）
-    const image = sharp(buffer);
-    const metadata = await image.metadata();
-    
-    // 使用和 databaseImageStorage.ts 相同的設置
-    let compressedBuffer = await image
-      .resize(600, 450, { 
-        fit: 'inside',
-        withoutEnlargement: true 
-      })
-      .webp({ 
-        quality: 75,
-        effort: 4,
-        smartSubsample: true
-      })
-      .toBuffer();
-    
-    // 計算壓縮比例
+    // 直接使用資料庫存儲，避免雙重壓縮
     const originalSize = file.size;
-    const compressedSize = compressedBuffer.length;
-    const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
-    
-    // 嘗試存儲到資料庫，失敗則使用文件系統
-    let fileUrl;
-    let finalFileName = fileName;
     
     try {
-      const storageResult = await storeImageInDatabase(compressedBuffer, fileName, 'detail');
-      fileUrl = storageResult.url;
-      finalFileName = storageResult.fileName;
+      const storageResult = await storeImageInDatabase(buffer, fileName, 'detail');
+      return addCorsHeaders(NextResponse.json({
+        url: storageResult.url,
+        fileName: storageResult.fileName,
+        originalSize: originalSize,
+        compressedSize: storageResult.compressedSize,
+        compressionRatio: storageResult.compressionRatio,
+        type: 'image/webp'
+      }));
     } catch (dbError) {
       console.error('資料庫存儲失敗，使用文件系統:', dbError);
       
-      // Fallback 到文件系統存儲
+      // Fallback 到文件系統存儲（使用原始 buffer，不壓縮）
       const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true });
       }
       
       const filePath = path.join(uploadsDir, fileName);
-      fs.writeFileSync(filePath, compressedBuffer);
+      fs.writeFileSync(filePath, buffer);
       
       // 返回文件 URL
       const baseUrl = process.env.VERCEL_URL 
         ? `https://${process.env.VERCEL_URL}`
         : '';
       
-      fileUrl = baseUrl ? `${baseUrl}/uploads/${fileName}` : `/uploads/${fileName}`;
+      const fileUrl = baseUrl ? `${baseUrl}/uploads/${fileName}` : `/uploads/${fileName}`;
+      
+      return addCorsHeaders(NextResponse.json({
+        url: fileUrl,
+        fileName: fileName,
+        originalSize: originalSize,
+        compressedSize: originalSize,
+        compressionRatio: '0%',
+        type: 'image/webp'
+      }));
     }
-    
-    const response = NextResponse.json({
-      url: fileUrl,
-      fileName: finalFileName,
-      originalSize: originalSize,
-      compressedSize: compressedSize,
-      compressionRatio: `${compressionRatio}%`,
-      type: 'image/webp'
-    });
-    return addCorsHeaders(response);
 
   } catch (error) {
     console.error('File upload error:', error);
