@@ -525,7 +525,7 @@ function CheckoutPageContent() {
                         
                         return (
                           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            {promotionInfo.hasFreeShipping && promotionInfo.hasGift && (
+                            {promotionInfo.hasFreeShipping && promotionInfo.hasGift && form.pickupMethod === 'family_mart' && (
                               <div className="text-sm text-blue-800">
                                 <div className="font-medium mb-1">促銷優惠：</div>
                                 <div>✓ 已達免運費門檻</div>
@@ -543,7 +543,24 @@ function CheckoutPageContent() {
                               </div>
                             )}
                             
-                            {promotionInfo.hasFreeShipping && !promotionInfo.hasGift && (
+                            {promotionInfo.hasGift && form.pickupMethod === 'pickup' && (
+                              <div className="text-sm text-blue-800">
+                                <div className="font-medium mb-1">促銷優惠：</div>
+                                <div>✓ {(() => {
+                                  const totalBottles = promotionInfo.totalBottles;
+                                  const giftQuantity = promotionInfo.giftQuantity;
+                                  const giftProductName = promotionSettings.giftProductName || '隨機瓶/包';
+                                  
+                                  if (giftQuantity > 0) {
+                                    return `感謝您購買${totalBottles}瓶/包，贈送${giftProductName}${giftQuantity}瓶/包`;
+                                  } else {
+                                    return `感謝您購買${totalBottles}瓶/包`;
+                                  }
+                                })()}</div>
+                              </div>
+                            )}
+                            
+                            {promotionInfo.hasFreeShipping && !promotionInfo.hasGift && form.pickupMethod === 'family_mart' && (
                               <div className="text-sm text-blue-800">
                                 <div className="font-medium mb-1">促銷優惠：</div>
                                 <div>✓ 已達免運費門檻</div>
