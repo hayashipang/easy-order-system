@@ -15,6 +15,9 @@ export async function GET(request: NextRequest) {
   if (corsResponse) return corsResponse;
 
   try {
+    // 檢查資料庫連接
+    await prisma.$connect();
+    
     const { searchParams } = new URL(request.url);
     const phone = searchParams.get('phone');
     
@@ -42,8 +45,17 @@ export async function GET(request: NextRequest) {
     return addCorsHeaders(response);
   } catch (error) {
     console.error('獲取訂單錯誤:', error);
+    console.error('錯誤詳情:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     return addCorsHeaders(NextResponse.json(
-      { error: 'Failed to fetch orders' },
+      { 
+        error: 'Failed to fetch orders',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     ));
   }

@@ -399,7 +399,7 @@ export default function ContentBlock({
               <img
                 src={imageUrl}
                 alt={imageAlt || '圖片'}
-                className="w-full h-auto object-cover rounded-lg shadow-md"
+                className="w-full h-auto object-contain rounded-lg shadow-md"
                 loading="lazy"
                 decoding="async"
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
