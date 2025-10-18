@@ -46,57 +46,56 @@ export async function POST(request: NextRequest) {
     // 生成唯一文件名
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const fileName = `detail-${timestamp}-${randomString}.png`;
+    const fileName = `detail-${timestamp}-${randomString}.webp`;
     
     // 高品質壓縮 - 保持更好的解析度
     const image = sharp(buffer);
     const metadata = await image.metadata();
     
-    // 根據原始解析度決定目標解析度 - 保持更高解析度
-    let targetWidth = 2400;
-    let targetHeight = 3200;
+    // 根據原始解析度決定目標解析度 - 平衡品質和文件大小
+    let targetWidth = 2000;
+    let targetHeight = 2800;
     
     if (metadata.width && metadata.height) {
       const aspectRatio = metadata.width / metadata.height;
       
-      // 對於高解析度圖片，保持原始解析度
+      // 對於高解析度圖片，使用較高的解析度但控制在合理範圍
       if (metadata.width > 2000 || metadata.height > 2000) {
-        targetWidth = metadata.width; // 保持原始寬度
-        targetHeight = metadata.height; // 保持原始高度
+        targetWidth = 2200; // 高解析度但不會太大
+        targetHeight = Math.round(2200 / aspectRatio);
       }
     }
     
-    // 使用 PNG 格式進行無損壓縮
+    // 使用高品質 WebP 壓縮
     let compressedBuffer = await image
       .resize(targetWidth, targetHeight, { 
         fit: 'inside',
         withoutEnlargement: true,
         kernel: sharp.kernel.lanczos3 // 使用更好的重採樣算法
       })
-      .png({ 
-        compressionLevel: 6, // PNG 壓縮等級 (0-9, 6 是平衡點)
-        adaptiveFiltering: true,
-        palette: false // 不使用調色板，保持真彩色
+      .webp({ 
+        quality: 90, // 高品質
+        effort: 6,
+        lossless: false,
+        nearLossless: false
       })
       .toBuffer();
     
-    // 如果文件還是太大，稍微降低解析度
+    // 如果文件還是太大，稍微降低品質
     const maxCompressedSize = 3.5 * 1024 * 1024; // 3.5MB
     if (compressedBuffer.length > maxCompressedSize) {
-      // 降低 10% 解析度
-      const reducedWidth = Math.round(targetWidth * 0.9);
-      const reducedHeight = Math.round(targetHeight * 0.9);
-      
+      // 降低品質到 85%
       compressedBuffer = await image
-        .resize(reducedWidth, reducedHeight, { 
+        .resize(targetWidth, targetHeight, { 
           fit: 'inside',
           withoutEnlargement: true,
           kernel: sharp.kernel.lanczos3
         })
-        .png({ 
-          compressionLevel: 6,
-          adaptiveFiltering: true,
-          palette: false
+        .webp({ 
+          quality: 85,
+          effort: 6,
+          lossless: false,
+          nearLossless: false
         })
         .toBuffer();
     }
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
       originalSize: originalSize,
       compressedSize: compressedSize,
       compressionRatio: `${compressionRatio}%`,
-      type: 'image/png'
+      type: 'image/webp'
     });
     return addCorsHeaders(response);
 
