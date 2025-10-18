@@ -30,11 +30,11 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    // 檢查文件大小 (4MB - Vercel 限制)
-    const maxSize = 4 * 1024 * 1024;
+    // 檢查文件大小 (5MB - 允許較大的原始文件)
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       return addCorsHeaders(NextResponse.json(
-        { error: 'File too large. Maximum size is 4MB.' },
+        { error: 'File too large. Maximum size is 5MB.' },
         { status: 400 }
       ));
     }
