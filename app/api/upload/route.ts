@@ -52,17 +52,17 @@ export async function POST(request: NextRequest) {
     const image = sharp(buffer);
     const metadata = await image.metadata();
     
-    // 根據原始解析度決定目標解析度 - 平衡品質和文件大小
-    let targetWidth = 2000;
-    let targetHeight = 2800;
+    // 根據原始解析度決定目標解析度 - 確保文件大小足夠小
+    let targetWidth = 1600;
+    let targetHeight = 2200;
     
     if (metadata.width && metadata.height) {
       const aspectRatio = metadata.width / metadata.height;
       
-      // 對於高解析度圖片，使用較高的解析度但控制在合理範圍
+      // 對於高解析度圖片，使用較保守的解析度
       if (metadata.width > 2000 || metadata.height > 2000) {
-        targetWidth = 2200; // 高解析度但不會太大
-        targetHeight = Math.round(2200 / aspectRatio);
+        targetWidth = 1800; // 降低解析度以確保文件大小
+        targetHeight = Math.round(1800 / aspectRatio);
       }
     }
     
@@ -74,17 +74,17 @@ export async function POST(request: NextRequest) {
         kernel: sharp.kernel.lanczos3 // 使用更好的重採樣算法
       })
       .webp({ 
-        quality: 90, // 高品質
+        quality: 85, // 降低品質以確保文件更小
         effort: 6,
         lossless: false,
         nearLossless: false
       })
       .toBuffer();
     
-    // 如果文件還是太大，稍微降低品質
-    const maxCompressedSize = 3.5 * 1024 * 1024; // 3.5MB
+    // 如果文件還是太大，進一步降低品質
+    const maxCompressedSize = 2.5 * 1024 * 1024; // 2.5MB - 更保守的限制
     if (compressedBuffer.length > maxCompressedSize) {
-      // 降低品質到 85%
+      // 降低品質到 80%
       compressedBuffer = await image
         .resize(targetWidth, targetHeight, { 
           fit: 'inside',
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           kernel: sharp.kernel.lanczos3
         })
         .webp({ 
-          quality: 85,
+          quality: 80,
           effort: 6,
           lossless: false,
           nearLossless: false
