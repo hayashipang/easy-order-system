@@ -567,8 +567,8 @@ function CheckoutPageContent() {
                               </div>
                             )}
                             
-                            {/* 免運費提醒 - 獨立顯示 */}
-                            {promotionSettings.isFreeShippingEnabled && !promotionInfo.hasFreeShipping && (
+                            {/* 免運費提醒 - 只有全家店到店時才顯示 */}
+                            {promotionSettings.isFreeShippingEnabled && !promotionInfo.hasFreeShipping && form.pickupMethod === 'family_mart' && (
                               <div className="text-sm text-orange-600 mb-2">
                                 <div>🚚 再買{promotionInfo.freeShippingThreshold - getTotalAmount()}元即可享受免運費優惠（省{promotionSettings.shippingFee || 120}元運費）</div>
                               </div>
