@@ -70,12 +70,12 @@ export async function storeImageInDatabase(
       const sharp = (await import('sharp')).default;
       
       compressedBuffer = await sharp(buffer)
-        .resize(600, 450, { 
+        .resize(1200, 900, { 
           fit: 'inside',
           withoutEnlargement: true 
         })
         .webp({ 
-          quality: 75,
+          quality: 85,
           effort: 4,
           smartSubsample: true
         })
