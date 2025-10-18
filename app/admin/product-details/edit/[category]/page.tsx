@@ -294,7 +294,10 @@ export default function EditProductDetailPage() {
                     <img
                       src={imageUrl}
                       alt={`上傳圖片 ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-lg"
+                      className="w-full h-auto object-contain rounded-lg"
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     />
                     <button
                       onClick={() => removeImage(index)}
