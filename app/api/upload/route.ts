@@ -46,57 +46,24 @@ export async function POST(request: NextRequest) {
     // 生成唯一文件名
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const fileName = `detail-${timestamp}-${randomString}.jpg`;
+    const fileName = `detail-${timestamp}-${randomString}.webp`;
     
-    // 高品質壓縮 - 保持更好的解析度
+    // 使用和產品管理相同的壓縮設置（清晰）
     const image = sharp(buffer);
     const metadata = await image.metadata();
     
-    // 根據原始解析度決定目標解析度 - 高品質設置
-    let targetWidth = 2400;
-    let targetHeight = 3200;
-    
-    if (metadata.width && metadata.height) {
-      const aspectRatio = metadata.width / metadata.height;
-      
-      // 對於高解析度圖片，保持更高的解析度
-      if (metadata.width > 2000 || metadata.height > 2000) {
-        targetWidth = 2500; // 接近原始解析度
-        targetHeight = Math.round(2500 / aspectRatio);
-      }
-    }
-    
-    // 使用高品質 JPG 壓縮
+    // 使用和 databaseImageStorage.ts 相同的設置
     let compressedBuffer = await image
-      .resize(targetWidth, targetHeight, { 
+      .resize(600, 450, { 
         fit: 'inside',
-        withoutEnlargement: true,
-        kernel: sharp.kernel.lanczos3 // 使用更好的重採樣算法
+        withoutEnlargement: true 
       })
-      .jpeg({ 
-        quality: 90, // 高品質 JPG 設置
-        progressive: true,
-        mozjpeg: true
+      .webp({ 
+        quality: 75,
+        effort: 4,
+        smartSubsample: true
       })
       .toBuffer();
-    
-    // 如果文件還是太大，稍微降低品質
-    const maxCompressedSize = 4 * 1024 * 1024; // 4MB - 允許更大的文件以獲得更好品質
-    if (compressedBuffer.length > maxCompressedSize) {
-      // 降低品質到 85%
-      compressedBuffer = await image
-        .resize(targetWidth, targetHeight, { 
-          fit: 'inside',
-          withoutEnlargement: true,
-          kernel: sharp.kernel.lanczos3
-        })
-        .jpeg({ 
-          quality: 85,
-          progressive: true,
-          mozjpeg: true
-        })
-        .toBuffer();
-    }
     
     // 計算壓縮比例
     const originalSize = file.size;
@@ -137,7 +104,7 @@ export async function POST(request: NextRequest) {
       originalSize: originalSize,
       compressedSize: compressedSize,
       compressionRatio: `${compressionRatio}%`,
-      type: 'image/jpeg'
+      type: 'image/webp'
     });
     return addCorsHeaders(response);
 
