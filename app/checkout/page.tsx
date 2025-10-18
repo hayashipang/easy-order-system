@@ -567,7 +567,7 @@ function CheckoutPageContent() {
                               </div>
                             )}
                             
-                            {!promotionInfo.hasFreeShipping && promotionInfo.hasGift && (
+                            {!promotionInfo.hasFreeShipping && promotionInfo.hasGift && form.pickupMethod === 'family_mart' && (
                               <div className="text-sm text-blue-800">
                                 <div className="font-medium mb-1">促銷優惠：</div>
                                 <div>✓ {(() => {
