@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
       .toBuffer();
     
     // 如果文件還是太大，稍微降低解析度
-    const maxSize = 3.5 * 1024 * 1024; // 3.5MB
-    if (compressedBuffer.length > maxSize) {
+    const maxCompressedSize = 3.5 * 1024 * 1024; // 3.5MB
+    if (compressedBuffer.length > maxCompressedSize) {
       // 降低 10% 解析度
       const reducedWidth = Math.round(targetWidth * 0.9);
       const reducedHeight = Math.round(targetHeight * 0.9);
