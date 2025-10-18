@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // 生成唯一文件名
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const fileName = `detail-${timestamp}-${randomString}.webp`;
+    const fileName = `detail-${timestamp}-${randomString}.jpg`;
     
     // 高品質壓縮 - 保持更好的解析度
     const image = sharp(buffer);
@@ -66,18 +66,17 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // 使用高品質 WebP 壓縮
+    // 使用高品質 JPG 壓縮
     let compressedBuffer = await image
       .resize(targetWidth, targetHeight, { 
         fit: 'inside',
         withoutEnlargement: true,
         kernel: sharp.kernel.lanczos3 // 使用更好的重採樣算法
       })
-      .webp({ 
-        quality: 90, // 高品質設置
-        effort: 6,
-        lossless: false,
-        nearLossless: false
+      .jpeg({ 
+        quality: 90, // 高品質 JPG 設置
+        progressive: true,
+        mozjpeg: true
       })
       .toBuffer();
     
@@ -91,11 +90,10 @@ export async function POST(request: NextRequest) {
           withoutEnlargement: true,
           kernel: sharp.kernel.lanczos3
         })
-        .webp({ 
+        .jpeg({ 
           quality: 85,
-          effort: 6,
-          lossless: false,
-          nearLossless: false
+          progressive: true,
+          mozjpeg: true
         })
         .toBuffer();
     }
@@ -139,7 +137,7 @@ export async function POST(request: NextRequest) {
       originalSize: originalSize,
       compressedSize: compressedSize,
       compressionRatio: `${compressionRatio}%`,
-      type: 'image/webp'
+      type: 'image/jpeg'
     });
     return addCorsHeaders(response);
 
