@@ -89,10 +89,17 @@ export default function EditProductDetailPage() {
   };
 
   const handleImageUpload = async (file: File): Promise<string> => {
+    // 使用和產品管理相同的上傳方式
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('image', file);
+    formData.append('name', 'product-detail-image');
+    formData.append('description', 'Product detail image');
+    formData.append('price', '0');
+    formData.append('category', 'product-detail');
+    formData.append('productType', 'detail');
+    formData.append('isAvailable', 'true');
 
-    const response = await apiCall('/api/upload', {
+    const response = await apiCall('/api/menu', {
       method: 'POST',
       body: formData,
     });
@@ -102,7 +109,7 @@ export default function EditProductDetailPage() {
     }
 
     const data = await response.json();
-    return data.url;
+    return data.imageUrl;
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
