@@ -94,7 +94,10 @@ function MenuBrowsePageContent() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={handlePurchaseClick}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center"
+                className="text-white px-4 py-2 rounded-lg transition-colors font-medium flex items-center"
+                style={{ backgroundColor: '#E57241' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#D4633A'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#E57241'}
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -116,21 +119,53 @@ function MenuBrowsePageContent() {
             <div className="flex justify-center space-x-4 mb-6">
               <button
                 onClick={() => handleProductTypeChange('即飲瓶')}
-                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 ${
+                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
                   selectedProductType === '即飲瓶'
-                    ? 'bg-green-600 border-green-600 text-white shadow-md'
-                    : 'bg-green-500 border-green-500 text-white hover:bg-green-600'
+                    ? 'shadow-md'
+                    : ''
                 }`}
+                style={{
+                  backgroundColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#4A4A4A',
+                  borderColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#4A4A4A'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedProductType !== '即飲瓶') {
+                    e.currentTarget.style.backgroundColor = '#2A5D2C';
+                    e.currentTarget.style.borderColor = '#2A5D2C';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedProductType !== '即飲瓶') {
+                    e.currentTarget.style.backgroundColor = '#4A4A4A';
+                    e.currentTarget.style.borderColor = '#4A4A4A';
+                  }
+                }}
               >
                 <span className="font-medium">即飲瓶</span>
               </button>
               <button
                 onClick={() => handleProductTypeChange('鮮凍包')}
-                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 ${
+                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
                   selectedProductType === '鮮凍包'
-                    ? 'bg-green-600 border-green-600 text-white shadow-md'
-                    : 'bg-green-500 border-green-500 text-white hover:bg-green-600'
+                    ? 'shadow-md'
+                    : ''
                 }`}
+                style={{
+                  backgroundColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#4A4A4A',
+                  borderColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#4A4A4A'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedProductType !== '鮮凍包') {
+                    e.currentTarget.style.backgroundColor = '#4B8B3B';
+                    e.currentTarget.style.borderColor = '#4B8B3B';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedProductType !== '鮮凍包') {
+                    e.currentTarget.style.backgroundColor = '#4A4A4A';
+                    e.currentTarget.style.borderColor = '#4A4A4A';
+                  }
+                }}
               >
                 <span className="font-medium">鮮凍包</span>
               </button>
@@ -140,7 +175,10 @@ function MenuBrowsePageContent() {
             <div className="flex justify-center mb-6">
               <button
                 onClick={() => handleCategoryClick(selectedProductType)}
-                className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg transition-colors flex items-center"
+                className="text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                style={{ backgroundColor: '#D4A44A' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#C1953F'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#D4A44A'}
               >
                 <span className="text-sm">查看{selectedProductType}詳情</span>
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

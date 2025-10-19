@@ -320,21 +320,53 @@ function CustomerOrdersPageContent() {
             <div className="flex justify-center space-x-4 mb-6">
               <button
                 onClick={() => handleProductTypeChange('即飲瓶')}
-                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 ${
+                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
                   selectedProductType === '即飲瓶'
-                    ? 'bg-blue-100 border-blue-300 text-blue-700 shadow-md'
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'shadow-md'
+                    : ''
                 }`}
+                style={{
+                  backgroundColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#4A4A4A',
+                  borderColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#4A4A4A'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedProductType !== '即飲瓶') {
+                    e.currentTarget.style.backgroundColor = '#2A5D2C';
+                    e.currentTarget.style.borderColor = '#2A5D2C';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedProductType !== '即飲瓶') {
+                    e.currentTarget.style.backgroundColor = '#4A4A4A';
+                    e.currentTarget.style.borderColor = '#4A4A4A';
+                  }
+                }}
               >
                 <span className="font-medium">即飲瓶</span>
               </button>
               <button
                 onClick={() => handleProductTypeChange('鮮凍包')}
-                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 ${
+                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
                   selectedProductType === '鮮凍包'
-                    ? 'bg-green-100 border-green-300 text-green-700 shadow-md'
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'shadow-md'
+                    : ''
                 }`}
+                style={{
+                  backgroundColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#4A4A4A',
+                  borderColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#4A4A4A'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedProductType !== '鮮凍包') {
+                    e.currentTarget.style.backgroundColor = '#4B8B3B';
+                    e.currentTarget.style.borderColor = '#4B8B3B';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedProductType !== '鮮凍包') {
+                    e.currentTarget.style.backgroundColor = '#4A4A4A';
+                    e.currentTarget.style.borderColor = '#4A4A4A';
+                  }
+                }}
               >
                 <span className="font-medium">鮮凍包</span>
               </button>
@@ -344,7 +376,10 @@ function CustomerOrdersPageContent() {
             <div className="flex justify-center mb-6">
               <button
                 onClick={() => handleCategoryClick(selectedProductType)}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors flex items-center"
+                className="text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                style={{ backgroundColor: '#D4A44A' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#C1953F'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#D4A44A'}
               >
                 <span className="text-sm">查看{selectedProductType}詳情</span>
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
