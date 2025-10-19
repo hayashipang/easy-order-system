@@ -1,6 +1,4 @@
-API Call: /api/settings Base URL: 
-page-9c79fb19b502886f.js:1 API Call: /api/orders Base URL: 
-page-9c79fb19b502886f.js:1  GET https://easy-order-system.vercel.app/api/orders 500 (Internal Server Error)import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { storeImageInDatabase } from '@/lib/databaseImageStorage';
 import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
