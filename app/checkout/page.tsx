@@ -140,8 +140,8 @@ function CheckoutPageContent() {
         return totalAmount >= promotionSettings.freeShippingThreshold ? 0 : shippingFee;
       }
       
-      // 促銷設定未啟用免運費時，直接收取運費
-      return promotionSettings.shippingFee || 120;
+      // 促銷設定未啟用免運費時，使用系統設定的運費
+      return parseInt(settings.shipping_fee) || 120;
     }
     return 0;
   };
