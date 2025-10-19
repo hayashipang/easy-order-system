@@ -326,8 +326,8 @@ function CustomerOrdersPageContent() {
                     : ''
                 }`}
                 style={{
-                  backgroundColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#4A4A4A',
-                  borderColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#4A4A4A'
+                  backgroundColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#D3D3D3',
+                  borderColor: selectedProductType === '即飲瓶' ? '#2A5D2C' : '#D3D3D3'
                 }}
                 onMouseEnter={(e) => {
                   if (selectedProductType !== '即飲瓶') {
@@ -337,8 +337,8 @@ function CustomerOrdersPageContent() {
                 }}
                 onMouseLeave={(e) => {
                   if (selectedProductType !== '即飲瓶') {
-                    e.currentTarget.style.backgroundColor = '#4A4A4A';
-                    e.currentTarget.style.borderColor = '#4A4A4A';
+                    e.currentTarget.style.backgroundColor = '#D3D3D3';
+                    e.currentTarget.style.borderColor = '#D3D3D3';
                   }
                 }}
               >
@@ -352,8 +352,8 @@ function CustomerOrdersPageContent() {
                     : ''
                 }`}
                 style={{
-                  backgroundColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#4A4A4A',
-                  borderColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#4A4A4A'
+                  backgroundColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#D3D3D3',
+                  borderColor: selectedProductType === '鮮凍包' ? '#4B8B3B' : '#D3D3D3'
                 }}
                 onMouseEnter={(e) => {
                   if (selectedProductType !== '鮮凍包') {
@@ -363,8 +363,8 @@ function CustomerOrdersPageContent() {
                 }}
                 onMouseLeave={(e) => {
                   if (selectedProductType !== '鮮凍包') {
-                    e.currentTarget.style.backgroundColor = '#4A4A4A';
-                    e.currentTarget.style.borderColor = '#4A4A4A';
+                    e.currentTarget.style.backgroundColor = '#D3D3D3';
+                    e.currentTarget.style.borderColor = '#D3D3D3';
                   }
                 }}
               >
