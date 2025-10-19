@@ -15,6 +15,8 @@ interface MenuItem {
   isAvailable: boolean;
   imageUrl?: string;
   sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface SortableMenuItemProps {
