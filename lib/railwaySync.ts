@@ -83,7 +83,7 @@ function transformCustomerData(easyOrderUser: EasyOrderUser, orderId: string): R
     family_mart_address: '',
     source: '其他訂購',
     payment_method: '現金',
-    order_number: `#cm${orderId}`
+    order_number: `#cm${orderId.slice(-10)}`
   };
 }
 
