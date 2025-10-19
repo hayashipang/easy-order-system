@@ -75,11 +75,11 @@ function isSyncEnabled(): boolean {
 }
 
 // 轉換客戶資料格式
-function transformCustomerData(easyOrderUser: EasyOrderUser, orderId: string): RailwayCustomer {
+function transformCustomerData(easyOrderUser: EasyOrderUser, orderId: string, deliveryType: string): RailwayCustomer {
   return {
     name: easyOrderUser.name || `User-${easyOrderUser.phone}`,
     phone: easyOrderUser.phone,
-    address: '', // 預設空值，由訂單的配送方式決定
+    address: deliveryType === 'pickup' ? '台南市永康區永康街121號' : '', // 根據配送方式設定地址
     family_mart_address: '',
     source: '其他訂購',
     payment_method: '現金',
@@ -100,7 +100,7 @@ function transformOrderData(
   let shippingType: 'none' | 'paid' | 'free';
   let address = '';
   
-  if (deliveryType === '現場取貨') {
+  if (deliveryType === 'pickup') {
     shippingType = 'none';
     address = '台南市永康區永康街121號';
   } else if (shippingFee === 0) {
@@ -152,7 +152,7 @@ export async function syncCustomerToRailway(easyOrderUser: EasyOrderUser, orderI
   }
   
   try {
-    const railwayCustomer = transformCustomerData(easyOrderUser, orderId);
+    const railwayCustomer = transformCustomerData(easyOrderUser, orderId, easyOrderOrder.deliveryType);
     const apiUrl = getRailwayApiUrl();
     
     console.log('Syncing customer to Railway:', railwayCustomer);
