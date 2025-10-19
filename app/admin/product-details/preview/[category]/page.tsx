@@ -95,6 +95,15 @@ export default function PreviewProductDetailPage() {
   };
 
 
+  const parseRules = (rules?: string) => {
+    if (!rules) return null;
+    try {
+      return JSON.parse(rules);
+    } catch {
+      return null;
+    }
+  };
+
   const parseImages = (images?: string) => {
     if (!images) return [];
     try {
@@ -241,6 +250,7 @@ export default function PreviewProductDetailPage() {
   }
 
   const content = parseContent(productDetail.content);
+  const rules = parseRules(productDetail.rules);
   const images = parseImages(productDetail.images);
 
   return (
@@ -294,6 +304,55 @@ export default function PreviewProductDetailPage() {
               </div>
             )}
 
+            {/* 規則說明 */}
+            {rules && (
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">產品規格</h3>
+                {rules.left && rules.right ? (
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <table className="w-full">
+                      <tbody>
+                        {(() => {
+                          const leftItems = rules.left.split('\n').filter(item => item.trim());
+                          const rightItems = rules.right.split('\n').filter(item => item.trim());
+                          const maxLength = Math.max(leftItems.length, rightItems.length);
+                          
+                          return Array.from({ length: maxLength }, (_, index) => (
+                            <tr key={index} className="border-b border-gray-100 last:border-b-0">
+                              <td className="px-4 py-3 text-gray-700 font-medium bg-gray-50 w-1/2">
+                                {leftItems[index] || ''}
+                              </td>
+                              <td className="px-4 py-3 text-gray-900 w-1/2">
+                                {rightItems[index] || ''}
+                              </td>
+                            </tr>
+                          ));
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {rules.left && (
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-2">左側規則</h4>
+                        <div className="text-gray-700 whitespace-pre-wrap">
+                          {rules.left}
+                        </div>
+                      </div>
+                    )}
+                    {rules.right && (
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-2">右側規則</h4>
+                        <div className="text-gray-700 whitespace-pre-wrap">
+                          {rules.right}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* 圖片 */}
             {images.length > 0 && (
@@ -318,7 +377,7 @@ export default function PreviewProductDetailPage() {
             )}
 
             {/* 如果沒有內容 */}
-            {(!content || content.length === 0) && images.length === 0 && (
+            {(!content || content.length === 0) && !rules && images.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <div className="text-4xl mb-4">📝</div>
                 <p>暫無詳情內容</p>

@@ -203,25 +203,50 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
               {/* 規則文 */}
               {rules && (
                 <div className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">規則說明</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {rules.left && (
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-2">左側規則</h4>
-                        <div className="text-gray-700 whitespace-pre-wrap">
-                          {rules.left}
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">產品規格</h3>
+                  {rules.left && rules.right ? (
+                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                      <table className="w-full">
+                        <tbody>
+                          {(() => {
+                            const leftItems = rules.left.split('\n').filter(item => item.trim());
+                            const rightItems = rules.right.split('\n').filter(item => item.trim());
+                            const maxLength = Math.max(leftItems.length, rightItems.length);
+                            
+                            return Array.from({ length: maxLength }, (_, index) => (
+                              <tr key={index} className="border-b border-gray-100 last:border-b-0">
+                                <td className="px-4 py-3 text-gray-700 font-medium bg-gray-50 w-1/2">
+                                  {leftItems[index] || ''}
+                                </td>
+                                <td className="px-4 py-3 text-gray-900 w-1/2">
+                                  {rightItems[index] || ''}
+                                </td>
+                              </tr>
+                            ));
+                          })()}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {rules.left && (
+                        <div>
+                          <h4 className="font-medium text-gray-800 mb-2">左側規則</h4>
+                          <div className="text-gray-700 whitespace-pre-wrap">
+                            {rules.left}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {rules.right && (
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-2">右側規則</h4>
-                        <div className="text-gray-700 whitespace-pre-wrap">
-                          {rules.right}
+                      )}
+                      {rules.right && (
+                        <div>
+                          <h4 className="font-medium text-gray-800 mb-2">右側規則</h4>
+                          <div className="text-gray-700 whitespace-pre-wrap">
+                            {rules.right}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 

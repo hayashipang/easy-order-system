@@ -42,6 +42,7 @@ export default function EditProductDetailPage() {
   const [formData, setFormData] = useState({
     title: '',
     content: [] as ContentItem[],
+    rules: { left: '', right: '' },
     images: [] as string[]
   });
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,7 @@ export default function EditProductDetailPage() {
         setFormData({
           title: data.title || '',
           content: data.content ? JSON.parse(data.content) : [],
+          rules: data.rules ? JSON.parse(data.rules) : { left: '', right: '' },
           images: data.images ? JSON.parse(data.images) : []
         });
       } else if (response.status === 404) {
@@ -69,6 +71,7 @@ export default function EditProductDetailPage() {
         setFormData({
           title: `${category}詳情`,
           content: [],
+          rules: { left: '', right: '' },
           images: []
         });
       } else {
@@ -85,6 +88,16 @@ export default function EditProductDetailPage() {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleRulesChange = (side: 'left' | 'right', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      rules: {
+        ...prev.rules,
+        [side]: value
+      }
     }));
   };
 
@@ -148,6 +161,7 @@ export default function EditProductDetailPage() {
         body: JSON.stringify({
           title: formData.title,
           content: JSON.stringify(formData.content),
+          rules: JSON.stringify(formData.rules),
           images: JSON.stringify(formData.images)
         }),
       });
@@ -259,6 +273,39 @@ export default function EditProductDetailPage() {
             </p>
           </div>
 
+          {/* Rules */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">規則說明</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  左側規則
+                </label>
+                <textarea
+                  value={formData.rules.left}
+                  onChange={(e) => handleRulesChange('left', e.target.value)}
+                  placeholder="輸入左側規則說明..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={6}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  右側規則
+                </label>
+                <textarea
+                  value={formData.rules.right}
+                  onChange={(e) => handleRulesChange('right', e.target.value)}
+                  placeholder="輸入右側規則說明..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  rows={6}
+                />
+              </div>
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              規則說明將在詳情頁面中顯示，支持換行格式
+            </p>
+          </div>
 
           {/* Images */}
           <div className="bg-white rounded-lg shadow-lg p-6">
