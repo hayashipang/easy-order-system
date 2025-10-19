@@ -4,6 +4,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiCall } from '@/lib/api';
 import Link from 'next/link';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import SortableMenuItem from '@/components/SortableMenuItem';
 
 interface MenuItem {
   id: string;
@@ -14,6 +29,7 @@ interface MenuItem {
   productType?: string; // 即飲瓶 或 鮮凍包
   isAvailable: boolean;
   imageUrl?: string;
+  sortOrder: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,6 +56,14 @@ export default function AdminMenuPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   useEffect(() => {
     // 檢查管理員登入狀態
     const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
@@ -60,7 +84,7 @@ export default function AdminMenuPage() {
       const data = await response.json();
       setMenuItems(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch menu items');
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -68,9 +92,8 @@ export default function AdminMenuPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setUploading(true);
-    setUploadProgress(0);
+    setError('');
 
     try {
       const url = editingItem 
@@ -191,6 +214,39 @@ export default function AdminMenuPage() {
     }
   };
 
+  // 處理拖拉排序
+  const handleDragEnd = async (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      const oldIndex = menuItems.findIndex(item => item.id === active.id);
+      const newIndex = menuItems.findIndex(item => item.id === over.id);
+      
+      const newMenuItems = arrayMove(menuItems, oldIndex, newIndex);
+      setMenuItems(newMenuItems);
+
+      // 更新排序順序到後端
+      try {
+        const reorderData = newMenuItems.map((item, index) => ({
+          id: item.id,
+          sortOrder: index
+        }));
+
+        await apiCall('/api/menu/reorder', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ menuItems: reorderData }),
+        });
+      } catch (err) {
+        console.error('更新排序失敗:', err);
+        // 如果更新失敗，重新獲取數據
+        fetchMenuItems();
+      }
+    }
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -203,17 +259,12 @@ export default function AdminMenuPage() {
     }
   };
 
-  const logout = () => {
-    sessionStorage.removeItem('adminLoggedIn');
-    router.push('/admin/login');
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">載入菜單中...</p>
+          <p className="text-gray-600">載入中...</p>
         </div>
       </div>
     );
@@ -224,24 +275,18 @@ export default function AdminMenuPage() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Easy Order 管理後台</h1>
-              <p className="text-gray-600">菜單管理系統</p>
+              <h1 className="text-3xl font-bold text-gray-900">菜單管理</h1>
+              <p className="text-gray-600 mt-1">管理您的菜單項目和排序</p>
             </div>
             <div className="flex items-center space-x-4">
               <Link 
-                href="/admin/login" 
-                className="text-blue-600 hover:text-blue-800 text-sm"
+                href="/admin/dashboard" 
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
               >
-                返回首頁
+                ← 返回儀表板
               </Link>
-              <button
-                onClick={logout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-              >
-                登出
-              </button>
             </div>
           </div>
         </div>
@@ -285,44 +330,46 @@ export default function AdminMenuPage() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
-            {error}
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-600">{error}</p>
           </div>
         )}
 
         {/* Add/Edit Form */}
         {showAddForm && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
               {editingItem ? '編輯菜單項目' : '新增菜單項目'}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    商品名稱
+                    商品名稱 *
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="例如：招牌奶茶"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    價格 (NT$)
+                    價格 *
                   </label>
                   <input
                     type="number"
                     step="0.01"
+                    min="0"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="例如：50"
                     required
                   />
                 </div>
@@ -336,33 +383,36 @@ export default function AdminMenuPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
+                  placeholder="例如：香濃的奶茶，使用優質茶葉製作"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  分類
-                </label>
-                <input
-                  type="text"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="例如：主餐、飲料、甜點"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  產品類型
-                </label>
-                <select
-                  value={formData.productType}
-                  onChange={(e) => setFormData({ ...formData, productType: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">請選擇產品類型</option>
-                  <option value="即飲瓶">即飲瓶</option>
-                  <option value="鮮凍包">鮮凍包</option>
-                </select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    分類
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="例如：主餐、飲料、甜點"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    產品類型
+                  </label>
+                  <select
+                    value={formData.productType}
+                    onChange={(e) => setFormData({ ...formData, productType: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">請選擇產品類型</option>
+                    <option value="即飲瓶">即飲瓶</option>
+                    <option value="鮮凍包">鮮凍包</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -397,6 +447,7 @@ export default function AdminMenuPage() {
                   可供應
                 </label>
               </div>
+              
               {/* 上傳進度條 */}
               {uploading && (
                 <div className="mb-4">
@@ -455,7 +506,7 @@ export default function AdminMenuPage() {
           </div>
         )}
 
-        {/* Menu Items Grid */}
+        {/* Menu Items List */}
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-gray-900">菜單項目</h2>
@@ -479,117 +530,30 @@ export default function AdminMenuPage() {
               </div>
               <p className="text-gray-500 text-lg">目前沒有菜單項目</p>
               <p className="text-gray-400 text-sm mt-2">點擊上方按鈕開始新增菜單項目</p>
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-700 text-sm">
-                  <strong>注意：</strong>Railway 部署後圖片會丟失，請在每次部署後重新上傳圖片
-                </p>
-              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {menuItems.map((item) => (
-                <div key={item.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-                  {/* Item Image */}
-                  {item.imageUrl ? (
-                    <div className="h-48 bg-gray-100 flex items-center justify-center relative">
-                      <img
-                        src={`${item.imageUrl}`}
-                        alt={item.name}
-                        className="max-w-full max-h-full object-contain"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          console.log('圖片載入失敗:', item.imageUrl);
-                          e.currentTarget.style.display = 'none';
-                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                          if (nextElement) {
-                            nextElement.style.display = 'flex';
-                          }
-                        }}
-                        onLoad={() => {
-                          console.log('圖片載入成功:', item.imageUrl);
-                        }}
-                      />
-                      <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center absolute inset-0" style={{display: 'none'}}>
-                        <div className="text-center">
-                          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                            </svg>
-                          </div>
-                          <p className="text-gray-600 text-xs font-medium">圖片載入失敗</p>
-                          <p className="text-gray-400 text-xs mt-1">Railway 部署後圖片會丟失</p>
-                          <p className="text-gray-400 text-xs">請重新上傳圖片</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                          </svg>
-                        </div>
-                        <p className="text-gray-600 text-xs font-medium">無圖片</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="p-4">
-                    {/* Item Header */}
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">{item.name}</h3>
-                      <button
-                        onClick={() => toggleAvailability(item.id, item.isAvailable)}
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          item.isAvailable
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {item.isAvailable ? '供應中' : '暫停'}
-                      </button>
-                    </div>
-
-                    {/* Item Description */}
-                    {item.description && (
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{item.description}</p>
-                    )}
-
-                    {/* Item Category */}
-                    {item.category && (
-                      <div className="mb-3">
-                        <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                          {item.category}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Item Price */}
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-2xl font-bold text-gray-900">NT$ {(Number(item.price) || 0).toFixed(0)}</span>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-md hover:bg-blue-700 transition-colors text-sm"
-                      >
-                        編輯
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="flex-1 bg-red-600 text-white py-2 px-3 rounded-md hover:bg-red-700 transition-colors text-sm"
-                      >
-                        刪除
-                      </button>
-                    </div>
-                  </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={menuItems.map(item => item.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-4">
+                  {menuItems.map((item) => (
+                    <SortableMenuItem
+                      key={item.id}
+                      item={item}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onToggleAvailability={toggleAvailability}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>

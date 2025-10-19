@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
   try {
     const menuItems = await prisma.menuItem.findMany({
       where: { isAvailable: true },
-      orderBy: { name: 'asc' }
+      orderBy: [
+        { sortOrder: 'asc' },
+        { name: 'asc' }
+      ]
     });
     
     // 處理圖片 URL，確保返回正確的絕對路徑
