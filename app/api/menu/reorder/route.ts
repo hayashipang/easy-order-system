@@ -25,37 +25,23 @@ export async function PUT(request: NextRequest) {
       ));
     }
 
-    // 嘗試更新排序順序，如果 sortOrder 字段不存在則返回成功但不實際更新
-    try {
-      const updatePromises = menuItems.map((item: { id: string; sortOrder: number }) => 
-        prisma.menuItem.update({
-          where: { id: item.id },
-          data: { sortOrder: item.sortOrder }
-        })
-      );
+    // 批量更新排序順序
+    const updatePromises = menuItems.map((item: { id: string; sortOrder: number }) => 
+      prisma.menuItem.update({
+        where: { id: item.id },
+        data: { sortOrder: item.sortOrder }
+      })
+    );
 
-      await Promise.all(updatePromises);
+    await Promise.all(updatePromises);
 
-      console.log('✅ 菜單項目排序已更新');
-      console.log('📝 菜單項目順序:', menuItems.map(item => ({ id: item.id, sortOrder: item.sortOrder })));
+    console.log('✅ 菜單項目排序已更新');
+    console.log('📝 菜單項目順序:', menuItems.map(item => ({ id: item.id, sortOrder: item.sortOrder })));
 
-      return addCorsHeaders(NextResponse.json(
-        { message: 'Menu items reordered successfully' },
-        { status: 200 }
-      ));
-    } catch (error) {
-      // 如果 sortOrder 字段不存在，返回成功但不實際更新
-      console.log('⚠️ sortOrder 字段不存在，排序功能暫時禁用');
-      console.log('📝 菜單項目順序請求:', menuItems.map(item => ({ id: item.id, sortOrder: item.sortOrder })));
-
-      return addCorsHeaders(NextResponse.json(
-        { 
-          message: 'Menu items reordered successfully (sortOrder field not yet available)',
-          note: 'Please run migration first: /api/migrate/add-sort-order'
-        },
-        { status: 200 }
-      ));
-    }
+    return addCorsHeaders(NextResponse.json(
+      { message: 'Menu items reordered successfully' },
+      { status: 200 }
+    ));
   } catch (error) {
     console.error('重新排序菜單項目錯誤:', error);
     return addCorsHeaders(NextResponse.json(

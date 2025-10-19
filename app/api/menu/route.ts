@@ -16,24 +16,11 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 開始獲取菜單項目...');
     
-    // 使用最基本的查詢，只選擇存在的字段
+    // 現在可以安全地使用 sortOrder 排序了
     const menuItems = await prisma.menuItem.findMany({
       where: { isAvailable: true },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        image: true,
-        imageUrl: true,
-        category: true,
-        productType: true,
-        isAvailable: true,
-        stock: true,
-        createdAt: true,
-        updatedAt: true
-      },
       orderBy: [
+        { sortOrder: 'asc' },
         { name: 'asc' }
       ]
     });
