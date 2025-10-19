@@ -18,36 +18,17 @@ export async function GET(request: NextRequest) {
   if (corsResponse) return corsResponse;
 
   try {
-    // 先嘗試不包含 sortOrder 的查詢，避免字段不存在的錯誤
+    console.log('🔍 開始獲取菜單項目...');
+    
+    // 最簡單的查詢，不包含任何排序
     const menuItems = await prisma.menuItem.findMany({
-      where: { isAvailable: true },
-      orderBy: [
-        { name: 'asc' }
-      ]
+      where: { isAvailable: true }
     });
     
-    // 處理圖片 URL，確保返回正確的絕對路徑
-    const menuItemsWithCorrectUrls = menuItems.map(item => {
-      let imageUrl = null;
-      
-      if (item.imageUrl) {
-        // 如果是資料庫圖片 URL（/api/image/），直接使用相對路徑
-        if (item.imageUrl.startsWith('/api/image/')) {
-          // 在生產環境中使用相對路徑，避免域名不匹配問題
-          imageUrl = item.imageUrl;
-        } else {
-          // 舊的文件系統圖片 URL，轉換為資料庫 URL
-          imageUrl = getImageUrl(item.imageUrl);
-        }
-      }
-      
-      return {
-        ...item,
-        imageUrl: imageUrl
-      };
-    });
+    console.log(`✅ 成功獲取 ${menuItems.length} 個菜單項目`);
     
-    const response = NextResponse.json(menuItemsWithCorrectUrls, {
+    // 簡化處理，直接返回原始數據
+    const response = NextResponse.json(menuItems, {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -55,9 +36,16 @@ export async function GET(request: NextRequest) {
     });
     return addCorsHeaders(response);
   } catch (error) {
-    console.error('獲取菜單錯誤:', error);
+    console.error('❌ 獲取菜單錯誤:', error);
+    console.error('❌ 錯誤詳情:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return addCorsHeaders(NextResponse.json(
-      { error: 'Failed to fetch menu items' },
+      { 
+        error: 'Failed to fetch menu items',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     ));
   }
