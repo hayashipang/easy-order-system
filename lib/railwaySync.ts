@@ -131,7 +131,7 @@ function transformOrderData(
     order_time: easyOrderOrder.createdAt,
     delivery_date: deliveryDate,
     status: 'pending',
-    notes: deliveryType === '現場取貨' ? 'EO_現場取貨' : 'EO_全家',
+    notes: deliveryType === 'pickup' ? 'EO_現場取貨' : 'EO_全家',
     shipping_type: shippingType,
     shipping_fee: shippingFee,
     credit_card_fee: 0,
