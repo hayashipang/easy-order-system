@@ -313,8 +313,8 @@ export default function PreviewProductDetailPage() {
                     <table className="w-full">
                       <tbody>
                         {(() => {
-                          const leftItems = rules.left.split('\n').filter(item => item.trim());
-                          const rightItems = rules.right.split('\n').filter(item => item.trim());
+                          const leftItems = rules.left.split('\n').filter((item: string) => item.trim());
+                          const rightItems = rules.right.split('\n').filter((item: string) => item.trim());
                           const maxLength = Math.max(leftItems.length, rightItems.length);
                           
                           return Array.from({ length: maxLength }, (_, index) => (
