@@ -86,15 +86,15 @@ function MenuBrowsePageContent() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">GreenWin Order</h1>
-              <p className="text-gray-600 mt-1">果然盈點餐系統 - 菜單瀏覽</p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 gap-4">
+            <div className="w-full sm:w-auto">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">GreenWin Order</h1>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">菜單瀏覽</p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="w-full sm:w-auto flex justify-end">
               <button
                 onClick={handlePurchaseClick}
-                className="text-white px-4 py-2 rounded-lg transition-colors font-medium flex items-center"
+                className="text-white px-4 py-2 rounded-lg transition-colors font-medium flex items-center justify-center w-full sm:w-auto"
                 style={{ backgroundColor: '#E57241' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#D4633A'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#E57241'}
@@ -102,7 +102,7 @@ function MenuBrowsePageContent() {
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                去購買
+                取購物/訂單查詢
               </button>
             </div>
           </div>
@@ -116,10 +116,10 @@ function MenuBrowsePageContent() {
             <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">菜單</h2>
             
             {/* Product Type Filter */}
-            <div className="flex justify-center space-x-4 mb-6">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-6">
               <button
                 onClick={() => handleProductTypeChange('即飲瓶')}
-                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
+                className={`px-4 sm:px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
                   selectedProductType === '即飲瓶'
                     ? 'shadow-md'
                     : ''
@@ -141,11 +141,11 @@ function MenuBrowsePageContent() {
                   }
                 }}
               >
-                <span className="font-medium">即飲瓶</span>
+                <span className="font-medium text-sm sm:text-base">即飲瓶</span>
               </button>
               <button
                 onClick={() => handleProductTypeChange('鮮凍包')}
-                className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
+                className={`px-4 sm:px-6 py-3 rounded-lg border-2 transition-all duration-200 text-white ${
                   selectedProductType === '鮮凍包'
                     ? 'shadow-md'
                     : ''
@@ -167,7 +167,7 @@ function MenuBrowsePageContent() {
                   }
                 }}
               >
-                <span className="font-medium">鮮凍包</span>
+                <span className="font-medium text-sm sm:text-base">鮮凍包</span>
               </button>
             </div>
 
@@ -175,12 +175,12 @@ function MenuBrowsePageContent() {
             <div className="flex justify-center mb-6">
               <button
                 onClick={() => handleCategoryClick(selectedProductType)}
-                className="text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                className="text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center w-full sm:w-auto"
                 style={{ backgroundColor: '#D4A44A' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#C1953F'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#D4A44A'}
               >
-                <span className="text-sm">查看{selectedProductType}詳情</span>
+                <span className="text-sm sm:text-base">查看{selectedProductType}詳情</span>
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -193,7 +193,7 @@ function MenuBrowsePageContent() {
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredMenuItems.map((item) => (
                 <div key={item.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden">
                   {/* Item Image - 填滿卡片寬度，高度自適應 */}
@@ -241,24 +241,24 @@ function MenuBrowsePageContent() {
                     </div>
                   )}
                   
-                  <div className="p-3">
+                  <div className="p-3 sm:p-4">
                     {/* Item Header */}
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-sm font-bold text-gray-900 truncate flex-1">{item.name}</h3>
-                      <span className="text-lg font-bold text-blue-600 ml-2 flex-shrink-0">
+                      <h3 className="text-sm sm:text-base font-bold text-gray-900 truncate flex-1">{item.name}</h3>
+                      <span className="text-base sm:text-lg font-bold text-blue-600 ml-2 flex-shrink-0">
                         NT$ {item.price.toFixed(0)}
                       </span>
                     </div>
 
                     {/* Item Description */}
                     {item.description && (
-                      <p className="text-gray-600 text-xs mb-2 line-clamp-2">{item.description}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2">{item.description}</p>
                     )}
 
                     {/* Item Category */}
                     {item.category && (
                       <div className="mb-2">
-                        <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                        <span className="inline-block bg-blue-100 text-blue-800 text-xs sm:text-sm px-2 py-1 rounded-full font-medium">
                           {item.category}
                         </span>
                       </div>
