@@ -75,6 +75,19 @@ function isSyncEnabled(): boolean {
   return process.env.RAILWAY_SYNC_ENABLED === 'true';
 }
 
+// 從 deliveryInfo 中提取店名
+function extractStoreName(deliveryInfo?: string): string {
+  if (!deliveryInfo) return '';
+  
+  // 如果 deliveryInfo 包含 " - "，取第一部分作為店名
+  if (deliveryInfo.includes(' - ')) {
+    return deliveryInfo.split(' - ')[0].trim();
+  }
+  
+  // 否則直接返回 deliveryInfo
+  return deliveryInfo.trim();
+}
+
 // 轉換客戶資料格式
 function transformCustomerData(easyOrderUser: EasyOrderUser, orderId: string, deliveryType: string): RailwayCustomer {
   return {
@@ -132,7 +145,7 @@ function transformOrderData(
     order_time: easyOrderOrder.createdAt,
     delivery_date: deliveryDate,
     status: 'pending',
-    notes: deliveryType === 'pickup' ? 'EO_現場取貨' : `EO_${easyOrderOrder.deliveryInfo || '全家'}`,
+    notes: deliveryType === 'pickup' ? 'EO_現場取貨' : `EO_${extractStoreName(easyOrderOrder.deliveryInfo) || '全家'}`,
     shipping_type: shippingType,
     shipping_fee: shippingFee,
     credit_card_fee: 0,
