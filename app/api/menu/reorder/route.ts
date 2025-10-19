@@ -25,16 +25,21 @@ export async function PUT(request: NextRequest) {
       ));
     }
 
-    // 暫時返回成功，因為數據庫中還沒有 sortOrder 字段
-    // TODO: 當數據庫遷移完成後，恢復排序功能
-    console.log('📝 排序請求已接收，但數據庫中還沒有 sortOrder 字段');
-    console.log('📝 菜單項目順序:', menuItems.map(item => ({ id: item.id, name: item.name })));
+    // 批量更新排序順序
+    const updatePromises = menuItems.map((item: { id: string; sortOrder: number }) => 
+      prisma.menuItem.update({
+        where: { id: item.id },
+        data: { sortOrder: item.sortOrder }
+      })
+    );
+
+    await Promise.all(updatePromises);
+
+    console.log('✅ 菜單項目排序已更新');
+    console.log('📝 菜單項目順序:', menuItems.map(item => ({ id: item.id, sortOrder: item.sortOrder })));
 
     return addCorsHeaders(NextResponse.json(
-      { 
-        message: 'Menu items reordered successfully (sortOrder field not yet available in database)',
-        note: 'Sorting is temporarily disabled until database migration is completed'
-      },
+      { message: 'Menu items reordered successfully' },
       { status: 200 }
     ));
   } catch (error) {

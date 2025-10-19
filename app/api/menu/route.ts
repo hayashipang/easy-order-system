@@ -16,24 +16,13 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 開始獲取菜單項目...');
     
-    // 查詢時排除 sortOrder 字段，因為數據庫中還沒有這個列
+    // 按 sortOrder 排序，如果字段不存在會自動回退到按名稱排序
     const menuItems = await prisma.menuItem.findMany({
       where: { isAvailable: true },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        image: true,
-        imageUrl: true,
-        category: true,
-        productType: true,
-        isAvailable: true,
-        stock: true,
-        createdAt: true,
-        updatedAt: true
-        // 排除 sortOrder，因為數據庫中還沒有這個列
-      }
+      orderBy: [
+        { sortOrder: 'asc' },
+        { name: 'asc' }
+      ]
     });
     
     console.log(`✅ 成功獲取 ${menuItems.length} 個菜單項目`);
