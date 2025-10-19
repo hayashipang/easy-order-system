@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleCors, addCorsHeaders, corsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
+import { syncOrderAndCustomerToRailway } from '@/lib/railwaySync';
 
 // PUT /api/orders/[id]/confirm - 管理者確認訂單
 export async function PUT(
@@ -52,6 +53,49 @@ export async function PUT(
         user: true
       }
     });
+
+    // V2.1 - 同步到 Railway (在訂單確認後觸發)
+    try {
+      console.log('V2.1 - Starting Railway sync for order:', orderId);
+      
+      const syncResult = await syncOrderAndCustomerToRailway(
+        {
+          id: updatedOrder.id,
+          userPhone: updatedOrder.userPhone,
+          totalAmount: updatedOrder.totalAmount,
+          subtotalAmount: updatedOrder.subtotalAmount,
+          shippingFee: updatedOrder.shippingFee,
+          deliveryType: updatedOrder.deliveryType,
+          paymentMethod: updatedOrder.paymentMethod,
+          notes: updatedOrder.notes,
+          estimatedDeliveryDate: updatedOrder.estimatedDeliveryDate?.toISOString(),
+          createdAt: updatedOrder.createdAt.toISOString(),
+          orderItems: updatedOrder.orderItems.map(item => ({
+            menuItem: {
+              name: item.menuItem.name,
+              price: item.price
+            },
+            quantity: item.quantity,
+            price: item.price
+          }))
+        },
+        {
+          phone: updatedOrder.user.phone,
+          name: updatedOrder.user.name,
+          email: updatedOrder.user.email,
+          birthday: updatedOrder.user.birthday
+        }
+      );
+      
+      if (syncResult.success) {
+        console.log('V2.1 - Railway sync successful for order:', orderId);
+      } else {
+        console.error('V2.1 - Railway sync failed for order:', orderId, syncResult.error);
+      }
+    } catch (syncError) {
+      console.error('V2.1 - Railway sync error for order:', orderId, syncError);
+      // 同步失敗不影響訂單確認流程
+    }
 
     const response = NextResponse.json(updatedOrder);
     return addCorsHeaders(response);
