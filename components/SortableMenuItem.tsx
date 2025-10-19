@@ -82,10 +82,10 @@ export default function SortableMenuItem({
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing mr-3 p-1 hover:bg-gray-100 rounded"
+            className="cursor-grab active:cursor-grabbing mr-3 p-2 hover:bg-gray-100 rounded-lg border border-gray-200 bg-gray-50"
             title="拖拉排序"
           >
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
             </svg>
           </div>
