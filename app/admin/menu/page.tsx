@@ -23,7 +23,7 @@ import SortableMenuItem from '@/components/SortableMenuItem';
 interface MenuItem {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
   category: string;
   productType?: string; // 即飲瓶 或 鮮凍包
