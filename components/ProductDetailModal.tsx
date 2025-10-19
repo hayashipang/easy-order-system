@@ -2,6 +2,27 @@
 
 import { useState, useEffect } from 'react';
 
+interface ContentItem {
+  id: string;
+  type: 'text' | 'image' | 'spec';
+  content: string;
+  style?: {
+    fontSize?: string;
+    color?: string;
+    bold?: boolean;
+    italic?: boolean;
+    textAlign?: 'left' | 'center' | 'right';
+    lineHeight?: string;
+    letterSpacing?: string;
+  };
+  imageUrl?: string;
+  imageAlt?: string;
+  specs?: Array<{
+    label: string;
+    value: string;
+  }>;
+}
+
 interface ProductDetail {
   id: string;
   category: string;
@@ -57,7 +78,7 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
     }
   };
 
-  const parseContent = (content: string) => {
+  const parseContent = (content: string): ContentItem[] => {
     try {
       const parsed = JSON.parse(content);
       // 如果是數組，說明是新格式
@@ -65,9 +86,22 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
         return parsed;
       }
       // 如果是對象，說明是舊格式
-      return parsed;
+      if (parsed && typeof parsed === 'object') {
+        return [parsed];
+      }
+      // 如果是字符串，轉換為文本區塊
+      return [{ 
+        id: 'text-1', 
+        type: 'text', 
+        content: content || parsed || '' 
+      }];
     } catch {
-      return { type: 'text', content };
+      // 如果解析失敗，當作純文本處理
+      return [{ 
+        id: 'text-1', 
+        type: 'text', 
+        content: content || '' 
+      }];
     }
   };
 
@@ -86,6 +120,90 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
       return JSON.parse(images);
     } catch {
       return [];
+    }
+  };
+
+  const renderContentItem = (item: ContentItem) => {
+    const getTextStyle = () => {
+      return {
+        fontSize: item.style?.fontSize || '16px',
+        color: item.style?.color || '#000000',
+        fontWeight: item.style?.bold ? 'bold' : 'normal',
+        fontStyle: item.style?.italic ? 'italic' : 'normal',
+        textAlign: item.style?.textAlign || 'left',
+        lineHeight: item.style?.lineHeight || '1.5',
+        letterSpacing: item.style?.letterSpacing || '0px'
+      };
+    };
+
+    switch (item.type) {
+      case 'text':
+        return (
+          <div key={item.id} className="mb-4">
+            <div style={getTextStyle()} className="whitespace-pre-wrap">
+              {item.content}
+            </div>
+          </div>
+        );
+      
+      case 'image':
+        return (
+          <div key={item.id} className="mb-4">
+            {item.imageUrl ? (
+              <div>
+                <img
+                  src={item.imageUrl}
+                  alt={item.imageAlt || '圖片'}
+                  className="w-full h-auto rounded-lg shadow-md block"
+                  style={{ maxWidth: '100%', width: '100%' }}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-4xl mb-2">📷</div>
+                <p>圖片未設置</p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case 'spec':
+        return (
+          <div key={item.id} className="mb-4">
+            {item.specs && item.specs.length > 0 ? (
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">產品規格</h3>
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <table className="w-full">
+                    <tbody>
+                      {item.specs.map((spec, index) => (
+                        <tr key={index} className="border-b border-gray-100 last:border-b-0">
+                          <td className="px-4 py-3 text-gray-700 font-medium bg-gray-50 w-1/2">
+                            {spec.label}
+                          </td>
+                          <td className="px-4 py-3 text-gray-900 w-1/2">
+                            {spec.value}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-4xl mb-2">📋</div>
+                <p>規格信息未設置</p>
+              </div>
+            )}
+          </div>
+        );
+      
+      default:
+        return null;
     }
   };
 
@@ -132,71 +250,11 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
           {productDetail && !loading && (
             <div className="space-y-6">
               {/* 主要內容 */}
-              {content && (
+              {content && content.length > 0 && (
                 <div className="max-w-none">
-                  {Array.isArray(content) ? (
-                    // 新格式：內容區塊數組
-                    <div className="space-y-4">
-                      {content.map((item: any, index: number) => (
-                        <div key={index}>
-                          {item.type === 'text' ? (
-                            <div
-                              style={{
-                                fontSize: item.style?.fontSize || '16px',
-                                color: item.style?.color || '#000000',
-                                fontWeight: item.style?.bold ? 'bold' : 'normal',
-                                fontStyle: item.style?.italic ? 'italic' : 'normal',
-                                textAlign: item.style?.textAlign || 'left',
-                              }}
-                              className="whitespace-pre-wrap text-gray-700 leading-relaxed"
-                            >
-                              {item.content}
-                            </div>
-                          ) : item.type === 'image' ? (
-                            <div className="my-4">
-                              <img
-                                src={item.imageUrl}
-                                alt={item.imageAlt || '圖片'}
-                                className="w-full h-auto object-contain rounded-lg shadow-md"
-                                loading="lazy"
-                                decoding="async"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                  if (nextElement) {
-                                    nextElement.style.display = 'flex';
-                                  }
-                                }}
-                              />
-                              <div className="w-full h-48 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center rounded-lg shadow-md" style={{display: 'none'}}>
-                                <div className="text-center">
-                                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-2">
-                                    <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                  </div>
-                                  <p className="text-gray-600 text-xs font-medium">圖片載入失敗</p>
-                                  <p className="text-gray-400 text-xs mt-1">請重新上傳圖片</p>
-                                </div>
-                              </div>
-                            </div>
-                          ) : null}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    // 舊格式：單一內容對象
-                    <div>
-                      {content.type === 'text' ? (
-                        <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                          {content.content}
-                        </div>
-                      ) : (
-                        <div dangerouslySetInnerHTML={{ __html: content.content }} />
-                      )}
-                    </div>
-                  )}
+                  <div className="space-y-4">
+                    {content.map(renderContentItem)}
+                  </div>
                 </div>
               )}
 
