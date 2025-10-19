@@ -66,6 +66,7 @@ export async function PUT(
           subtotalAmount: updatedOrder.subtotalAmount ?? undefined,
           shippingFee: updatedOrder.shippingFee ?? undefined,
           deliveryType: updatedOrder.deliveryType,
+          deliveryInfo: updatedOrder.deliveryInfo ?? undefined,
           paymentMethod: updatedOrder.paymentMethod,
           notes: updatedOrder.notes ?? undefined,
           estimatedDeliveryDate: updatedOrder.estimatedDeliveryDate?.toISOString(),

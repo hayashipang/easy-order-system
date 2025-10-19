@@ -15,6 +15,7 @@ interface EasyOrderOrder {
   subtotalAmount?: number;
   shippingFee?: number;
   deliveryType: string;
+  deliveryInfo?: string; // 配送資訊，包含全家店名
   paymentMethod: string;
   notes?: string;
   estimatedDeliveryDate?: string;
@@ -131,7 +132,7 @@ function transformOrderData(
     order_time: easyOrderOrder.createdAt,
     delivery_date: deliveryDate,
     status: 'pending',
-    notes: deliveryType === 'pickup' ? 'EO_現場取貨' : 'EO_全家',
+    notes: deliveryType === 'pickup' ? 'EO_現場取貨' : `EO_${easyOrderOrder.deliveryInfo || '全家'}`,
     shipping_type: shippingType,
     shipping_fee: shippingFee,
     credit_card_fee: 0,
