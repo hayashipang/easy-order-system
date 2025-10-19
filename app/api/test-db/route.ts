@@ -1,69 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleCors, addCorsHeaders } from '@/lib/cors';
 import prisma from '@/lib/prisma';
 
-// GET /api/test-db - 測試資料庫連接
 export async function GET(request: NextRequest) {
-  // Handle CORS
-  const corsResponse = handleCors(request);
-  if (corsResponse) return corsResponse;
-
   try {
-    console.log('測試資料庫連接...');
+    console.log('🔍 測試數據庫連接...');
+    console.log('🔍 DATABASE_URL:', process.env.DATABASE_URL ? '已設置' : '未設置');
+    console.log('🔍 POSTGRES_PRISMA_URL:', process.env.POSTGRES_PRISMA_URL ? '已設置' : '未設置');
     
-    // 測試資料庫連接
+    // 測試數據庫連接
     await prisma.$connect();
-    console.log('資料庫連接成功');
+    console.log('✅ 數據庫連接成功');
     
-    // 檢查資料庫表
-    const tables = await prisma.$queryRaw`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
-    `;
+    // 測試簡單查詢
+    const count = await prisma.menuItem.count();
+    console.log(`✅ 菜單項目數量: ${count}`);
     
-    console.log('現有資料表:', tables);
-    
-    // 檢查用戶數量
-    const userCount = await prisma.user.count();
-    console.log('用戶數量:', userCount);
-    
-    // 檢查菜單項目數量
-    const menuCount = await prisma.menuItem.count();
-    console.log('菜單項目數量:', menuCount);
-    
-    // 檢查訂單數量
-    const orderCount = await prisma.order.count();
-    console.log('訂單數量:', orderCount);
-    
-    await prisma.$disconnect();
-    
-    return addCorsHeaders(NextResponse.json({
+    return NextResponse.json({
       success: true,
-      message: '資料庫連接成功',
-      tables: tables,
-      counts: {
-        users: userCount,
-        menuItems: menuCount,
-        orders: orderCount
-      }
-    }));
-    
+      message: '數據庫連接正常',
+      menuItemCount: count,
+      databaseUrl: process.env.DATABASE_URL ? '已設置' : '未設置',
+      postgresUrl: process.env.POSTGRES_PRISMA_URL ? '已設置' : '未設置'
+    });
   } catch (error) {
-    console.error('資料庫連接失敗:', error);
-    return addCorsHeaders(NextResponse.json(
-      { 
-        success: false, 
-        error: '資料庫連接失敗',
-        details: error instanceof Error ? error.message : String(error)
-      },
-      { status: 500 }
-    ));
+    console.error('❌ 數據庫測試失敗:', error);
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      databaseUrl: process.env.DATABASE_URL ? '已設置' : '未設置',
+      postgresUrl: process.env.POSTGRES_PRISMA_URL ? '已設置' : '未設置'
+    }, { status: 500 });
   }
-}
-
-// OPTIONS /api/test-db - Handle preflight requests
-export async function OPTIONS(request: NextRequest) {
-  const corsResponse = handleCors(request);
-  return corsResponse || new NextResponse(null, { status: 200 });
 }
