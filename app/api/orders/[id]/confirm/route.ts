@@ -29,8 +29,8 @@ export async function PUT(
       );
     }
 
-    // 檢查訂單狀態是否為已匯款完成
-    if (existingOrder.status !== '已匯款完成') {
+    // 檢查訂單狀態是否為已匯款完成或訂單成立
+    if (existingOrder.status !== '已匯款完成' && existingOrder.status !== '訂單成立') {
       return NextResponse.json(
         { error: '訂單狀態不正確，無法確認' },
         { status: 400 }
