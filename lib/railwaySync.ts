@@ -145,14 +145,14 @@ function transformOrderData(
 }
 
 // 同步客戶資料到 Railway
-export async function syncCustomerToRailway(easyOrderUser: EasyOrderUser, orderId: string): Promise<number | null> {
+export async function syncCustomerToRailway(easyOrderUser: EasyOrderUser, orderId: string, deliveryType: string): Promise<number | null> {
   if (!isSyncEnabled()) {
     console.log('Railway sync is disabled');
     return null;
   }
   
   try {
-    const railwayCustomer = transformCustomerData(easyOrderUser, orderId, easyOrderOrder.deliveryType);
+    const railwayCustomer = transformCustomerData(easyOrderUser, orderId, deliveryType);
     const apiUrl = getRailwayApiUrl();
     
     console.log('Syncing customer to Railway:', railwayCustomer);
@@ -228,7 +228,7 @@ export async function syncOrderAndCustomerToRailway(
 ): Promise<{ success: boolean; customerId?: number; error?: string }> {
   try {
     // 1. 先同步客戶資料
-    const customerId = await syncCustomerToRailway(easyOrderUser, easyOrderOrder.id);
+    const customerId = await syncCustomerToRailway(easyOrderUser, easyOrderOrder.id, easyOrderOrder.deliveryType);
     
     // 2. 再同步訂單資料
     const orderSuccess = await syncOrderToRailway(
