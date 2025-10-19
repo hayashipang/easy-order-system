@@ -16,26 +16,27 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 開始獲取菜單項目...');
     
-    // 先嘗試按 sortOrder 排序，如果字段不存在則按名稱排序
-    let menuItems;
-    try {
-      menuItems = await prisma.menuItem.findMany({
-        where: { isAvailable: true },
-        orderBy: [
-          { sortOrder: 'asc' },
-          { name: 'asc' }
-        ]
-      });
-    } catch (error) {
-      // 如果 sortOrder 字段不存在，回退到按名稱排序
-      console.log('⚠️ sortOrder 字段不存在，使用名稱排序');
-      menuItems = await prisma.menuItem.findMany({
-        where: { isAvailable: true },
-        orderBy: [
-          { name: 'asc' }
-        ]
-      });
-    }
+    // 使用最基本的查詢，只選擇存在的字段
+    const menuItems = await prisma.menuItem.findMany({
+      where: { isAvailable: true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        image: true,
+        imageUrl: true,
+        category: true,
+        productType: true,
+        isAvailable: true,
+        stock: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: [
+        { name: 'asc' }
+      ]
+    });
     
     console.log(`✅ 成功獲取 ${menuItems.length} 個菜單項目`);
     
