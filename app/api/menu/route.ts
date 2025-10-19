@@ -13,10 +13,6 @@ export async function OPTIONS(request: NextRequest) {
 
 // GET /api/menu - 獲取所有菜單項目
 export async function GET(request: NextRequest) {
-  // Handle CORS
-  const corsResponse = handleCors(request);
-  if (corsResponse) return corsResponse;
-
   try {
     console.log('🔍 開始獲取菜單項目...');
     
@@ -27,27 +23,21 @@ export async function GET(request: NextRequest) {
     
     console.log(`✅ 成功獲取 ${menuItems.length} 個菜單項目`);
     
-    // 簡化處理，直接返回原始數據
-    const response = NextResponse.json(menuItems, {
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-      }
-    });
-    return addCorsHeaders(response);
+    // 直接返回，不使用 CORS 處理
+    return NextResponse.json(menuItems);
   } catch (error) {
     console.error('❌ 獲取菜單錯誤:', error);
     console.error('❌ 錯誤詳情:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     });
-    return addCorsHeaders(NextResponse.json(
+    return NextResponse.json(
       { 
         error: 'Failed to fetch menu items',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
-    ));
+    );
   }
 }
 
