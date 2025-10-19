@@ -161,7 +161,7 @@ export default function AdminMenuPage() {
     setEditingItem(item);
     setFormData({
       name: item.name,
-      description: item.description,
+      description: item.description || '',
       price: item.price.toString(),
       category: item.category,
       productType: item.productType || '',
