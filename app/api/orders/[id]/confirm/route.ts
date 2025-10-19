@@ -81,9 +81,9 @@ export async function PUT(
         },
         {
           phone: updatedOrder.user.phone,
-          name: updatedOrder.user.name,
-          email: updatedOrder.user.email,
-          birthday: updatedOrder.user.birthday
+          name: updatedOrder.user.name ?? undefined,
+          email: updatedOrder.user.email ?? undefined,
+          birthday: updatedOrder.user.birthday ?? undefined
         }
       );
       
