@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
   if (corsResponse) return corsResponse;
 
   try {
+    // 先嘗試不包含 sortOrder 的查詢，避免字段不存在的錯誤
     const menuItems = await prisma.menuItem.findMany({
       where: { isAvailable: true },
       orderBy: [
-        { sortOrder: 'asc' },
         { name: 'asc' }
       ]
     });
