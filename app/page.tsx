@@ -141,6 +141,31 @@ export default function HomePage() {
           <p className="text-gray-600">果然盈點餐系統</p>
         </div>
 
+        {/* Menu Browse Button */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 mx-auto mb-4">
+              <img
+                src="/logo.jpg"
+                alt="GreenWin Order Logo"
+                className="w-full h-full object-contain rounded-lg"
+              />
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">瀏覽菜單</h2>
+            <p className="text-gray-600">查看我們的產品，了解價格和詳情</p>
+          </div>
+
+          <button
+            onClick={() => router.push('/menu-browse')}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center font-medium"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            瀏覽菜單
+          </button>
+        </div>
+
         {/* Main Login Card */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <div className="text-center mb-6">
