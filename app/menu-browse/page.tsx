@@ -118,8 +118,8 @@ function MenuBrowsePageContent() {
                 onClick={() => handleProductTypeChange('即飲瓶')}
                 className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 ${
                   selectedProductType === '即飲瓶'
-                    ? 'bg-blue-100 border-blue-300 text-blue-700 shadow-md'
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'bg-green-600 border-green-600 text-white shadow-md'
+                    : 'bg-green-500 border-green-500 text-white hover:bg-green-600'
                 }`}
               >
                 <span className="font-medium">即飲瓶</span>
@@ -128,8 +128,8 @@ function MenuBrowsePageContent() {
                 onClick={() => handleProductTypeChange('鮮凍包')}
                 className={`px-6 py-3 rounded-lg border-2 transition-all duration-200 ${
                   selectedProductType === '鮮凍包'
-                    ? 'bg-green-100 border-green-300 text-green-700 shadow-md'
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'bg-green-600 border-green-600 text-white shadow-md'
+                    : 'bg-green-500 border-green-500 text-white hover:bg-green-600'
                 }`}
               >
                 <span className="font-medium">鮮凍包</span>
@@ -140,7 +140,7 @@ function MenuBrowsePageContent() {
             <div className="flex justify-center mb-6">
               <button
                 onClick={() => handleCategoryClick(selectedProductType)}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors flex items-center"
+                className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg transition-colors flex items-center"
               >
                 <span className="text-sm">查看{selectedProductType}詳情</span>
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
