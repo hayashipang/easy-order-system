@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     console.log('🔧 開始添加 sortOrder 字段...');
     
@@ -57,4 +57,9 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// 也支持 POST 方法
+export async function POST(request: NextRequest) {
+  return GET(request);
 }
