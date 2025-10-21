@@ -338,23 +338,23 @@ export default function OrderQueryPage() {
                 <h3 className="font-semibold text-blue-900 mb-3">匯款帳號資訊</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="space-y-2">
-                    <div className="flex justify-between">
+                    <div>
                       <span className="font-medium text-blue-800">銀行名稱：</span>
-                      <span className="text-blue-900 font-semibold">台灣土地銀行 (005)</span>
+                      <span className="text-blue-900 font-semibold ml-2">台灣土地銀行 (005)</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div>
                       <span className="font-medium text-blue-800">分行名稱：</span>
-                      <span className="text-blue-900 font-semibold">台南分行（0326）</span>
+                      <span className="text-blue-900 font-semibold ml-2">台南分行（0326）</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between">
+                    <div>
                       <span className="font-medium text-blue-800">帳號：</span>
-                      <span className="text-blue-900 font-semibold">0320057119941</span>
+                      <span className="text-blue-900 font-semibold ml-2">0320057119941</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div>
                       <span className="font-medium text-blue-800">戶名：</span>
-                      <span className="text-blue-900 font-semibold">林錦鶯</span>
+                      <span className="text-blue-900 font-semibold ml-2">林錦鶯</span>
                     </div>
                   </div>
                 </div>
