@@ -329,6 +329,45 @@ export default function OrderQueryPage() {
           </div>
         )}
 
+        {/* 匯款帳號資訊 */}
+        {orders.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="text-blue-500 text-xl mr-3 mt-1">🏦</div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 mb-3">匯款帳號資訊</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-blue-800">銀行名稱：</span>
+                      <span className="text-blue-900 font-semibold">台灣土地銀行 (005)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-blue-800">分行名稱：</span>
+                      <span className="text-blue-900 font-semibold">台南分行（0326）</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-blue-800">帳號：</span>
+                      <span className="text-blue-900 font-semibold">0320057119941</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-blue-800">戶名：</span>
+                      <span className="text-blue-900 font-semibold">林錦鶯</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <p className="text-yellow-800 text-sm font-medium">
+                    ⚠️ 注意：請務必填寫帳號末五碼以便核對
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 訂單列表 */}
         {orders.length > 0 && (
           <div className="space-y-6">
