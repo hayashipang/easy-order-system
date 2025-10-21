@@ -341,15 +341,6 @@ export default function ProductDetailModal({ isOpen, onClose, category }: Produc
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            關閉
-          </button>
-        </div>
       </div>
     </div>
   );
