@@ -100,16 +100,6 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {/* Demo Credentials */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-800 mb-2">測試帳號</h3>
-          <p className="text-sm text-blue-700">
-            管理員 ID: <code className="bg-blue-100 px-1 rounded">admin</code>
-          </p>
-          <p className="text-sm text-blue-700">
-            密碼: <code className="bg-blue-100 px-1 rounded">admin123</code>
-          </p>
-        </div>
       </div>
     </div>
   );
