@@ -10,7 +10,7 @@ export default function TestMenuChanges() {
     setDeploymentInfo({
       timestamp: new Date().toISOString(),
       expectedTitle: '菜單瀏覽',
-      expectedButton: '去購物/訂單查詢',
+      expectedButton: '登入購物/去匯款',
       deploymentTime: '2024-01-XX (最新修改)'
     });
   }, []);
@@ -29,7 +29,7 @@ export default function TestMenuChanges() {
             </div>
             <div className="flex items-center">
               <span className="font-medium text-gray-700 w-32">按鈕：</span>
-              <span className="text-green-600 font-semibold">去購物/訂單查詢</span>
+              <span className="text-green-600 font-semibold">登入購物/去匯款</span>
             </div>
             <div className="flex items-center">
               <span className="font-medium text-gray-700 w-32">手機優化：</span>
