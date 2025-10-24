@@ -135,7 +135,9 @@ export default function LoginPage() {
 
   // 處理標題點擊
   const handleTitleClick = () => {
+    console.log('標題被點擊了！當前狀態:', isLayoutReordered);
     setIsLayoutReordered(!isLayoutReordered);
+    console.log('狀態已切換為:', !isLayoutReordered);
   };
 
   return (
