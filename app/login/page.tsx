@@ -134,10 +134,13 @@ export default function LoginPage() {
   };
 
   // 處理標題點擊
-  const handleTitleClick = () => {
+  const handleTitleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     console.log('標題被點擊了！當前狀態:', isLayoutReordered);
-    setIsLayoutReordered(!isLayoutReordered);
-    console.log('狀態已切換為:', !isLayoutReordered);
+    const newState = !isLayoutReordered;
+    setIsLayoutReordered(newState);
+    console.log('狀態已切換為:', newState);
+    alert(`佈局已切換！當前狀態: ${newState ? '重新排列' : '原始排列'}`);
   };
 
   return (
@@ -148,6 +151,7 @@ export default function LoginPage() {
           <h1 
             className="text-4xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors"
             onClick={handleTitleClick}
+            style={{ userSelect: 'none' }}
           >
             GreenWin Order
           </h1>
