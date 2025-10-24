@@ -134,13 +134,8 @@ export default function LoginPage() {
   };
 
   // 處理標題點擊
-  const handleTitleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log('標題被點擊了！當前狀態:', isLayoutReordered);
-    const newState = !isLayoutReordered;
-    setIsLayoutReordered(newState);
-    console.log('狀態已切換為:', newState);
-    alert(`佈局已切換！當前狀態: ${newState ? '重新排列' : '原始排列'}`);
+  const handleTitleClick = () => {
+    setIsLayoutReordered(!isLayoutReordered);
   };
 
   return (
@@ -151,22 +146,11 @@ export default function LoginPage() {
           <h1 
             className="text-4xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors"
             onClick={handleTitleClick}
-            onMouseDown={() => console.log('Mouse down on title')}
-            onMouseUp={() => console.log('Mouse up on title')}
             style={{ userSelect: 'none' }}
           >
             GreenWin Order
           </h1>
-          <p className="text-gray-600">登入購物/去匯款</p>
-          <button 
-            onClick={() => {
-              console.log('測試按鈕被點擊了！');
-              alert('測試按鈕工作正常！');
-            }}
-            className="mt-2 px-4 py-2 bg-red-500 text-white rounded text-sm"
-          >
-            測試按鈕
-          </button>
+          <p className="text-gray-600">果然盈點餐系統</p>
         </div>
 
         {/* Bottom Cards - Horizontal Layout - Show first when layout is reordered */}
