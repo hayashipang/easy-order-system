@@ -342,10 +342,6 @@ export default function OrderQueryPage() {
                       <span className="font-medium text-blue-800">銀行名稱：</span>
                       <span className="text-blue-900 font-semibold ml-2">台灣土地銀行 (005)</span>
                     </div>
-                    <div>
-                      <span className="font-medium text-blue-800">分行名稱：</span>
-                      <span className="text-blue-900 font-semibold ml-2">台南分行（0326）</span>
-                    </div>
                   </div>
                   <div className="space-y-2">
                     <div>
