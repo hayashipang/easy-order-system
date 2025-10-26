@@ -47,7 +47,7 @@ export default function MigrateConstraintPage() {
               disabled={loading}
               className={`px-6 py-3 rounded-md font-medium ${
                 loading
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >

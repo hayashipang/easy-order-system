@@ -470,7 +470,7 @@ export default function AdminMenuPage() {
                   disabled={uploading}
                   className={`px-4 py-2 rounded-md transition-colors ${
                     uploading 
-                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                      ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
@@ -495,7 +495,7 @@ export default function AdminMenuPage() {
                   }}
                   className={`px-4 py-2 rounded-md transition-colors ${
                     uploading 
-                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                      ? 'bg-gray-400 text-gray-700 cursor-not-allowed' 
                       : 'bg-gray-600 text-white hover:bg-gray-700'
                   }`}
                 >
