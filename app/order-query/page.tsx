@@ -346,7 +346,7 @@ export default function OrderQueryPage() {
                   <div className="space-y-2">
                     <div>
                       <span className="font-medium text-blue-800">帳號：</span>
-                      <span className="text-blue-900 font-semibold ml-2">0320057119941</span>
+                      <span className="text-blue-900 font-semibold ml-2">032005719941</span>
                     </div>
                     <div>
                       <span className="font-medium text-blue-800">戶名：</span>
