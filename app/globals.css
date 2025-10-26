@@ -31,3 +31,28 @@ body {
     text-wrap: balance;
   }
 }
+
+/* === 強制亮色模式、修正白底白字問題 === */
+html, body {
+  background-color: #fff !important;   /* 強制白底 */
+  color-scheme: light !important;      /* 禁止自動反色 */
+}
+
+/* 所有輸入框、金額欄、label 一律維持黑字白底 */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+/* 調整全站字體顏色對比度，避免灰階過淡 */
+.text-gray-100,
+.text-gray-200,
+.text-gray-300,
+.text-slate-100,
+.text-slate-200,
+.text-slate-300 {
+  color: #333 !important;
+}
