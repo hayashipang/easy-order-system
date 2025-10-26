@@ -425,7 +425,10 @@ function OrderDetailContent() {
                     type="text"
                     value={form.bankName}
                     onChange={(e) => setForm({ ...form, bankName: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                    style={{
+                      WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                    }}
                     placeholder="請輸入銀行名稱 (例: 台灣銀行、中國信託、玉山銀行)"
                     required
                   />
@@ -437,12 +440,17 @@ function OrderDetailContent() {
                   </label>
                   <input
                     type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={form.bankTransferLastFive}
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 5);
                       setForm({ ...form, bankTransferLastFive: value });
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                    style={{
+                      WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                    }}
                     placeholder="請輸入5位數字"
                     maxLength={5}
                     minLength={5}

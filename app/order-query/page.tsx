@@ -261,7 +261,9 @@ export default function OrderQueryPage() {
                 手機號碼 *
               </label>
               <input
-                type="tel"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={phone}
                 onChange={(e) => {
                   // 只允許數字，並限制為10位
@@ -269,7 +271,10 @@ export default function OrderQueryPage() {
                   setPhone(value);
                 }}
                 placeholder="請輸入手機號碼 (例: 0912345678)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                style={{
+                  WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                }}
                 maxLength={10}
                 minLength={10}
                 required
@@ -283,6 +288,8 @@ export default function OrderQueryPage() {
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={birthday}
                 onChange={(e) => {
                   // 只允許數字，並限制為6位
@@ -290,7 +297,10 @@ export default function OrderQueryPage() {
                   setBirthday(value);
                 }}
                 placeholder="請輸入出生年月日 (例: 660111)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                style={{
+                  WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                }}
                 maxLength={6}
                 minLength={6}
                 required
@@ -540,7 +550,10 @@ export default function OrderQueryPage() {
                             type="text"
                             value={paymentForms[order.id]?.bankName || ''}
                             onChange={(e) => updatePaymentForm(order.id, 'bankName', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                            style={{
+                              WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                            }}
                             placeholder="請輸入銀行名稱 (例: 台灣銀行、中國信託、玉山銀行)"
                           />
                         </div>
@@ -551,12 +564,17 @@ export default function OrderQueryPage() {
                           </label>
                           <input
                             type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             value={paymentForms[order.id]?.bankTransferLastFive || ''}
                             onChange={(e) => {
                               const value = e.target.value.replace(/\D/g, '').slice(0, 5);
                               updatePaymentForm(order.id, 'bankTransferLastFive', value);
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                            style={{
+                              WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                            }}
                             placeholder="請輸入5位數字"
                             maxLength={5}
                           />

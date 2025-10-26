@@ -53,7 +53,10 @@ export default function AdminLoginPage() {
                 id="adminId"
                 value={adminId}
                 onChange={(e) => setAdminId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                style={{
+                  WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                }}
                 placeholder="請輸入管理員 ID"
                 required
               />
@@ -68,7 +71,10 @@ export default function AdminLoginPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                style={{
+                  WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                }}
                 placeholder="請輸入密碼"
                 required
               />

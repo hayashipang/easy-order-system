@@ -199,7 +199,9 @@ export default function LoginPage() {
                 手機號碼 *
               </label>
               <input
-                type="tel"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={phone}
                 onChange={(e) => {
                   // 只允許數字，並限制為10位
@@ -207,7 +209,10 @@ export default function LoginPage() {
                   setPhone(value);
                 }}
                 placeholder="請輸入手機號碼 (例: 0912345678)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                style={{
+                  WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                }}
                 maxLength={10}
                 minLength={10}
                 required
@@ -223,6 +228,8 @@ export default function LoginPage() {
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={birthday}
                 onChange={(e) => {
                   // 只允許數字，並限制為6位
@@ -230,7 +237,10 @@ export default function LoginPage() {
                   setBirthday(value);
                 }}
                 placeholder="請輸入出生年月日 (例: 660111)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                style={{
+                  WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                }}
                 maxLength={6}
                 minLength={6}
                 required

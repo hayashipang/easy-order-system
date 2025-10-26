@@ -704,7 +704,10 @@ function CheckoutPageContent() {
                     required
                     value={form.customerName}
                     onChange={(e) => setForm({ ...form, customerName: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                    style={{
+                      WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                    }}
                     placeholder="請輸入您的姓名"
                   />
                 </div>
@@ -715,7 +718,9 @@ function CheckoutPageContent() {
                     手機號碼 *
                   </label>
                   <input
-                    type="tel"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     required
                     value={form.phone}
                     onChange={(e) => {
@@ -723,7 +728,10 @@ function CheckoutPageContent() {
                       const value = e.target.value.replace(/\D/g, '').slice(0, 10);
                       setForm({ ...form, phone: value });
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                    style={{
+                      WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                    }}
                     placeholder="請輸入手機號碼 (例: 0912345678)"
                     maxLength={10}
                     minLength={10}
@@ -793,7 +801,10 @@ function CheckoutPageContent() {
                       type="text"
                       value={form.storeName}
                       onChange={(e) => setForm({ ...form, storeName: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-gray-300 text-black bg-white appearance-none"
+                      style={{
+                        WebkitTextFillColor: '#000', // 修正 iOS Safari 白字問題
+                      }}
                       placeholder="請輸入店名 (例: 全家永康大勝店)"
                     />
                     <p className="text-sm text-gray-500 mt-1">全家店名為必填項目</p>
