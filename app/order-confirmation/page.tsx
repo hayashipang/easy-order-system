@@ -243,8 +243,8 @@ function OrderConfirmationPageContent() {
 
                     {!promotion.hasFreeShipping && !promotion.hasGift && (
                       <div className="text-sm text-orange-600">
-                        {promotion.isFreeShippingEnabled && promotion.totalBottles < promotion.freeShippingThreshold && (
-                          <div>再買{promotion.freeShippingThreshold - promotion.totalBottles}瓶/包即可享受免運費優惠</div>
+                        {promotion.isFreeShippingEnabled && promotion.totalAmount < promotion.freeShippingThreshold && (
+                          <div>🚚 再買{promotion.freeShippingThreshold - promotion.totalAmount}元即可享受免運費優惠（省{promotion.shippingFee || 120}元運費）</div>
                         )}
                         {promotion.isGiftEnabled && (() => {
                           try {
@@ -255,7 +255,7 @@ function OrderConfirmationPageContent() {
                             
                             if (nextRule) {
                               return (
-                                <div>再買{nextRule.threshold - promotion.totalBottles}瓶/包即可享受贈品優惠（送{nextRule.quantity}瓶/包）</div>
+                                <div>🎁 再買{nextRule.threshold - promotion.totalBottles}瓶/包即可享受贈品優惠（送{nextRule.quantity}瓶/包）</div>
                               );
                             }
                             return null;

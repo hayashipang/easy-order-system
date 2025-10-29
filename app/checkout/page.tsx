@@ -315,13 +315,16 @@ function CheckoutPageContent() {
         hasFreeShipping: promotionInfo.hasFreeShipping,
         hasGift: promotionInfo.hasGift,
         totalBottles: promotionInfo.totalBottles,
+        totalAmount: promotionInfo.totalAmount, // 保存金額，用於正確計算免運費提醒
         freeShippingThreshold: promotionInfo.freeShippingThreshold,
         giftThreshold: promotionInfo.giftThreshold,
         giftQuantity: promotionInfo.giftQuantity,
         promotionText: promotionInfo.promotionText,
         isFreeShippingEnabled: promotionSettings.isFreeShippingEnabled,
         isGiftEnabled: promotionSettings.isGiftEnabled,
-        giftProductName: promotionSettings.giftProductName
+        giftProductName: promotionSettings.giftProductName,
+        shippingFee: promotionSettings.shippingFee || 120, // 保存運費金額，用於顯示
+        giftRules: promotionSettings.giftRules // 保存贈品規則，用於顯示未達成促銷提醒
       };
 
       const orderData = {
