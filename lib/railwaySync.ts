@@ -95,8 +95,8 @@ function transformCustomerData(easyOrderUser: EasyOrderUser, orderId: string, de
     phone: easyOrderUser.phone,
     address: deliveryType === 'pickup' ? '台南市永康區永康街121號' : '', // 根據配送方式設定地址
     family_mart_address: '',
-    source: '其他訂購',
-    payment_method: '現金',
+    source: '網路訂購',
+    payment_method: '銀行匯款',
     order_number: `#cm${orderId.slice(-10)}`
   };
 }
